@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EDGE — Esports Club | Ramaiah University of Applied Sciences</title>
+<meta name="description" content="EDGE is the esports and gaming club at Ramaiah University of Applied Sciences. Rosters, tournaments, live broadcast, and how to join.">
+<meta name="theme-color" content="#101012">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ============================== TOP RAIL ================================ -->
+<header class="topbar">
+  <div class="topbar__in shell">
+    <a class="brand" href="#blog" aria-label="EDGE home">
+      <img src="assets/edge-mark.svg" alt="" width="32" height="32">
+      <span class="brand__name">EDGE</span>
+    </a>
+
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" id="tab-blog"    aria-controls="panel-blog"    aria-selected="true"  data-tab="blog">Blog</button>
+      <button class="tab" role="tab" id="tab-players" aria-controls="panel-players" aria-selected="false" data-tab="players">Players</button>
+      <button class="tab" role="tab" id="tab-updates" aria-controls="panel-updates" aria-selected="false" data-tab="updates">Updates</button>
+      <button class="tab" role="tab" id="tab-about"   aria-controls="panel-about"   aria-selected="false" data-tab="about">About</button>
+      <button class="tab" role="tab" id="tab-faq"     aria-controls="panel-faq"     aria-selected="false" data-tab="faq">FAQ</button>
+      <button class="tab" role="tab" id="tab-join"    aria-controls="panel-join"    aria-selected="false" data-tab="join">Join</button>
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+
+  <!-- ============================== BLOG ================================== -->
+  <section class="panel is-active" id="panel-blog" role="tabpanel" aria-labelledby="tab-blog" tabindex="0">
+    <div class="panel__head">
+      <h1 class="painted">Blog</h1>
+      <p>Photographs, clips and write-ups from everything the club has run, plus whatever lands on our Instagram.</p>
+    </div>
+
+    <div class="filters" id="blogFilters"></div>
+    <div class="blog-lead" id="blogLead"></div>
+    <div class="blog-grid" id="blogGrid"></div>
+  </section>
+
+  <!-- ============================= PLAYERS =============================== -->
+  <section class="panel" id="panel-players" role="tabpanel" aria-labelledby="tab-players" tabindex="0">
+    <div class="panel__head">
+      <h1 class="painted">Players</h1>
+      <p>Where everyone stands, and who officially represents EDGE in competition.</p>
+    </div>
+
+    <div class="subtabs" role="tablist" aria-label="Player views">
+      <button class="subtab" role="tab" aria-selected="true"  data-view="leaderboard">Leaderboard</button>
+      <button class="subtab" role="tab" aria-selected="false" data-view="roster">Official Roster</button>
+    </div>
+
+    <div id="viewLeaderboard">
+      <div class="table-wrap">
+        <table class="board-table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Player</th>
+              <th scope="col">Game</th>
+              <th scope="col">Points</th>
+              <th scope="col">W</th>
+              <th scope="col">L</th>
+              <th scope="col">Move</th>
+            </tr>
+          </thead>
+          <tbody id="boardBody"></tbody>
+        </table>
+      </div>
+      <p class="form-note" id="boardNote" style="margin-top:1rem;max-width:62ch"></p>
+    </div>
+
+    <div id="viewRoster" hidden></div>
+  </section>
+
+  <!-- ============================= UPDATES =============================== -->
+  <section class="panel" id="panel-updates" role="tabpanel" aria-labelledby="tab-updates" tabindex="0">
+    <div class="panel__head">
+      <h1 class="painted">Updates</h1>
+      <p>Events, deadlines and announcements. This page is the source of truth for dates.</p>
+    </div>
+
+    <div id="countdownSlot"></div>
+    <div class="updates" id="updatesList"></div>
+    <div id="updatesArchive"></div>
+  </section>
+
+  <!-- ============================== ABOUT ================================= -->
+  <section class="panel" id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="0">
+    <div class="panel__head">
+      <h1 class="painted">About</h1>
+    </div>
+
+    <div class="about-grid">
+      <div>
+        <p class="about-lead" id="aboutLead"></p>
+      </div>
+      <div class="about-body" id="aboutBody"></div>
+    </div>
+
+    <dl class="facts" id="aboutFacts"></dl>
+
+    <div class="rule"></div>
+
+    <h2 class="sr-only">What the club does</h2>
+    <div class="pillars" id="aboutPillars"></div>
+
+    <div id="aboutCrewWrap" hidden>
+      <div class="rule"></div>
+      <h2 style="font-size:1.8rem;margin-bottom:1rem">Who runs it</h2>
+      <div class="crew" id="aboutCrew"></div>
+    </div>
+  </section>
+
+  <!-- =============================== FAQ ================================== -->
+  <section class="panel" id="panel-faq" role="tabpanel" aria-labelledby="tab-faq" tabindex="0">
+    <div class="panel__head">
+      <h1 class="painted">FAQ</h1>
+      <p>Ask the assistant, or read the full list underneath it.</p>
+    </div>
+
+    <div class="chat">
+      <div class="chat__head">EDGE Assistant</div>
+      <div class="chat__log" id="chatLog" role="log" aria-live="polite" aria-label="Conversation"></div>
+      <div class="chat__chips" id="chatChips"></div>
+      <form class="chat__form" id="chatForm">
+        <label class="sr-only" for="chatInput">Ask a question</label>
+        <input id="chatInput" type="text" autocomplete="off" placeholder="Ask about joining, tryouts, games…">
+        <button type="submit" class="plate plate--primary">Ask</button>
+      </form>
+    </div>
+
+    <h2 style="font-size:1.8rem;margin:1.8rem 0 1rem">Every question</h2>
+    <div class="faq-list" id="faqList"></div>
+  </section>
+
+  <!-- =============================== JOIN ================================= -->
+  <section class="panel" id="panel-join" role="tabpanel" aria-labelledby="tab-join" tabindex="0">
+    <div class="panel__head">
+      <h1 class="painted" id="joinHeading">Join EDGE</h1>
+      <p id="joinIntro"></p>
+    </div>
+
+    <div class="paths" role="group" aria-label="Choose how you want to join">
+      <button type="button" class="path" id="pathMember" aria-pressed="true" data-path="member">
+        <span class="path__name" id="memberLabel">Member</span>
+        <p id="memberBlurb"></p>
+      </button>
+      <button type="button" class="path" id="pathRoster" aria-pressed="false" data-path="roster">
+        <span class="path__name" id="rosterLabel">Roster</span>
+        <p id="rosterBlurb"></p>
+      </button>
+    </div>
+
+    <div class="board">
+      <form id="joinForm" novalidate name="edge-join">
+        <input type="hidden" name="path" id="pathValue" value="member">
+
+        <div class="hp" aria-hidden="true">
+          <label>Company <input type="text" name="company" tabindex="-1" autocomplete="off"></label>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label for="fullName">Full name <span class="req">*</span></label>
+            <input id="fullName" name="fullName" type="text" autocomplete="name"
+                   placeholder="As it appears on your ID" required>
+            <span class="err" id="err-fullName" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="registerNumber">Register number <span class="req">*</span></label>
+            <input id="registerNumber" name="registerNumber" type="text" autocomplete="off"
+                   spellcheck="false" placeholder="Your university register number" required>
+            <span class="err" id="err-registerNumber" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="branch">Branch <span class="req">*</span></label>
+            <div class="select-wrap"><select id="branch" name="branch" required></select></div>
+            <span class="err" id="err-branch" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="year">Year <span class="req">*</span></label>
+            <div class="select-wrap"><select id="year" name="year" required></select></div>
+            <span class="err" id="err-year" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="phone">Phone <span class="req">*</span></label>
+            <input id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel"
+                   placeholder="10-digit mobile number" required>
+            <span class="err" id="err-phone" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="email">Email <span class="req">*</span></label>
+            <input id="email" name="email" type="email" autocomplete="email"
+                   spellcheck="false" placeholder="you@example.com" required>
+            <span class="err" id="err-email" role="alert"></span>
+          </div>
+
+          <fieldset class="field field--wide" id="memberFields">
+            <legend>What are you interested in?</legend>
+            <div class="checks" id="interestChecks"></div>
+          </fieldset>
+
+          <div id="rosterFields" hidden>
+            <div class="grid2">
+              <div class="section-split">Competitive details</div>
+
+              <div class="field">
+                <label for="title">Title you are trying out for <span class="req">*</span></label>
+                <div class="select-wrap"><select id="title" name="title"></select></div>
+                <span class="err" id="err-title" role="alert"></span>
+              </div>
+
+              <div class="field">
+                <label for="ign">In-game name <span class="req">*</span></label>
+                <input id="ign" name="ign" type="text" spellcheck="false"
+                       placeholder="Your tag, exactly as it appears in game">
+                <span class="err" id="err-ign" role="alert"></span>
+              </div>
+
+              <div class="field">
+                <label for="rank">Current rank</label>
+                <input id="rank" name="rank" type="text" placeholder="e.g. Immortal 2, Conqueror">
+              </div>
+
+              <div class="field">
+                <label for="role">Preferred role</label>
+                <input id="role" name="role" type="text" placeholder="e.g. Duelist, IGL, Support">
+              </div>
+
+              <div class="field field--wide">
+                <label for="experience">Competitive experience</label>
+                <textarea id="experience" name="experience"
+                          placeholder="Tournaments played, teams you have been on. One or two lines is fine."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-foot">
+          <button type="submit" class="plate plate--primary" id="joinSubmit">Submit</button>
+          <p class="form-note">Fields marked <span class="req">*</span> are required. Your details are used only to contact you about EDGE.</p>
+        </div>
+
+        <div class="form-status" id="formStatus" role="status"></div>
+      </form>
+
+      <div class="success" id="joinSuccess" hidden>
+        <img src="assets/edge-mark.svg" alt="" width="58" height="58">
+        <h2 id="successTitle">You are in.</h2>
+        <p id="successBody"></p>
+        <p class="success__id" id="successId"></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- =============================== FOOTER ================================= -->
+<footer class="footer">
+  <div class="shell">
+    <div class="footer__in">
+      <div class="footer__brand">
+        <div class="brand">
+          <img src="assets/edge-mark.svg" alt="" width="28" height="28">
+          <span class="brand__name">EDGE</span>
+        </div>
+        <p id="footerTagline"></p>
+      </div>
+      <nav class="footer__links" id="footerLinks" aria-label="Elsewhere"></nav>
+    </div>
+    <div class="footer__legal">
+      <span id="footerUni"></span>
+      <span>&copy; <span id="year"></span> EDGE Esports Club</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/content.js"></script>
+<script src="js/app.js"></script>
+<script src="js/faq-bot.js"></script>
+<script src="js/join.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="EDGE">
+  <!-- Traced from the club logo: a rounded head with one angular eye and a
+       smaller notch, tapering to a point at the lower left. The fill is explicit, not currentColor:
+       an SVG loaded through <img> is its own document and cannot inherit the
+       page's colour, so currentColor would render it black. -->
+  <path fill="#F5F5F3" fill-rule="evenodd" d="
+    M100,20
+    C150,20 187,57 187,100
+    C187,133 160,159 121,171
+    C104,176 80,178 60,173
+    L47,168
+    L43,141
+    C29,121 25,92 35,65
+    C47,37 70,20 100,20
+    Z
+    M68,84
+    C91,77 116,95 131,123
+    C106,130 77,112 68,84
+    Z
+    M143,96
+    C154,92 164,101 168,117
+    C155,119 146,109 143,96
+    Z"/>
+</svg>

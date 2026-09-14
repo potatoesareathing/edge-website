@@ -1,0 +1,14 @@
+# Third-party IP — AI-generated footage of a Tekken character, and the frames
+# cut from it. Neither is referenced by the site. Must never be published;
+# see PRODUCT.md, "Evidence on Hand".
+assets/frames/
+assets/jinn_punch.original.mp4
+
+# Tooling and working files, not part of the site
+.claude/
+.impeccable/
+_archive-v1/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
