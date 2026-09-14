@@ -79,11 +79,46 @@ something physical. `.plate--primary` is the only solid white fill on the page.
 
 **Rules** (`.rule`) are the double line drawn under a heading.
 
+## Structure
+
+Four tabs: **About**, Players, Updates, Join. About leads and carries both the
+club's account of itself and the blog feed beneath it — the claim, then the
+evidence for it.
+
+The FAQ is not a tab. It is a launcher pinned bottom-right (`--fab-bottom`,
+set clear of any host badge) opening a panel down the right-hand side, so a
+question can be asked from whatever section is being read. It closes on the
+button, the scrim, or Escape, and returns focus to the launcher.
+
+The drawer is unhidden and then opened after a forced layout read
+(`void drawer.offsetWidth`), never inside `requestAnimationFrame`. rAF does not
+reliably fire in a backgrounded or throttled renderer, and when it did not the
+panel sat parked off-screen while still being focusable.
+
 ## Motion
 
-One authored moment: `@keyframes paint` wipes a section in from the left as a
-brush lays a stroke. Nothing else on the page animates in. Hover states are
-colour and 1px position shifts only.
+The page still has one authored entrance: `@keyframes paint` wipes a section in
+from the left as a brush lays a stroke. Nothing else animates on arrival.
+
+On top of that sits a deliberate **interaction layer**, asked for by the brief.
+It has one grammar, not scattered effects:
+
+- **Glitch on hover.** Two offset copies of a string flash for ~0.26s and
+  clear, clipped into upper and lower bands. `data-text` is written by
+  `initGlitch()` from each element's own `textContent`, so the markup stays
+  clean and content rendered from `content.js` is covered too. Applied to
+  headings, section titles, path names, player tags and post titles.
+- **Enlargement on hover.** Chips, subtabs, paths, pillars, crew and roster
+  cards lift and scale; post images scale inside their frame; tabs gain
+  letter-spacing. A roster card raises its `z-index` so it lifts above its
+  neighbours rather than being clipped by them.
+
+Everything animates `transform` and `opacity` only. Animating `padding` or
+`width` relayouts the element every frame — two of those shipped briefly and
+the detector caught them.
+
+The whole layer is disabled under `prefers-reduced-motion`, and the glitch
+pseudo-elements are removed outright there so no text is ever doubled.
 
 ## Refused
 
@@ -97,6 +132,7 @@ Held out deliberately, and each one is a regression if it returns:
 - Gradient text, glass, glow, soft shadows
 - Near-black ground with a neon accent
 - Colour introduced anywhere the mark does not have it
+- Animating layout properties (padding, width, height, margin)
 
 ## Empty states
 

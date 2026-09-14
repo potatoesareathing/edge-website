@@ -17,35 +17,21 @@
 <!-- ============================== TOP RAIL ================================ -->
 <header class="topbar">
   <div class="topbar__in shell">
-    <a class="brand" href="#blog" aria-label="EDGE home">
+    <a class="brand" href="#about" aria-label="EDGE home">
       <img src="assets/edge-mark.svg" alt="" width="32" height="32">
       <span class="brand__name">EDGE</span>
     </a>
 
     <nav class="tabs" role="tablist" aria-label="Sections">
-      <button class="tab" role="tab" id="tab-blog"    aria-controls="panel-blog"    aria-selected="true"  data-tab="blog">Blog</button>
+      <button class="tab" role="tab" id="tab-about"   aria-controls="panel-about"   aria-selected="true"  data-tab="about">About</button>
       <button class="tab" role="tab" id="tab-players" aria-controls="panel-players" aria-selected="false" data-tab="players">Players</button>
       <button class="tab" role="tab" id="tab-updates" aria-controls="panel-updates" aria-selected="false" data-tab="updates">Updates</button>
-      <button class="tab" role="tab" id="tab-about"   aria-controls="panel-about"   aria-selected="false" data-tab="about">About</button>
-      <button class="tab" role="tab" id="tab-faq"     aria-controls="panel-faq"     aria-selected="false" data-tab="faq">FAQ</button>
       <button class="tab" role="tab" id="tab-join"    aria-controls="panel-join"    aria-selected="false" data-tab="join">Join</button>
     </nav>
   </div>
 </header>
 
 <main class="shell">
-
-  <!-- ============================== BLOG ================================== -->
-  <section class="panel is-active" id="panel-blog" role="tabpanel" aria-labelledby="tab-blog" tabindex="0">
-    <div class="panel__head">
-      <h1 class="painted">Blog</h1>
-      <p>Photographs, clips and write-ups from everything the club has run, plus whatever lands on our Instagram.</p>
-    </div>
-
-    <div class="filters" id="blogFilters"></div>
-    <div class="blog-lead" id="blogLead"></div>
-    <div class="blog-grid" id="blogGrid"></div>
-  </section>
 
   <!-- ============================= PLAYERS =============================== -->
   <section class="panel" id="panel-players" role="tabpanel" aria-labelledby="tab-players" tabindex="0">
@@ -116,31 +102,19 @@
 
     <div id="aboutCrewWrap" hidden>
       <div class="rule"></div>
-      <h2 style="font-size:1.8rem;margin-bottom:1rem">Who runs it</h2>
+      <h2 class="sec-title">Who runs it</h2>
       <div class="crew" id="aboutCrew"></div>
     </div>
-  </section>
 
-  <!-- =============================== FAQ ================================== -->
-  <section class="panel" id="panel-faq" role="tabpanel" aria-labelledby="tab-faq" tabindex="0">
-    <div class="panel__head">
-      <h1 class="painted">FAQ</h1>
-      <p>Ask the assistant, or read the full list underneath it.</p>
-    </div>
+    <!-- The blog lives inside About: the club's account of itself, followed
+         by the evidence for it. -->
+    <div class="rule"></div>
+    <h2 class="sec-title">From the club</h2>
+    <p class="sec-note">Photographs, clips and write-ups from everything we have run.</p>
 
-    <div class="chat">
-      <div class="chat__head">EDGE Assistant</div>
-      <div class="chat__log" id="chatLog" role="log" aria-live="polite" aria-label="Conversation"></div>
-      <div class="chat__chips" id="chatChips"></div>
-      <form class="chat__form" id="chatForm">
-        <label class="sr-only" for="chatInput">Ask a question</label>
-        <input id="chatInput" type="text" autocomplete="off" placeholder="Ask about joining, tryouts, games…">
-        <button type="submit" class="plate plate--primary">Ask</button>
-      </form>
-    </div>
-
-    <h2 style="font-size:1.8rem;margin:1.8rem 0 1rem">Every question</h2>
-    <div class="faq-list" id="faqList"></div>
+    <div class="filters" id="blogFilters"></div>
+    <div class="blog-lead" id="blogLead"></div>
+    <div class="blog-grid" id="blogGrid"></div>
   </section>
 
   <!-- =============================== JOIN ================================= -->
@@ -289,6 +263,41 @@
     </div>
   </div>
 </footer>
+
+
+<!-- ============================ ASK DRAWER ================================
+     The FAQ is no longer a tab. It is a launcher pinned bottom-right that
+     opens a panel down the right-hand side, so a question can be asked from
+     whatever section the visitor is already reading.
+     ==================================================================== -->
+<button class="ask-fab" id="askFab" aria-expanded="false" aria-controls="askDrawer">
+  <img src="assets/edge-mark.svg" alt="" width="22" height="22">
+  <span>Ask EDGE</span>
+</button>
+
+<div class="ask-scrim" id="askScrim" hidden></div>
+
+<aside class="ask" id="askDrawer" role="dialog" aria-labelledby="askTitle" hidden>
+  <div class="ask__head">
+    <h2 class="ask__title" id="askTitle">Ask EDGE</h2>
+    <button class="ask__close" id="askClose" aria-label="Close">&#215;</button>
+  </div>
+
+  <div class="ask__body">
+    <div class="chat">
+      <div class="chat__log" id="chatLog" role="log" aria-live="polite" aria-label="Conversation"></div>
+      <div class="chat__chips" id="chatChips"></div>
+      <form class="chat__form" id="chatForm">
+        <label class="sr-only" for="chatInput">Ask a question</label>
+        <input id="chatInput" type="text" autocomplete="off" placeholder="Ask about joining, tryouts, games…">
+        <button type="submit" class="plate plate--primary">Ask</button>
+      </form>
+    </div>
+
+    <h3 class="ask__sub">Every question</h3>
+    <div class="faq-list" id="faqList"></div>
+  </div>
+</aside>
 
 <script src="js/content.js"></script>
 <script src="js/app.js"></script>

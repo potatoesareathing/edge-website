@@ -42,7 +42,7 @@
 
   /* ========================================================== TAB ROUTER == */
 
-  const TABS = ["blog", "players", "updates", "about", "faq", "join"];
+  const TABS = ["about", "players", "updates", "join"];
 
   function showTab(name, push) {
     if (!TABS.includes(name)) name = TABS[0];
@@ -538,8 +538,83 @@
     }
   }
 
+
+  /* == ASK DRAWER ========================================================== */
+
+  /* The FAQ used to be a tab. It is now a panel that slides in from the right,
+     so a question can be asked without leaving the section being read. */
+  function initAsk() {
+    const fab    = byId("askFab");
+    const drawer = byId("askDrawer");
+    const scrim  = byId("askScrim");
+    const close  = byId("askClose");
+    if (!fab || !drawer) return;
+
+    let lastFocus = null;
+
+    function open() {
+      lastFocus = document.activeElement;
+      drawer.hidden = false;
+      scrim.hidden = false;
+      // Force a layout read between unhiding and opening. The transition needs
+      // a start value to animate from, and reading offsetWidth guarantees one
+      // synchronously — requestAnimationFrame does not always fire (a
+      // backgrounded tab, a throttled renderer), and when it did not the panel
+      // stayed parked off-screen while still being focusable.
+      void drawer.offsetWidth;
+      drawer.classList.add("is-open");
+      fab.setAttribute("aria-expanded", "true");
+      byId("chatInput")?.focus();
+    }
+
+    function shut() {
+      drawer.classList.remove("is-open");
+      fab.setAttribute("aria-expanded", "false");
+      scrim.hidden = true;
+      // Keep it in the DOM until the slide-out finishes, then hide it so it
+      // leaves the tab order.
+      setTimeout(() => { drawer.hidden = true; }, 340);
+      lastFocus?.focus();
+    }
+
+    fab.addEventListener("click", () => drawer.hidden ? open() : shut());
+    close?.addEventListener("click", shut);
+    scrim?.addEventListener("click", shut);
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && !drawer.hidden) shut();
+    });
+  }
+
+  /* == HOVER GLITCH ======================================================== */
+
+  /* The effect needs the element's own string in a data attribute so CSS can
+     draw two offset copies of it. Setting it here keeps the markup clean and
+     means it also applies to anything rendered from content.js.
+
+     Skipped for elements that already use ::before or ::after (a tab's active
+     underline, a summary's +/- marker), which the glitch copies would replace.
+
+     `textContent` is read, not innerHTML, so a stray "<" in a roster tag stays
+     a character. */
+  function initGlitch() {
+    const SELECTOR = [
+      ".panel__head h1", ".sec-title", ".brand__name", ".path__name",
+      ".player .ign", ".post h3", ".ask__title", ".roster-head h3"
+    ].join(", ");
+
+    document.querySelectorAll(SELECTOR).forEach(nodeGlitch);
+  }
+
+  function nodeGlitch(node) {
+    const text = node.textContent.trim();
+    if (!text || text.length > 60) return;   // long strings judder unpleasantly
+    node.dataset.text = text;
+    node.classList.add("glitch");
+  }
+
   function init() {
     initTabs();
+    initAsk();
     renderBlog();
     renderAbout();
     renderLeaderboard();
@@ -547,6 +622,9 @@
     initPlayerViews();
     renderUpdates();
     renderFooter();
+
+    // Last: it reads text out of nodes the renderers have just created.
+    initGlitch();
   }
 
   if (document.readyState === "loading") {

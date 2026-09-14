@@ -473,7 +473,7 @@ fieldset.field { border: 0; margin: 0; }
   text-transform: uppercase;
 }
 .chat__log {
-  flex: 1; overflow-y: auto; padding: 1rem;
+  flex: 1; min-height: 120px; overflow-y: auto; padding: 1rem;
   display: flex; flex-direction: column; gap: .65rem;
 }
 .msg { display: flex; max-width: 84%; }
@@ -495,9 +495,9 @@ fieldset.field { border: 0; margin: 0; }
 .msg__typing span:nth-child(3) { animation: blinkdot 1.1s steps(1) .36s infinite; }
 @keyframes blinkdot { 50% { opacity: .3; } }
 
-.chat__chips { display: flex; gap: .4rem; flex-wrap: wrap; padding: 0 1rem .7rem; }
+.chat__chips { display: flex; gap: .4rem; flex-wrap: wrap; padding: .7rem 1rem; flex: none; }
 .chat__chips:empty { display: none; }
-.chat__form { display: flex; gap: .5rem; padding: .7rem; border-top: 3px solid var(--rule); }
+.chat__form { display: flex; gap: .5rem; padding: .7rem; border-top: 3px solid var(--rule); flex: none; }
 .chat__form input {
   flex: 1; background: var(--board-ink); border: 3px solid var(--rule);
   padding: .65rem .8rem; font-size: .96rem;
@@ -762,4 +762,171 @@ table.board-table {
   text-transform: uppercase;
   color: var(--grey);
   margin-bottom: .25rem;
+}
+
+/* == 15. SECTION HEADINGS INSIDE A PANEL =================================== */
+
+.sec-title { font-size: clamp(1.5rem, 3.5vw, 2.1rem); margin-bottom: .4rem; }
+.sec-note  { color: var(--grey); max-width: 68ch; margin-bottom: 1.4rem; }
+
+/* == 16. ASK DRAWER ======================================================== */
+
+/* Sits clear of the host badge that can appear in the corner. One value to
+   change if that badge is not there. */
+:root { --fab-bottom: 76px; }
+
+.ask-fab {
+  position: fixed;
+  right: 24px;
+  bottom: var(--fab-bottom);
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .75rem 1.15rem;
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--signal-ink);
+  background: var(--signal);
+  border: 3px solid var(--board-ink);
+  transition: transform .18s var(--ease), background .18s var(--ease);
+}
+.ask-fab img { filter: invert(1); }
+.ask-fab:hover { transform: translateY(-3px) scale(1.04); background: #E4E4E1; }
+.ask-fab:active { transform: translateY(0) scale(.99); }
+.ask-fab[aria-expanded="true"] { transform: translateY(2px) scale(.96); opacity: .55; }
+
+.ask-scrim {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgba(8,8,10,.55);
+}
+
+.ask {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  z-index: 80;
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--board-deep);
+  box-shadow: inset 4px 0 0 var(--rule);
+  transform: translateX(100%);
+  transition: transform .34s var(--ease);
+}
+.ask.is-open { transform: translateX(0); }
+
+.ask__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--board-alt);
+  border-bottom: 3px solid var(--rule);
+  flex: none;
+}
+.ask__title { font-size: 1.35rem; }
+.ask__close {
+  border: 3px solid var(--rule);
+  background: transparent;
+  color: var(--white);
+  font-size: 1.3rem;
+  line-height: 1;
+  width: 38px; height: 38px;
+  transition: background .15s var(--ease), transform .15s var(--ease);
+}
+.ask__close:hover { background: var(--board); transform: rotate(90deg); }
+
+.ask__body { flex: 1; overflow-y: auto; padding: 1.1rem; }
+.ask__sub {
+  font-family: var(--display); font-size: 1.1rem; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  margin: 1.4rem 0 .7rem; color: var(--grey);
+}
+
+/* Inside the drawer the chat fills the space it is given rather than setting
+   its own viewport-relative height. */
+.ask .chat { height: 460px; margin-bottom: 0; }
+
+@media (max-width: 680px) {
+  .ask { width: 100%; }
+  .ask-fab span { display: none; }
+  .ask-fab { padding: .8rem; right: 16px; }
+}
+
+/* == 17. INTERACTION ======================================================= */
+
+/* Hover glitch. Two offset copies of the same string flash for a fraction of a
+   second and clear. `data-text` is set in JS from the element's own text, so
+   nothing has to be duplicated in the markup. */
+.glitch { position: relative; display: inline-block; }
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%;
+  pointer-events: none;
+  opacity: 0;
+}
+.glitch::before { color: var(--white); }
+.glitch::after  { color: var(--grey); }
+
+.glitch:hover::before { animation: glitchTop .26s steps(3) 1; }
+.glitch:hover::after  { animation: glitchBot .26s steps(3) 1; }
+
+@keyframes glitchTop {
+  0%   { opacity: 1; transform: translate(-3px, -1px); clip-path: inset(0 0 56% 0); }
+  50%  { opacity: 1; transform: translate(3px, 0);     clip-path: inset(0 0 64% 0); }
+  100% { opacity: 0; transform: none;                  clip-path: inset(0 0 56% 0); }
+}
+@keyframes glitchBot {
+  0%   { opacity: 1; transform: translate(3px, 1px);  clip-path: inset(58% 0 0 0); }
+  50%  { opacity: 1; transform: translate(-3px, 0);   clip-path: inset(48% 0 0 0); }
+  100% { opacity: 0; transform: none;                 clip-path: inset(58% 0 0 0); }
+}
+
+/* Tabs carry the underline on ::after, so they cannot take the glitch copies.
+   They get weight and spacing instead. */
+.tab { transition: color .15s var(--ease), letter-spacing .18s var(--ease), transform .18s var(--ease); }
+.tab:hover { letter-spacing: .12em; transform: translateY(-1px); }
+
+/* Things enlarge under the cursor. */
+.chip, .subtab { transition: background .15s var(--ease), color .15s var(--ease), transform .18s var(--ease); }
+.chip:hover, .subtab:hover { transform: translateY(-2px) scale(1.04); }
+
+.post__media img, .post__media video { transition: transform .5s var(--ease); }
+.post:hover .post__media img, .post:hover .post__media video { transform: scale(1.05); }
+
+.pillar { transition: transform .2s var(--ease); }
+.pillar:hover { transform: translateY(-4px); }
+
+.crew-member { transition: transform .2s var(--ease), background .2s var(--ease); }
+.crew-member:hover { transform: translateY(-3px); background: var(--board-alt); }
+
+.path { transition: background .15s var(--ease), transform .2s var(--ease); }
+.path:hover { transform: translateY(-3px); }
+
+/* A roster card lifts above its neighbours rather than being clipped by them. */
+.player { transition: background .15s var(--ease), transform .2s var(--ease); }
+.player:hover { transform: scale(1.04); z-index: 2; }
+
+.facts > div { transition: transform .2s var(--ease); }
+.facts > div:hover { transform: translateX(6px); }
+
+.faq-item summary { transition: background .15s var(--ease); }
+.faq-item summary > :first-child { transition: transform .18s var(--ease); display: inline-block; }
+.faq-item summary:hover { background: var(--board-alt); }
+.faq-item summary:hover > :first-child { transform: translateX(5px); }
+
+/* The whole interaction layer is motion. None of it runs when motion is off,
+   and the glitch copies are removed outright so no text is ever doubled. */
+@media (prefers-reduced-motion: reduce) {
+  .glitch::before, .glitch::after { content: none; }
+  .ask { transition: none; }
+  .tab:hover, .chip:hover, .subtab:hover, .pillar:hover,
+  .crew-member:hover, .path:hover, .player:hover, .ask-fab:hover,
+  .facts > div:hover, .faq-item summary:hover > :first-child { transform: none; }
+  .post:hover .post__media img, .post:hover .post__media video { transform: none; }
 }
