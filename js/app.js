@@ -84,7 +84,7 @@
     });
 
     window.addEventListener("hashchange", () => showTab(location.hash.slice(1), false));
-    showTab(location.hash.slice(1) || "blog", false);
+    showTab(location.hash.slice(1) || TABS[0], false);
   }
 
   /* ================================================================ BLOG == */

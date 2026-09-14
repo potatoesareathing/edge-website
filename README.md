@@ -22,12 +22,25 @@ EDGE-Website/
 │   ├── join.js             the Join form and Supabase submission
 │   └── faq-bot.js          the Ask assistant
 ├── assets/edge-mark.svg    the club logo, traced to vector
+├── ARCHITECTURE.md         how it all fits together, and why
 ├── PRODUCT.md              who the site is for and what must stay true
 ├── DESIGN.md               the visual world and what it deliberately refuses
 ├── supabase-schema.sql     database setup
 ├── serve.js                optional local server
 └── _archive-v1/            an earlier version, kept for reference only
 ```
+
+### Documentation
+
+| File | What it answers |
+|---|---|
+| `README.md` | How do I run it, edit it and deploy it? |
+| `ARCHITECTURE.md` | How does it work, and why is it built this way? |
+| `DESIGN.md` | What is the visual system, and what does it refuse? |
+| `PRODUCT.md` | Who is it for, and what must stay true? |
+
+Read `ARCHITECTURE.md` before changing anything structural. It ends with a list
+of invariants — breaking one is a regression, not a change.
 
 ### The one rule
 
