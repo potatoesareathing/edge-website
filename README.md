@@ -1,9 +1,12 @@
 # EDGE — club website
 
-Five sections: **Blog, Join, FAQ, Players, Updates.**
+Four tabs — **About, Players, Updates, Join** — plus an **Ask EDGE** panel that
+opens from the bottom-right corner.
 
 Plain HTML, CSS and JavaScript. No build step, no framework, no install.
 Double-click `index.html` and it runs.
+
+Live: <https://edge-ruas.netlify.app>
 
 ---
 
@@ -11,42 +14,38 @@ Double-click `index.html` and it runs.
 
 ```
 EDGE-Website/
-├── index.html              the page shell and all five tabs
-├── css/styles.css          design system - brand tokens are the first block
+├── index.html              the page shell and all four tabs
+├── css/styles.css          design system — tokens are the first block
 ├── js/
 │   ├── content.js          ← THE FILE YOU EDIT
-│   ├── app.js              tab routing, Blog, Players, Updates
+│   ├── app.js              tab routing, About, blog, Players, Updates, Ask drawer
 │   ├── join.js             the Join form and Supabase submission
-│   └── faq-bot.js          the FAQ assistant
-├── assets/
-│   ├── edge-mark.svg       the club logo, traced to vector
-│   ├── frames/             96 WebP stills (kept from the previous build)
-│   └── jinn_punch.original.mp4
+│   └── faq-bot.js          the Ask assistant
+├── assets/edge-mark.svg    the club logo, traced to vector
+├── PRODUCT.md              who the site is for and what must stay true
+├── DESIGN.md               the visual world and what it deliberately refuses
 ├── supabase-schema.sql     database setup
 ├── serve.js                optional local server
-└── _archive-v1/            the previous version of the site, kept for reference
+└── _archive-v1/            an earlier version, kept for reference only
 ```
 
 ### The one rule
 
 **To change the site, edit `js/content.js` and refresh the browser.**
 
-Posts, rosters, the leaderboard, events, FAQ answers, branch lists and every
-piece of copy come from that one file. You never open `index.html` to change a
-player's name.
+Posts, the About copy, rosters, the leaderboard, events, FAQ answers, branch
+lists and every piece of wording come from that one file. You never open
+`index.html` to change a player's name.
 
 ---
 
 ## 2. Running it
 
-Double-click `index.html`. That is genuinely it.
+Double-click `index.html`. That is genuinely it — the site uses ordinary
+scripts, not ES modules, specifically so that works.
 
-The previous build used ES modules, which browsers refuse to load over
-`file://` — so it needed a server just to look at it. This one uses ordinary
-scripts specifically so that double-clicking works.
-
-If you want a local server anyway (you will need one when the Instagram embeds
-are in, since Instagram's script does not always run over `file://`):
+If you want a local server (you will need one once Instagram embeds are in,
+since their script does not always run over `file://`):
 
 ```bash
 node serve.js
@@ -56,13 +55,19 @@ Then open <http://localhost:8790>.
 
 ---
 
-## 3. The five sections
+## 3. The sections
 
-### Blog
+### About — the first tab
 
-Two kinds of post live in the same feed, mixed together and sorted newest-first:
+The club's account of itself, then the evidence for it. `about.lead` is the
+one-line statement, `about.body` the paragraphs, `about.facts` the lettered
+list, `about.pillars` what the club does. `about.crew` lists the committee and
+the whole block hides itself while that list is empty.
 
-**Your own uploads.** Put the image or clip in `assets/blog/` and add:
+**The blog feed lives at the bottom of this tab**, not in a tab of its own.
+Two kinds of post share the feed, sorted newest-first:
+
+**Your own uploads.** Put the file in `assets/blog/` and add:
 
 ```js
 {
@@ -77,8 +82,10 @@ Two kinds of post live in the same feed, mixed together and sorted newest-first:
 }
 ```
 
-Leave `media` empty and you get a striped "Add media" placeholder — deliberately
-ugly, so an unfinished post is obvious.
+Leave `media` empty and the slot is painted as a plain board reading ADD MEDIA,
+so an unfinished post is obvious without pretending to be a photograph.
+
+The newest post runs full-width as the lead; the rest sit smaller beneath it.
 
 **Instagram posts.** Paste the post URL, nothing else:
 
@@ -86,77 +93,61 @@ ugly, so an unfinished post is obvious.
 { type: "instagram", url: "https://www.instagram.com/p/ABC123/", tag: "Instagram" }
 ```
 
-No Meta developer account, no access token, no expiry to manage. Instagram
-renders it from the link alone. An entry with an empty `url` is skipped
-silently, so the placeholder in the file costs you nothing.
+No Meta developer account, no token, no expiry. Instagram renders it from the
+link alone. An entry with an empty `url` is skipped silently.
 
-The filter chips build themselves from whatever `tag` values you use.
-
-### Join
-
-One form, two paths. **Member** asks the basics. **Roster** asks those plus the
-competitive questions — title, in-game name, rank, role, experience.
-
-Which fields are required changes with the path, and switching paths clears any
-error belonging to the path you left, so a hidden field can never block you with
-a message you cannot see.
-
-Phone numbers are accepted however people actually type them
-(`+91 98765 43210`, `09876543210`) and stored as ten bare digits. Emails are
-lowercased and register numbers uppercased, so you do not end up with three
-spellings of the same student.
-
-### FAQ
-
-A chat assistant plus the full list of questions underneath.
-
-**It is not an AI model, and that is on purpose.** A real language model needs
-an API key, and a key shipped inside a public web page can be read by anyone who
-views source and used to run up your bill. Instead it matches what someone types
-against the keywords on each answer in `content.js`. It costs nothing, works
-offline, never invents an answer, and only ever says words you wrote.
-
-To make it smarter, add words to an entry's `keywords` — especially the slang
-and misspellings people actually type. The matcher lowercases, strips
-punctuation, removes filler words, and does light stemming so "years" matches
-"year" and "casting" matches "cast".
-
-If it is not confident, it says so and offers the closest questions rather than
-guessing. Everything is also rendered as a plain list below the chat, so nobody
-is ever stuck.
-
-*If you later want a real AI:* host on Netlify or Vercel, put the Anthropic API
-key in a serverless function's environment variables (never in `content.js`),
-and have the page call your function instead of the API directly. Keep this
-matcher as the fallback for when the network is down.
+Filter chips build themselves from whatever `tag` values you use.
 
 ### Players
 
-Two views. **Leaderboard** sorts itself by points — you do not maintain the rank
-column, just the numbers. `move` is the change in position since the last
-update: positive climbs, negative drops, `0` stays.
+**Leaderboard** sorts itself by points — you do not maintain the rank column.
+`move` is the change in position since the last update.
 
-**Official Roster** lists teams. A team with `status: "recruiting"` and an empty
-`players: []` shows a "tryouts open" card linking to Join, instead of an empty
-grid.
+**Official Roster** lists teams. A team with `status: "recruiting"` and empty
+`players: []` shows a "tryouts open" card linking to Join.
 
 ### Updates
 
-Anything dated in the future is automatically "upcoming"; past dates drop into
-an "Earlier" archive underneath. **You never sort this list yourself.**
-`pinned: true` locks something to the top.
+Future dates are automatically "upcoming"; past ones drop into an archive
+below. **You never sort this list yourself.** `pinned: true` locks something to
+the top. A countdown to the next event sits above the list, and the Updates tab
+grows a dot when something falls within seven days.
 
-A live countdown to the next event sits above the list, and the Updates tab
-grows a dot when something is happening within seven days.
+### Join
+
+One form, two paths. **Member** asks the basics; **Roster** adds the
+competitive questions. Required fields change with the path, and switching
+paths clears errors belonging to the path you left, so a hidden field can never
+block you with a message you cannot see.
+
+Phone numbers are accepted however people type them (`+91 98765 43210`,
+`09876543210`) and stored as ten bare digits. Emails are lowercased and
+register numbers uppercased, so you never get three spellings of one student.
+
+### Ask EDGE — the drawer
+
+The FAQ is not a tab. A launcher pinned bottom-right opens a panel down the
+right-hand side, so a question can be asked from whatever section is being
+read. It closes on the button, the backdrop, or Escape.
+
+**It is not an AI model, deliberately.** A real model needs an API key, and a
+key shipped in a public page can be read by anyone who views source and used to
+run up your bill. Instead it matches what someone types against the `keywords`
+on each answer in `content.js`. It costs nothing, works offline, and can only
+ever say words you wrote.
+
+To make it smarter, add words to an entry's `keywords` — especially the slang
+and misspellings people actually type. The matcher lowercases, strips
+punctuation, drops filler words and does light stemming. When it is not
+confident it says so and offers the closest questions rather than guessing.
 
 ---
 
 ## 4. Turning the Join form on
 
-Right now the form works fully but stores nothing, because Supabase needs two
-values only you can generate. Until they are filled in, submissions are held in
-the browser and sent automatically the moment you add the keys — nothing is lost
-in the meantime.
+The form works but stores nothing until Supabase is configured. Submissions are
+held in the browser and sent automatically once the keys are in, so nothing is
+lost meanwhile.
 
 1. Create a free project at [supabase.com](https://supabase.com).
 2. SQL Editor → New query → paste all of `supabase-schema.sql` → Run.
@@ -164,76 +155,87 @@ in the meantime.
 4. Paste both into `js/content.js` under `join.backend.supabase`.
 5. Run the two `curl` commands at the bottom of the SQL file to verify.
 
-### Security — please read this before going live
+### Security — read this before going live
 
 You are collecting names, phone numbers, emails and register numbers of
 students.
 
 Supabase publishes every table over a public REST API, and the anon key in
-`content.js` is visible to anyone who views the page source. **That key is meant
-to be public. Row Level Security is what actually protects the data.**
+`content.js` is visible to anyone who views source. **That key is meant to be
+public. Row Level Security is what actually protects the data.**
 
-The SQL file grants exactly one permission: the public may INSERT. It
-deliberately creates no select, update or delete policy, so nobody can read,
-edit or wipe your registrations through the public API. You read them while
-signed in to the Supabase dashboard.
+The SQL grants exactly one permission: the public may INSERT. It creates no
+select, update or delete policy, so nobody can read, edit or wipe your
+registrations through the public API. You read them signed in to the dashboard.
 
-Skip that step and anyone who views source can download every student's personal
-details. The second `curl` command verifies it: **it must return an empty list.**
+Skip that step and anyone who views source can download every student's
+personal details. The second `curl` command verifies it: **it must return an
+empty list.**
 
 ---
 
 ## 5. Changing the look
 
+`DESIGN.md` records the visual world and what it deliberately refuses. Read it
+before changing anything structural.
+
 Every colour is a token at the top of `css/styles.css`:
 
 ```css
---accent:     #C8FF00;   /* the lime. Change this one line to reskin. */
---bg:         #060607;
---surface-1:  #0C0C0E;   /* each step is lighter than the one below, */
---surface-2:  #131317;   /* so panels can actually sit on each other */
---surface-3:  #1B1B21;
+--board       #101012   /* the page ground */
+--board-deep  #17171A   /* recessed panels, inputs */
+--board-alt   #202025   /* the second board */
+--white       #F5F5F3   /* lettering */
+--grey        #A6A6A3   /* secondary text */
+--signal      #FFFFFF   /* PRIMARY ACTION ONLY */
 ```
 
-The surfaces are a ladder on purpose. On pure black a shadow is invisible, so
-depth has to come from the surface value itself — otherwise every panel reads as
-one flat plane.
+Black and white, because the club mark is. A solid white fill means primary
+action and nothing else.
 
-Type is Chakra Petch for display and Inter for body, loaded from Google Fonts.
+The surfaces are a ladder on purpose: on pure black a shadow is invisible, so
+depth has to come from the surface value itself or every panel reads as one
+flat plane. That is also why the ground is `#101012` rather than `#000`.
 
----
-
-## 6. Deploying
-
-Any static host works. There is no server-side code.
-
-- **Netlify** — drag the folder onto app.netlify.com. Live in ten seconds.
-- **GitHub Pages** — push, then Settings → Pages → deploy from `main`.
-- **Vercel** — `vercel deploy` from inside the folder.
+Type is **Chakra Petch** for display, matching the EDG3 wordmark, and
+**Archivo** for body.
 
 ---
 
-## 7. Still to fill in
+## 6. Checking your work
 
-Search the project for `TODO` — each one is a real blank.
+The project has the `impeccable` design linter installed. After any UI change:
 
-- Instagram, Discord and YouTube links, and the contact email
-- Real blog posts and their images
-- The leaderboard numbers, and real player names on every roster
-- Event dates and venues
-- The branch list, corrected to the exact names RUAS uses
-- The register-number pattern in `js/join.js`, once you confirm the format
-  (currently permissive: 4–20 letters and digits)
+```bash
+.claude/skills/impeccable/scripts/bin/windows-x64/impeccable.exe detect index.html css/styles.css js/*.js
+```
+
+No output means clean. It catches contrast failures, undersized text, thick
+one-sided borders and animated layout properties.
 
 ---
 
-## 8. Where this goes next
+## 7. Deploying
 
-The `registrations` table is the spine. Column names are generic on purpose so
-that rankings, teams and tournaments can all reference it later rather than
-starting over.
+Deploys go to Netlify. **Always publish a clean tree, never the working
+folder** — the CLI's `--dir` ignores `.gitignore`, and publishing the folder
+directly once put files online that should never have been there:
 
-1. Point the leaderboard and rosters at the database instead of `content.js`,
-   so the site updates itself when an event ends.
-2. Player cards generated on registration, shareable to Instagram stories.
-3. A live leaderboard screen for events, driven off the same table.
+```bash
+git archive --format=tar HEAD | tar -x -C /tmp/publish
+npx netlify-cli deploy --prod --dir=/tmp/publish
+```
+
+Better still, link the GitHub repo in the Netlify dashboard. Git-sourced builds
+can only publish committed files, which makes that mistake impossible.
+
+Repo: <https://github.com/potatoesareathing/edge-website>
+
+---
+
+## 8. What still needs doing
+
+- Real photos in `assets/blog/`, and real roster names in `content.js`
+- The Supabase keys, so registrations actually save
+- Confirm the founding year and the branch list against RUAS's own wording
+- Add the committee to `about.crew`

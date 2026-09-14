@@ -72,8 +72,10 @@ match results, no confirmed event dates, no Instagram handle. Every person,
 score, event and statistic presently in `js/content.js` is placeholder material
 written to demonstrate structure.
 
-`assets/frames/` holds 96 AI-generated frames of a Tekken character in the
-Mishima Dojo. These are third-party intellectual property and must not ship.
+96 AI-generated frames of a Tekken character and the video they were cut from
+were removed from `assets/` in September 2026. They were third-party
+intellectual property and were never referenced by the site. Do not reintroduce
+game characters, official artwork or fan art of them: original archetypes only.
 
 Future work must not invent results, scores, member counts, sponsors or
 testimonials to fill space. Where a surface needs content that does not exist,
