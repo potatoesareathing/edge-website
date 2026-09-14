@@ -1,0 +1,17 @@
+# Static site: nothing to build. Netlify serves the repo root as-is.
+[build]
+  publish = "."
+  command = ""
+
+# Long-cache the fingerprint-free assets but always revalidate the HTML, so a
+# content edit in js/content.js shows up immediately rather than after a cache
+# expiry the committee cannot see.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
