@@ -178,6 +178,22 @@ progress passes 0.985. A fixed delay guessed at the easing and let the
 interface fade up while the homepage was still visible behind a half-open
 portal.
 
+**The arrived world is plain DOM, not the canvas.** On entry the same video
+element stops being an offscreen texture source and becomes the world's actual
+backdrop (`.portal-src.is-world`). One element, so playback position and audio
+carry through with nothing to synchronise — and the world is solid even if
+WebGL stalls or was never available. Relying on the canvas alone meant any
+failure in the effect left the chat floating over the homepage.
+
+**Leaving the button never ejects you.** `abort()` only retracts a peek. Once
+the portal has committed, `pointerleave` does nothing: closing from there tore
+down the portal while leaving the interface stranded on top of the homepage.
+Exiting is `exit()`'s job, and it hides both.
+
+**The tear waits for a decodable frame.** Over a network the file is still
+buffering when the pointer arrives, and growing the portal onto an empty
+texture is what made the transition look like nothing happened.
+
 **But progress depends on rAF**, which does not run in a throttled or
 backgrounded renderer. A 2.6 s stall guard forces the handover if the loop
 never gets there; without it a stalled transition strands the visitor in a

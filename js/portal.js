@@ -368,7 +368,18 @@
       video.play().catch(() => {});
       sound(true);
       entered = false;
-      target = 1;
+
+      // Wait for a decodable frame before growing the tear. Over a network the
+      // file is still buffering when the pointer arrives, and opening onto an
+      // empty texture is what made the transition look like nothing happened.
+      if (video.readyState >= 2) {
+        target = 1;
+      } else {
+        target = 0.18;                       // hold the peek open meanwhile
+        const go = () => { target = 1; };
+        video.addEventListener("loadeddata", go, { once: true });
+        setTimeout(go, 1800);                // never wait forever
+      }
       start();
 
       // Safety net. The handover is driven by real progress, which is driven

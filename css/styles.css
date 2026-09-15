@@ -833,6 +833,19 @@ table.board-table {
   pointer-events: none;
 }
 
+/* Once you have arrived, the same element stops being a hidden texture source
+   and becomes the world you are standing in. One element, so playback position
+   and audio carry straight through the transition with nothing to sync. */
+.portal-src.is-world {
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  opacity: 1;
+  object-fit: cover;
+  z-index: 155;
+}
+
 /* -- the world you arrive in ---------------------------------------------- */
 
 .world {

@@ -578,6 +578,10 @@
 
     function enter() {
       lastFocus = document.activeElement;
+      // Promote the video from texture source to the world's actual backdrop.
+      // The canvas performs the transition; the arrived world is plain DOM, so
+      // it is solid even if WebGL stops, stalls or was never available.
+      video.classList.add("is-world");
       world.hidden = false;
       void world.offsetWidth;            // give the fade a start value
       world.classList.add("is-in");
@@ -587,6 +591,7 @@
     }
 
     function leave() {
+      video.classList.remove("is-world");
       world.classList.remove("is-in");
       fab.setAttribute("aria-expanded", "false");
       document.body.style.overflow = "";
@@ -601,12 +606,13 @@
       P.open({ video, origin: fab, volume: 0.4, onEnter: enter });
     }
 
+    // Only retracts a peek. Once the portal has committed, moving the pointer
+    // off the button must do nothing: you are crossing over, and closing from
+    // here tore down the portal while leaving the interface stranded on top of
+    // the homepage. Leaving is exit()'s job, and exit() hides both.
     function abort() {
       clearTimeout(dwell);
-      if (!P) return;
-      // A portal that already committed has to be closed, not just un-peeked,
-      // or Escape does nothing while one is mid-flight.
-      if (P.isOpen()) P.close(); else P.peek(false);
+      if (P && !P.isOpen()) P.peek(false);
     }
 
     fab.addEventListener("pointerenter", () => {
