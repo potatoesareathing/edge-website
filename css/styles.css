@@ -90,6 +90,10 @@ img, svg, video { display: block; max-width: 100%; }
    invisible at opacity 0, but swallowing every click and wheel event on the
    site. Declared here so no component can ever reintroduce that. */
 [hidden] { display: none !important; }
+
+/* The ghost is 398x333, not square. Height leads and width follows, so no
+   component flattens it by setting equal box dimensions. Not !important: that
+   also overrode legitimate sizing and collapsed the hero mark to zero. */
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -231,11 +235,12 @@ input, textarea { caret-color: var(--white); }
    the way a brush lays a stroke. Nothing else on the page animates in. */
 .panel.is-active {
   display: block;
-  animation: paint .5s var(--ease) both;
+  animation: paint .62s var(--ease) both;
 }
 @keyframes paint {
-  from { clip-path: inset(0 100% 0 0); }
-  to   { clip-path: inset(0 0 0 0); }
+  from { clip-path: inset(0 100% 0 0); opacity: 0; }
+  40%  { opacity: 1; }
+  to   { clip-path: inset(0 0 0 0); opacity: 1; }
 }
 
 .panel__head { margin-bottom: 1.5rem; }
@@ -448,7 +453,7 @@ fieldset.field { border: 0; margin: 0; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
 .success { text-align: center; padding: 2rem 1rem; }
-.success img { width: 58px; height: 58px; margin: 0 auto 1rem; }
+.success img { height: 58px; width: auto; margin-inline: auto; margin-bottom: 1rem; }
 .success h3 { font-size: clamp(2rem, 5vw, 3rem); color: var(--white); margin-bottom: .6rem; }
 .success p { color: var(--grey); max-width: 48ch; margin-inline: auto; }
 .success__id {
@@ -795,21 +800,28 @@ table.board-table {
   color: var(--signal-ink);
   background: var(--signal);
   border: 3px solid var(--board-ink);
-  transition: transform .3s var(--ease), letter-spacing .3s var(--ease),
+  /* Composed from custom properties so the magnetic pull and the hover scale
+     can coexist in one transform instead of overwriting each other. */
+  --mx: 0px;
+  --my: 0px;
+  --scale: 1;
+  transform: translate(var(--mx), var(--my)) scale(var(--scale));
+  transition: transform .18s var(--ease), letter-spacing .3s var(--ease),
               background .3s var(--ease);
 }
-.ask-fab img { filter: invert(1); transition: transform .5s var(--ease); }
+.ask-fab img { height: 22px; width: auto; filter: invert(1); transition: transform .5s var(--ease); }
 
 /* The button reacts before the tear does: it settles back a little and its
    lettering opens up, as though something on the other side has noticed. */
 .ask-fab:hover,
 .ask-fab:focus-visible {
-  transform: scale(.97);
+  --scale: .97;
   letter-spacing: .12em;
   background: #E8E8E5;
 }
 .ask-fab:hover img { transform: rotate(-8deg) scale(1.08); }
 .ask-fab[aria-expanded="true"] { opacity: 0; pointer-events: none; }
+.ask-fab:active { --scale: .93; }
 
 /* The tear. Transparent everywhere outside the opening, so the page beneath
    is what shows through — it is never captured or redrawn. */
@@ -876,6 +888,7 @@ table.board-table {
   background: linear-gradient(to bottom, rgba(16,16,18,.92), rgba(16,16,18,.55) 70%, transparent);
 }
 .world__id { display: flex; align-items: center; gap: .6rem; }
+.world__id img { height: 24px; width: auto; }
 .world__title { font-size: 1.4rem; }
 
 .world__back {
@@ -938,7 +951,8 @@ table.board-table {
 /* Without motion the tear is meaningless, so the world is simply shown. */
 @media (prefers-reduced-motion: reduce) {
   .world { transition: none; }
-  .ask-fab:hover, .ask-fab:focus-visible { transform: none; }
+  .ask-fab { --mx: 0px !important; --my: 0px !important; }
+  .ask-fab:hover, .ask-fab:focus-visible { --scale: 1; }
   .ask-fab:hover img { transform: none; }
 }
 
@@ -1087,7 +1101,7 @@ table.board-table {
   padding-block: 3rem 5rem;
 }
 
-.home__mark { width: clamp(70px, 9.5vw, 112px); height: auto; }
+.home__mark { height: clamp(58px, 8vw, 94px); width: auto; }
 
 /* The name is set in the club's own logotype, traced from the original
    artwork, not in a typeface approximating it. */
@@ -1145,8 +1159,8 @@ table.board-table {
    the one gesture this world already owns. */
 .rise {
   clip-path: inset(0 100% 0 0);
-  opacity: .001;
-  transition: clip-path .62s var(--ease), opacity .3s linear;
+  opacity: 0;
+  transition: clip-path .7s var(--ease), opacity .55s var(--ease);
 }
 .rise.is-in { clip-path: inset(0 0 0 0); opacity: 1; }
 .rise:nth-child(n) { transition-delay: var(--d, 0ms); }

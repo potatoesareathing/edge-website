@@ -400,7 +400,12 @@ Things that must stay true. Breaking one is a regression, not a change.
 8. No select/update/delete policy on the registrations table.
 9. No third-party game characters, official art or fan art. Original work only.
 10. Deploys publish a clean tree, never the working folder.
-11. `position` is never re-declared on `.ask-fab`, `.ask` or `.ask-scrim` by a
+11. Asset URLs are versioned (`?v=n`) when the file changes, and `/assets/*`
+    revalidates. A 24-hour cache header meant a corrected logo kept serving
+    the old file for a day, so the fix looked like it had not worked.
+12. Logo images set height only. A blanket attribute-selector rule outranks
+    every component class and breaks them all.
+13. `position` is never re-declared on `.ask-fab`, `.ask` or `.ask-scrim` by a
     later rule. They are `position: fixed`; a later same-specificity rule
     setting `relative` silently drops the launcher into normal flow.
 

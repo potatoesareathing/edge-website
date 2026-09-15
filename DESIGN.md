@@ -65,7 +65,16 @@ what the screen is about.
 
 ## Components
 
-The mark at `assets/edge-mark.svg` carries an explicit `fill`, not
+The mark and the logotype are vector-traced from the club's original artwork
+in `edge_requirements/`, not approximations. The ghost is **398x333** and the
+logotype **665x183** — neither is square. Every use sets height and lets width
+follow.
+
+Do not add a blanket `img[src*="edge-mark.svg"]` rule to enforce that: an
+attribute selector outranks a class, so it overrode each component's own
+height and collapsed the marks to nothing, then to full natural size.
+
+The mark carries an explicit `fill`, not
 `currentColor`: an SVG loaded through `<img>` is its own document and cannot
 inherit the page's colour, so `currentColor` renders it black.
 

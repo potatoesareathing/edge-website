@@ -640,6 +640,54 @@
     });
   }
 
+
+  /* == MAGNETIC LAUNCHER =================================================== */
+
+  /* The button leans toward the cursor as it comes near, then settles back.
+     It reads as the thing on the other side reaching for you, which is the
+     only reason it is here — a magnet on an ordinary button would be noise.
+
+     The element's rect is cached rather than measured per pointer event:
+     getBoundingClientRect forces layout, and doing that on every mousemove is
+     exactly how a small flourish turns into jank. The launcher is
+     position:fixed, so the rect only changes on resize. */
+  function initMagnet(el) {
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const RADIUS = 140;    // px at which the pull begins
+    const PULL   = 0.34;   // fraction of the offset the button travels
+    let box = null;
+
+    const measure = () => { box = el.getBoundingClientRect(); };
+    measure();
+    window.addEventListener("resize", measure, { passive: true });
+
+    function set(x, y) {
+      el.style.setProperty("--mx", x.toFixed(1) + "px");
+      el.style.setProperty("--my", y.toFixed(1) + "px");
+    }
+
+    window.addEventListener("pointermove", e => {
+      if (!box || !box.width) measure();
+      const dx = e.clientX - (box.left + box.width  / 2);
+      const dy = e.clientY - (box.top  + box.height / 2);
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > RADIUS) {
+        // Only write when there is something to clear, so an idle pointer
+        // anywhere else on the page costs nothing.
+        if (el.style.getPropertyValue("--mx") !== "0px") set(0, 0);
+        return;
+      }
+      // Falls off with distance, so the pull is strongest up close.
+      const force = (1 - dist / RADIUS) * PULL;
+      set(dx * force, dy * force);
+    }, { passive: true });
+
+    // A pointer that leaves the window never sends another move event.
+    document.addEventListener("pointerleave", () => set(0, 0));
+  }
+
   /* == HOVER GLITCH ======================================================== */
 
   /* The effect needs the element's own string in a data attribute so CSS can
@@ -792,6 +840,7 @@
     initHomeworld();
     initTabs();
     initAsk();
+    initMagnet(byId("askFab"));
     renderBlog();
     renderAbout();
     renderLeaderboard();

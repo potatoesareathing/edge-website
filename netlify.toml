@@ -11,7 +11,17 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
+# Video is large and effectively immutable, so cache it hard.
+[[headers]]
+  for = "/assets/video/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Everything else in assets revalidates. A day-long cache here meant a logo
+# fix did not reach anyone for 24 hours — the old file kept being served and
+# the logo looked broken long after it was corrected. Versioned URLs handle
+# the immediate case; this stops the class of problem.
 [[headers]]
   for = "/assets/*"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=0, must-revalidate"
