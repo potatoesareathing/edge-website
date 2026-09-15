@@ -61,6 +61,8 @@
     // Jump to the top so a tall previous tab does not leave the new one
     // scrolled halfway down.
     window.scrollTo({ top: 0, behavior: "auto" });
+
+    if (window.__edgeHomeworld) window.__edgeHomeworld(name);
   }
 
   function initTabs() {
@@ -612,7 +614,129 @@
     node.classList.add("glitch");
   }
 
+
+  /* == HOMEWORLD =========================================================== */
+
+  /* The looping film behind the first viewport.
+
+     Three things govern it, all of them about not wasting the visitor's data
+     or battery:
+
+       1. The source is attached in JS, not in the markup, so the 7.9 MB file
+          is never fetched on a metered connection or when the visitor has
+          asked for reduced motion. The poster still shows, so the surface is
+          never empty.
+       2. It only plays on About. Every other tab hides it and pauses it.
+       3. It pauses when the document is hidden and when the first viewport has
+          been scrolled past, because a loop nobody can see is pure cost.       */
+
+  const VIDEO_SRC = "assets/video/homeworld.mp4";
+
+  function initHomeworld() {
+    const layer = byId("homeworld");
+    const video = byId("homeworldVideo");
+    const scrim = byId("homeworldScrim");
+    if (!layer || !video) return;
+
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const conn    = navigator.connection || {};
+    const thrifty = conn.saveData === true || /2g/.test(conn.effectiveType || "");
+
+    let attached = false;
+    let onScreen = true;
+
+    function attach() {
+      if (attached || reduced || thrifty) return;
+      attached = true;
+      video.src = VIDEO_SRC;
+      video.load();
+    }
+
+    function wanted() {
+      return layer.classList.contains("is-on") && onScreen && !document.hidden;
+    }
+
+    function sync() {
+      if (!attached) return;
+      if (wanted()) {
+        // play() rejects if the browser refuses autoplay. The poster is still
+        // showing, so there is nothing to recover from.
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    }
+
+    // Shown only on About. showTab calls this on every switch.
+    window.__edgeHomeworld = function (tab) {
+      const on = tab === "about";
+      layer.classList.toggle("is-on", on);
+      if (on) attach();
+      sync();
+    };
+
+    // Raise the scrim as the first viewport scrolls away, so the film is fully
+    // covered by the time the content surface reaches the top.
+    // Done synchronously in the passive listener rather than inside
+    // requestAnimationFrame. Reading scrollY does not force layout and setting
+    // a custom property is cheap, so the throttle bought nothing — and it made
+    // correctness depend on rAF firing, which is exactly what left the drawer
+    // stranded off-screen in a throttled renderer.
+    function onScroll() {
+      const h = window.innerHeight || 1;
+      const p = Math.min(window.scrollY / h, 1);
+      scrim?.style.setProperty("--scrim", (p * 0.92).toFixed(3));
+
+      const nowOn = p < 1;
+      if (nowOn !== onScreen) { onScreen = nowOn; sync(); }
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    document.addEventListener("visibilitychange", sync);
+  }
+
+  /* == SCROLL REVEAL ======================================================= */
+
+  /* Content paints on with the same left-to-right wipe as the panel entrance.
+     Elements start visible in the stylesheet's reduced-motion path, so a
+     failed script can never leave the page blank. */
+  function initReveals() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const targets = document.querySelectorAll(
+      ".home-content .panel__head, .home-content .about-grid, .home-content .facts, " +
+      ".home-content .pillars > *, .home-content .sec-title, .home-content .sec-note, " +
+      ".home-content .filters, .home-content .blog-lead, .home-content .blog-grid > *, " +
+      ".home-content .crew > *"
+    );
+
+    targets.forEach(node => node.classList.add("rise"));
+
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-in");
+        obs.unobserve(entry.target);          // one-way; never re-hides
+      });
+    }, { threshold: .12, rootMargin: "0px 0px -8% 0px" });
+
+    targets.forEach(node => io.observe(node));
+
+    // Safety net. `.rise` hides its element until the observer says otherwise,
+    // so an observer that never fires would leave the page blank — the one
+    // failure mode a scroll reveal must not have. If nothing at all has
+    // revealed shortly after load, assume it is not working and show
+    // everything. It only ever triggers when the effect is already broken.
+    setTimeout(() => {
+      if (!document.querySelector(".rise.is-in")) {
+        targets.forEach(node => node.classList.add("is-in"));
+      }
+    }, 2000);
+  }
+
   function init() {
+    initHomeworld();
     initTabs();
     initAsk();
     renderBlog();
@@ -623,7 +747,8 @@
     renderUpdates();
     renderFooter();
 
-    // Last: it reads text out of nodes the renderers have just created.
+    // Both read nodes the renderers have just created.
+    initReveals();
     initGlitch();
   }
 

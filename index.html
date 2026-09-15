@@ -14,6 +14,20 @@
 </head>
 <body>
 
+<!-- ============================= HOMEWORLD ================================
+     The looping film behind the first viewport. It sits outside the panels
+     because a clip-path on an ancestor also clips fixed descendants, and the
+     panel entrance animates clip-path. js/app.js shows it only on About,
+     attaches the source only when the connection allows, and pauses it
+     whenever it cannot be seen.
+     ==================================================================== -->
+<div class="homeworld" id="homeworld" aria-hidden="true">
+  <video class="homeworld__video" id="homeworldVideo"
+         poster="assets/video/homeworld-poster.jpg"
+         muted loop playsinline disablepictureinpicture preload="none"></video>
+  <div class="homeworld__scrim" id="homeworldScrim"></div>
+</div>
+
 <!-- ============================== TOP RAIL ================================ -->
 <header class="topbar">
   <div class="topbar__in shell">
@@ -35,6 +49,18 @@
 
   <!-- ============================== ABOUT ================================= -->
   <section class="panel" id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="0">
+    <section class="home">
+      <img class="home__mark" src="assets/edge-mark.svg" alt="" width="120" height="120">
+      <h1 class="home__title painted">EDGE</h1>
+      <p class="home__line">Esports and gaming at Ramaiah University of Applied Sciences.</p>
+      <div class="home__actions">
+        <a class="plate plate--primary" href="#join">Join the club</a>
+        <a class="plate" href="#players">See the rosters</a>
+      </div>
+      <div class="home__cue" aria-hidden="true"><span></span>Scroll</div>
+    </section>
+
+    <div class="home-content">
     <div class="panel__head">
       <h1 class="painted">About</h1>
     </div>
@@ -68,6 +94,7 @@
     <div class="filters" id="blogFilters"></div>
     <div class="blog-lead" id="blogLead"></div>
     <div class="blog-grid" id="blogGrid"></div>
+    </div><!-- /.home-content -->
   </section>
 
   <!-- ============================= PLAYERS =============================== -->

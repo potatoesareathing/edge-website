@@ -930,3 +930,147 @@ table.board-table {
   .facts > div:hover, .faq-item summary:hover > :first-child { transform: none; }
   .post:hover .post__media img, .post:hover .post__media video { transform: none; }
 }
+
+/* == 18. HOMEWORLD ========================================================= */
+
+/* The looping film behind the first viewport. Fixed, so the page lifts over it
+   as you scroll rather than the film scrolling away with the content. */
+.homeworld {
+  position: fixed;
+  inset: 0;
+  z-index: 0;              /* above the body ground, below every surface */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .6s var(--ease);
+}
+.homeworld.is-on { opacity: 1; }
+
+.homeworld__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The film is the only colour on the site. The interface stays monochrome,
+     so desaturating it slightly keeps the two from arguing without draining
+     the footage. */
+  filter: saturate(.85) contrast(1.05);
+}
+
+/* Legibility, and the handoff into the content below. The base layer darkens
+   the lower half so the hero copy always has ground under it; JS raises
+   `--scrim` as you scroll so the film is fully covered by the time the
+   content surface arrives. */
+.homeworld__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    /* Anchored under the text column. The footage moves, so contrast there
+       would otherwise change frame to frame — this guarantees ground beneath
+       the hero copy whatever is happening on screen. */
+    linear-gradient(to right,
+      rgba(16,16,18,.86) 0%,
+      rgba(16,16,18,.62) 34%,
+      rgba(16,16,18,.10) 68%,
+      rgba(16,16,18,0)   100%),
+    linear-gradient(to bottom,
+      rgba(16,16,18,.40) 0%,
+      rgba(16,16,18,.18) 35%,
+      rgba(16,16,18,.88) 100%),
+    rgba(16,16,18, var(--scrim, 0));
+  transition: background .12s linear;
+}
+
+/* Everything that is not the film sits above it. */
+.topbar, .shell, .footer, .ask-fab, .ask, .ask-scrim { position: relative; z-index: 1; }
+.topbar { z-index: 50; }
+.ask-fab { z-index: 60; }
+.ask-scrim { z-index: 70; }
+.ask { z-index: 80; }
+
+/* -- the first viewport --------------------------------------------------- */
+
+.home {
+  min-height: calc(100svh - 66px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.1rem;
+  padding-block: 3rem 5rem;
+}
+
+.home__mark { width: clamp(64px, 9vw, 104px); height: auto; }
+
+.home__title {
+  font-size: clamp(4rem, 15vw, 11rem);
+  letter-spacing: -.02em;
+  line-height: .82;
+}
+
+.home__line {
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  color: var(--white);
+  max-width: 30ch;
+}
+
+.home__actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: .6rem; }
+
+.home__cue {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-family: var(--display);
+  font-size: .9rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+.home__cue span {
+  width: 42px;
+  height: 3px;
+  background: var(--white);
+  transform-origin: left;
+  animation: cue 2.6s var(--ease) infinite;
+}
+@keyframes cue {
+  0%, 100% { transform: scaleX(.35); opacity: .45; }
+  50%      { transform: scaleX(1);   opacity: 1; }
+}
+
+/* -- the surface that scrolls up over the film ---------------------------- */
+
+/* Opaque, so the film is covered the moment content arrives. The top rule is
+   the same double line used under a heading — the page reads as a board
+   sliding up over the footage rather than a section fading in. */
+.home-content {
+  position: relative;
+  background: var(--board);
+  border-top: 3px solid var(--rule);
+  box-shadow: 0 -1px 0 0 var(--rule-light);
+  padding-top: clamp(2rem, 5vw, 3.5rem);
+}
+
+/* == 19. SCROLL REVEAL ===================================================== */
+
+/* Content does not fade and rise, which is the generic move. It paints on with
+   the same left-to-right wipe as the panel entrance, so arriving content uses
+   the one gesture this world already owns. */
+.rise {
+  clip-path: inset(0 100% 0 0);
+  opacity: .001;
+  transition: clip-path .62s var(--ease), opacity .3s linear;
+}
+.rise.is-in { clip-path: inset(0 0 0 0); opacity: 1; }
+.rise:nth-child(n) { transition-delay: var(--d, 0ms); }
+
+@media (prefers-reduced-motion: reduce) {
+  .homeworld { transition: none; }
+  .home__cue span { animation: none; transform: scaleX(1); opacity: 1; }
+  /* Content must never depend on motion to become visible. */
+  .rise { clip-path: none; opacity: 1; transition: none; }
+}
+
+@media (max-width: 680px) {
+  .home { min-height: calc(100svh - 62px); }
+  .home__title { font-size: clamp(3.4rem, 19vw, 6rem); }
+}

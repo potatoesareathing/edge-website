@@ -95,6 +95,33 @@ The drawer is unhidden and then opened after a forced layout read
 reliably fire in a backgrounded or throttled renderer, and when it did not the
 panel sat parked off-screen while still being focusable.
 
+## The homeworld
+
+About opens on a full-viewport looping film — the club mascot, wearing the
+helmet the mark is drawn from. It is fixed behind the page, so scrolling lifts
+the content up over it rather than scrolling the film away.
+
+**The film is the only colour on the site.** Its yellow is left alone; the
+interface stays monochrome. Footage carries colour, chrome does not — which is
+how the palette rule survives a colour asset without either being weakened.
+
+Three rules govern playback, all about not wasting a student's data:
+
+1. The `src` is attached in JS, never in markup. On a metered connection, or
+   under reduced motion, the 7.9 MB file is never fetched and the poster frame
+   stands in.
+2. It only runs on About. Every other tab hides and pauses it.
+3. It pauses when the document is hidden and when the first viewport is
+   scrolled past.
+
+A scrim sits over it: a fixed gradient anchored under the text column, because
+moving footage changes contrast frame to frame and the hero copy needs
+guaranteed ground. A second value (`--scrim`) rises with scroll so the film is
+fully covered by the time the content surface reaches the top.
+
+`.home-content` is opaque with a ruled top edge, so the page reads as a board
+sliding up over the footage.
+
 ## Motion
 
 The page still has one authored entrance: `@keyframes paint` wipes a section in
@@ -108,6 +135,12 @@ It has one grammar, not scattered effects:
   `initGlitch()` from each element's own `textContent`, so the markup stays
   clean and content rendered from `content.js` is covered too. Applied to
   headings, section titles, path names, player tags and post titles.
+- **Scroll reveal.** Content does not fade and rise, which is the generic
+  move. It paints on with the same left-to-right wipe as the panel entrance,
+  so arriving content uses the one gesture this world already owns. `.rise`
+  hides its element until an observer says otherwise, so it carries a safety
+  net: if nothing has revealed shortly after load, everything is shown. A
+  reveal that can hide the page is worse than no reveal.
 - **Enlargement on hover.** Chips, subtabs, paths, pillars, crew and roster
   cards lift and scale; post images scale inside their frame; tabs gain
   letter-spacing. A roster card raises its `z-index` so it lifts above its
