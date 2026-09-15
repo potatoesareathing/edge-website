@@ -541,49 +541,100 @@
   }
 
 
-  /* == ASK DRAWER ========================================================== */
+  /* == ASK EDGE — PORTAL ENTRY ============================================ */
 
-  /* The FAQ used to be a tab. It is now a panel that slides in from the right,
-     so a question can be asked without leaving the section being read. */
+  /* The launcher no longer opens a panel. It tears a portal to another
+     dimension, and js/portal.js owns the effect. This function is only the
+     wiring: when to peek, when to commit, when to come back.
+
+     Hover opens a small tear and starts the sound bleeding through. Staying
+     there, or clicking, commits. Leaving closes it again. A full takeover on
+     a stray mouse path would be hostile, so the commitment is deliberate
+     while the invitation is immediate. */
+
+  const PEEK_TO_COMMIT = 850;   // ms of hover before the tear takes over
+
   function initAsk() {
-    const fab    = byId("askFab");
-    const drawer = byId("askDrawer");
-    const scrim  = byId("askScrim");
-    const close  = byId("askClose");
-    if (!fab || !drawer) return;
+    const fab   = byId("askFab");
+    const world = byId("faqWorld");
+    const back  = byId("worldBack");
+    const video = byId("faqVideo");
+    if (!fab || !world || !video) return;
 
-    let lastFocus = null;
+    const P = window.EDGE_PORTAL;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let lastFocus = null, dwell = 0, attached = false;
 
-    function open() {
-      lastFocus = document.activeElement;
-      drawer.hidden = false;
-      scrim.hidden = false;
-      // Force a layout read between unhiding and opening. The transition needs
-      // a start value to animate from, and reading offsetWidth guarantees one
-      // synchronously — requestAnimationFrame does not always fire (a
-      // backgrounded tab, a throttled renderer), and when it did not the panel
-      // stayed parked off-screen while still being focusable.
-      void drawer.offsetWidth;
-      drawer.classList.add("is-open");
-      fab.setAttribute("aria-expanded", "true");
-      byId("chatInput")?.focus();
+    // The world's video is only fetched when the visitor shows intent, the
+    // same rule the homepage film follows.
+    function attach() {
+      if (attached) return;
+      attached = true;
+      video.src = "assets/video/faq-world.mp4";
+      video.load();
+      video.volume = 0;                       // ramped up, never snapped
+      P?.configure({ video, origin: fab, volume: 0.4 });
     }
 
-    function shut() {
-      drawer.classList.remove("is-open");
+    function enter() {
+      lastFocus = document.activeElement;
+      world.hidden = false;
+      void world.offsetWidth;            // give the fade a start value
+      world.classList.add("is-in");
+      fab.setAttribute("aria-expanded", "true");
+      byId("chatInput")?.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function leave() {
+      world.classList.remove("is-in");
       fab.setAttribute("aria-expanded", "false");
-      scrim.hidden = true;
-      // Keep it in the DOM until the slide-out finishes, then hide it so it
-      // leaves the tab order.
-      setTimeout(() => { drawer.hidden = true; }, 340);
+      document.body.style.overflow = "";
+      setTimeout(() => { world.hidden = true; }, 450);
       lastFocus?.focus();
     }
 
-    fab.addEventListener("click", () => drawer.hidden ? open() : shut());
-    close?.addEventListener("click", shut);
-    scrim?.addEventListener("click", shut);
+    function commit() {
+      clearTimeout(dwell);
+      attach();
+      if (!P || reduced || !P.supported()) { enter(); return; }   // no WebGL: just go
+      P.open({ video, origin: fab, volume: 0.4, onEnter: enter });
+    }
+
+    function abort() {
+      clearTimeout(dwell);
+      if (!P) return;
+      // A portal that already committed has to be closed, not just un-peeked,
+      // or Escape does nothing while one is mid-flight.
+      if (P.isOpen()) P.close(); else P.peek(false);
+    }
+
+    fab.addEventListener("pointerenter", () => {
+      attach();
+      if (reduced || !P || !P.supported()) return;
+      P.peek(true);
+      clearTimeout(dwell);
+      dwell = setTimeout(commit, PEEK_TO_COMMIT);
+    });
+    fab.addEventListener("pointerleave", abort);
+    fab.addEventListener("click", commit);
+    // Keyboard reaches the same place without needing a pointer at all.
+    fab.addEventListener("focus", attach);
+
+    function exit() {
+      // Close the portal even when the interface never appeared — otherwise a
+      // transition that stalled leaves the world audible with no way out.
+      if (!world.hidden) leave();
+      P?.close();
+    }
+    back?.addEventListener("click", exit);
     document.addEventListener("keydown", e => {
-      if (e.key === "Escape" && !drawer.hidden) shut();
+      if (e.key === "Escape") { if (!world.hidden) exit(); else abort(); }
+    });
+
+    // A hidden tab should not keep a second video decoding and audible.
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && P) P.suspend();
     });
   }
 

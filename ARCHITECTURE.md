@@ -147,22 +147,57 @@ itself; the source list order is irrelevant.
 `markUpdatesBadge()` adds a dot to the Updates tab when something falls within
 seven days.
 
-### Ask drawer
+### Ask EDGE — the portal
 
-The FAQ is not a tab. A launcher pinned bottom-right opens a panel down the
-right side. Closes on the button, the scrim, or Escape, and returns focus to
-the launcher.
+The FAQ is a separate dimension, not a panel on this one. `js/portal.js` owns
+the effect and is deliberately generic: `open({video, origin, volume, onEnter})`
+works for any world, so Players, Updates and Join can reuse it by passing a
+different video.
 
-```js
-drawer.hidden = false;
-void drawer.offsetWidth;          // forced layout read
-drawer.classList.add("is-open");
-```
+**Why it is cheap.** The canvas draws *only* the destination world and writes
+alpha 0 everywhere outside the tear. The homepage is not captured, re-rendered
+or duplicated — it is simply still there underneath, showing through the hole.
+That keeps the whole effect to one fullscreen quad and one fragment shader.
 
-That reflow is load-bearing. The transition needs a start value to animate
-from. This was `requestAnimationFrame` first, which does not reliably fire in a
-throttled or backgrounded renderer — and when it did not, the panel stayed
-parked off-screen while remaining keyboard-focusable.
+Raw WebGL, not a 3D library: there is no scene, camera or geometry beyond two
+triangles, and a scene graph would be several hundred kilobytes to do less.
+
+The shader does the work at the rim — an fbm-driven irregular edge, a
+refraction pull dragging the world toward the opening, chromatic aberration
+split along the radius, and a thin light. All of it fades out as the tear
+grows (`settle`), so the arrived world is a clean image, not a permanent
+effect.
+
+**Interaction.** Hover opens a small tear and starts the audio bleeding
+through; staying ~850 ms, or clicking, commits. Leaving retracts it. A full
+takeover on a stray mouse path would be hostile, so the invitation is immediate
+but the commitment is deliberate.
+
+**Handover is driven by real progress**, not a timer — `onEnter` fires when
+progress passes 0.985. A fixed delay guessed at the easing and let the
+interface fade up while the homepage was still visible behind a half-open
+portal.
+
+**But progress depends on rAF**, which does not run in a throttled or
+backgrounded renderer. A 2.6 s stall guard forces the handover if the loop
+never gets there; without it a stalled transition strands the visitor in a
+half-open portal with audio playing, no interface and no way back. `exit()`
+likewise closes the portal even when the interface never appeared.
+
+### Portal audio
+
+The destination video carries its own sound. It is ramped, never snapped:
+0 → 0.4 over ~900 ms on entry, back to 0 over ~420 ms on exit, then muted.
+
+The ramp runs on a 40 ms interval rather than rAF, because the ramp decides
+whether sound is audible at all and rAF is not dependable — the same trap as
+above. 40 ms steps are inaudible.
+
+Autoplay policy is respected: a flag arms on the first real user gesture
+(`pointerdown`, `pointerup`, `click`, `keydown`, `touchstart`). Until then the
+portal opens in silence rather than throwing. `click` had to be in that list —
+without it, clicking straight through left the guard unarmed and the element
+sat at its default volume of 1.
 
 ---
 

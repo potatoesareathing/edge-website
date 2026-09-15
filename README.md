@@ -20,7 +20,8 @@ EDGE-Website/
 │   ├── content.js          ← THE FILE YOU EDIT
 │   ├── app.js              tab routing, About, blog, Players, Updates, Ask drawer
 │   ├── join.js             the Join form and Supabase submission
-│   └── faq-bot.js          the Ask assistant
+│   ├── faq-bot.js          the Ask assistant
+│   └── portal.js           the WebGL dimensional transition
 ├── assets/edge-mark.svg    the club logo, traced to vector
 ├── ARCHITECTURE.md         how it all fits together, and why
 ├── PRODUCT.md              who the site is for and what must stay true
@@ -137,11 +138,19 @@ Phone numbers are accepted however people type them (`+91 98765 43210`,
 `09876543210`) and stored as ten bare digits. Emails are lowercased and
 register numbers uppercased, so you never get three spellings of one student.
 
-### Ask EDGE — the drawer
+### Ask EDGE — the portal
 
-The FAQ is not a tab. A launcher pinned bottom-right opens a panel down the
-right-hand side, so a question can be asked from whatever section is being
-read. It closes on the button, the backdrop, or Escape.
+The FAQ is a separate dimension. Hovering the launcher tears a portal open at
+the button; the pixel-art world is visible through the opening and grows until
+it fills the screen, and the chat lives inside that world. **Back to EDGE**, or
+Escape, reverses it.
+
+The world's own audio fades up to 40% as you cross over and back to silence as
+you leave. It stays silent until you have interacted with the page at least
+once, because browsers refuse audio before that.
+
+`js/portal.js` is reusable: the same call works for Players, Updates or Join
+by passing a different video. Those worlds do not exist yet.
 
 **It is not an AI model, deliberately.** A real model needs an API key, and a
 key shipped in a public page can be read by anyone who views source and used to

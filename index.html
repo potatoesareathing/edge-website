@@ -292,25 +292,43 @@
 </footer>
 
 
-<!-- ============================ ASK DRAWER ================================
-     The FAQ is no longer a tab. It is a launcher pinned bottom-right that
-     opens a panel down the right-hand side, so a question can be asked from
-     whatever section the visitor is already reading.
+<!-- ============================ ASK EDGE ==================================
+     The FAQ is a separate dimension, not a panel on this one. The launcher
+     tears a portal open at its own position; the pixel world is visible
+     through it and grows until it is all there is.
+
+     The canvas draws only that world and is transparent everywhere outside
+     the tear, so this page shows through the opening without being captured
+     or redrawn. js/portal.js owns the effect and is reusable for the other
+     sections later.
      ==================================================================== -->
-<button class="ask-fab" id="askFab" aria-expanded="false" aria-controls="askDrawer">
+
+<canvas class="portal" id="portalCanvas" aria-hidden="true"></canvas>
+
+<!-- The destination world. Kept out of the layout; the canvas samples it as a
+     texture and it carries the audio for that dimension. -->
+<video class="portal-src" id="faqVideo"
+       poster="assets/video/faq-world-poster.jpg"
+       loop playsinline muted preload="none"
+       crossorigin="anonymous" aria-hidden="true"></video>
+
+<button class="ask-fab" id="askFab" aria-expanded="false" aria-controls="faqWorld">
   <img src="assets/edge-mark.svg" alt="" width="22" height="22">
   <span>Ask EDGE</span>
 </button>
 
-<div class="ask-scrim" id="askScrim" hidden></div>
-
-<aside class="ask" id="askDrawer" role="dialog" aria-labelledby="askTitle" hidden>
-  <div class="ask__head">
-    <h2 class="ask__title" id="askTitle">Ask EDGE</h2>
-    <button class="ask__close" id="askClose" aria-label="Close">&#215;</button>
+<!-- The interface once you are inside. It sits in the world rather than
+     floating above the site: no drawer, no scrim over a page you left. -->
+<section class="world" id="faqWorld" role="dialog" aria-labelledby="worldTitle" hidden>
+  <div class="world__bar">
+    <div class="world__id">
+      <img src="assets/edge-mark.svg" alt="" width="24" height="24">
+      <h2 class="world__title" id="worldTitle">Ask EDGE</h2>
+    </div>
+    <button class="world__back" id="worldBack">Back to EDGE</button>
   </div>
 
-  <div class="ask__body">
+  <div class="world__inner">
     <div class="chat">
       <div class="chat__log" id="chatLog" role="log" aria-live="polite" aria-label="Conversation"></div>
       <div class="chat__chips" id="chatChips"></div>
@@ -321,12 +339,13 @@
       </form>
     </div>
 
-    <h3 class="ask__sub">Every question</h3>
+    <h3 class="world__sub">Every question</h3>
     <div class="faq-list" id="faqList"></div>
   </div>
-</aside>
+</section>
 
 <script src="js/content.js"></script>
+<script src="js/portal.js"></script>
 <script src="js/app.js"></script>
 <script src="js/faq-bot.js"></script>
 <script src="js/join.js"></script>

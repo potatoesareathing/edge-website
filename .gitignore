@@ -19,3 +19,6 @@ Thumbs.db
 # The untouched 7.9 MB source. The shipped homeworld.mp4 is the crossfaded
 # 7s loop cut from it; keep this locally for future re-encodes, out of the repo.
 assets/video/homeworld-source.mp4
+
+# Untouched FAQ world source; the shipped faq-world.mp4 is the crossfaded cut.
+assets/video/faq-world-source.mp4
