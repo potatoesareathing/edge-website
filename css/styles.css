@@ -979,12 +979,15 @@ table.board-table {
   transition: background .12s linear;
 }
 
-/* Everything that is not the film sits above it. */
-.topbar, .shell, .footer, .ask-fab, .ask, .ask-scrim { position: relative; z-index: 1; }
+/* Everything that is not the film sits above it.
+
+   Only the in-flow surfaces are listed. The launcher and the drawer are
+   already `position: fixed` with their own stacking order, and naming them
+   here re-declared `position: relative` over that — same specificity, later in
+   the file, so it won. The launcher stopped being pinned and dropped into
+   normal flow at the foot of the page. Set the stacking order only. */
+.topbar, .shell, .footer { position: relative; z-index: 1; }
 .topbar { z-index: 50; }
-.ask-fab { z-index: 60; }
-.ask-scrim { z-index: 70; }
-.ask { z-index: 80; }
 
 /* -- the first viewport --------------------------------------------------- */
 

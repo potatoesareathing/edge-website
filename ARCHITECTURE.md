@@ -251,6 +251,24 @@ browser is not a trust boundary — anyone can POST straight at the API.
 
 ---
 
+## 7b. Homeworld video
+
+`initHomeworld()` owns the looping film on About.
+
+- `src` is attached in JS, so a metered connection or reduced-motion
+  preference never triggers the download. The poster covers that case.
+- Plays only on About; `showTab()` calls `window.__edgeHomeworld(tab)`.
+- Pauses when the document is hidden and when the first viewport is scrolled
+  past. A loop nobody can see is pure cost.
+- The scroll handler is **synchronous inside the passive listener**, not in
+  `requestAnimationFrame`. Reading `scrollY` forces no layout and setting a
+  custom property is cheap, so the throttle bought nothing while making
+  correctness depend on rAF firing — the same trap that stranded the drawer.
+
+The shipped `homeworld.mp4` is a crossfaded 7s loop cut from an 8s source, so
+the join is continuous. Re-cut it with the recipe in `DESIGN.md` if the source
+is ever replaced.
+
 ## 8. Style layer
 
 One stylesheet. Tokens first, so the palette is one block at the top.
@@ -331,6 +349,9 @@ Things that must stay true. Breaking one is a regression, not a change.
 8. No select/update/delete policy on the registrations table.
 9. No third-party game characters, official art or fan art. Original work only.
 10. Deploys publish a clean tree, never the working folder.
+11. `position` is never re-declared on `.ask-fab`, `.ask` or `.ask-scrim` by a
+    later rule. They are `position: fixed`; a later same-specificity rule
+    setting `relative` silently drops the launcher into normal flow.
 
 ---
 

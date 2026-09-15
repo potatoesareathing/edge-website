@@ -108,11 +108,20 @@ how the palette rule survives a colour asset without either being weakened.
 Three rules govern playback, all about not wasting a student's data:
 
 1. The `src` is attached in JS, never in markup. On a metered connection, or
-   under reduced motion, the 7.9 MB file is never fetched and the poster frame
-   stands in.
+   under reduced motion, the file is never fetched and the poster frame stands
+   in.
 2. It only runs on About. Every other tab hides and pauses it.
 3. It pauses when the document is hidden and when the first viewport is
    scrolled past.
+
+**The loop is crossfaded.** The 8s source cut hard at the join. The shipped
+file is 7s: its first second is a blend of the source's tail fading into its
+head, so the last frame and the first frame are one frame apart in the
+original timeline. Measured, the junction differs by 6.6 RMS against 9.8 for
+ordinary adjacent frames mid-clip — the loop point is a smaller step than
+normal motion, so there is nothing to see. Audio was dropped (the film is
+muted anyway) and the re-encode took it from 7.9 MB to 3.7 MB. The untouched
+source is kept out of the repo at `assets/video/homeworld-source.mp4`.
 
 A scrim sits over it: a fixed gradient anchored under the text column, because
 moving footage changes contrast frame to frame and the hero copy needs
