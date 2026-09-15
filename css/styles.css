@@ -83,6 +83,13 @@ body {
 }
 
 img, svg, video { display: block; max-width: 100%; }
+
+/* The `hidden` attribute only works because the browser's own stylesheet says
+   display:none, and ANY author rule setting display beats it. `.world` set
+   display:flex and so stayed laid out over the whole page while hidden —
+   invisible at opacity 0, but swallowing every click and wheel event on the
+   site. Declared here so no component can ever reintroduce that. */
+[hidden] { display: none !important; }
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -175,14 +182,11 @@ input, textarea { caret-color: var(--white); }
 }
 .topbar__in { display: flex; align-items: center; gap: 1.25rem; min-height: 66px; }
 
-.brand { display: flex; align-items: center; gap: .6rem; flex: none; }
-.brand img { width: 32px; height: 32px; }
-.brand__name {
-  font-family: var(--display);
-  font-size: 1.5rem;
-  letter-spacing: .1em;
-  color: var(--white);
-}
+.brand { display: flex; align-items: center; gap: .55rem; flex: none; }
+/* The mark is not square — 398x333 in its own artwork — so height leads and
+   width follows, rather than forcing it into a box and distorting it. */
+.brand__mark { height: 28px; width: auto; }
+.brand__word { height: 19px; width: auto; }
 
 .tabs { display: flex; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
@@ -1083,13 +1087,12 @@ table.board-table {
   padding-block: 3rem 5rem;
 }
 
-.home__mark { width: clamp(64px, 9vw, 104px); height: auto; }
+.home__mark { width: clamp(70px, 9.5vw, 112px); height: auto; }
 
-.home__title {
-  font-size: clamp(4rem, 15vw, 11rem);
-  letter-spacing: -.02em;
-  line-height: .82;
-}
+/* The name is set in the club's own logotype, traced from the original
+   artwork, not in a typeface approximating it. */
+.home__title { line-height: 0; margin-block: .2em .1em; }
+.home__title img { width: min(100%, 540px); height: auto; }
 
 .home__line {
   font-size: clamp(1.05rem, 2vw, 1.4rem);

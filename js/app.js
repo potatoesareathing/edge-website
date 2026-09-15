@@ -547,12 +547,9 @@
      dimension, and js/portal.js owns the effect. This function is only the
      wiring: when to peek, when to commit, when to come back.
 
-     Hover opens a small tear and starts the sound bleeding through. Staying
-     there, or clicking, commits. Leaving closes it again. A full takeover on
-     a stray mouse path would be hostile, so the commitment is deliberate
-     while the invitation is immediate. */
-
-  const PEEK_TO_COMMIT = 850;   // ms of hover before the tear takes over
+     Hover opens a small tear and starts the sound bleeding through, so the
+     other side is visible from here. Clicking crosses over. Leaving closes it
+     again. The invitation is immediate; the commitment is always a click. */
 
   function initAsk() {
     const fab   = byId("askFab");
@@ -563,7 +560,7 @@
 
     const P = window.EDGE_PORTAL;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let lastFocus = null, dwell = 0, attached = false;
+    let lastFocus = null, attached = false;
 
     // The world's video is only fetched when the visitor shows intent, the
     // same rule the homepage film follows.
@@ -600,7 +597,6 @@
     }
 
     function commit() {
-      clearTimeout(dwell);
       attach();
       if (!P || reduced || !P.supported()) { enter(); return; }   // no WebGL: just go
       P.open({ video, origin: fab, volume: 0.4, onEnter: enter });
@@ -611,16 +607,16 @@
     // here tore down the portal while leaving the interface stranded on top of
     // the homepage. Leaving is exit()'s job, and exit() hides both.
     function abort() {
-      clearTimeout(dwell);
       if (P && !P.isOpen()) P.peek(false);
     }
 
+    // Hover only opens the tear. It never crosses over on its own: being
+    // teleported by a mouse path that happened to pass the corner is hostile,
+    // and there is no way to glance at the other side without committing.
     fab.addEventListener("pointerenter", () => {
       attach();
       if (reduced || !P || !P.supported()) return;
       P.peek(true);
-      clearTimeout(dwell);
-      dwell = setTimeout(commit, PEEK_TO_COMMIT);
     });
     fab.addEventListener("pointerleave", abort);
     fab.addEventListener("click", commit);
@@ -657,7 +653,7 @@
      a character. */
   function initGlitch() {
     const SELECTOR = [
-      ".panel__head h1", ".sec-title", ".brand__name", ".path__name",
+      ".panel__head h1", ".sec-title", ".path__name",
       ".player .ign", ".post h3", ".ask__title", ".roster-head h3"
     ].join(", ");
 

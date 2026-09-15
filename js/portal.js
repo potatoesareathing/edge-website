@@ -200,6 +200,8 @@
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -246,6 +248,9 @@
 
     if (video && video.readyState >= 2) {
       gl.bindTexture(gl.TEXTURE_2D, tex);
+      // Re-asserted per upload: this is context state and anything else that
+      // ever touches the GL context could leave it off, flipping the world.
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video);
       gl.uniform2f(uni.uTexRes, video.videoWidth || 1920, video.videoHeight || 1080);
     }
