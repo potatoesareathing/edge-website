@@ -185,6 +185,30 @@ Held out deliberately, and each one is a regression if it returns:
 - Colour introduced anywhere the mark does not have it
 - Animating layout properties (padding, width, height, margin)
 
+## Phones
+
+One scale for small screens rather than per-component guesses. The logotype was
+90% of a 375px viewport and buttons stood 61px tall at 19.2px type, which read
+as oversized and made the two worlds feel unrelated.
+
+Two geometry problems the world had on a portrait phone:
+
+- **The chat spilled onto the questions.** A fixed-height flex column whose
+  children total more than that height does not shrink them, it lets them
+  overflow. The log now sizes to its content up to a cap.
+- **The character was invisible.** At 375x812 `cover` crops horizontally only —
+  the full height of the frame always shows — so he landed at ~471px, squarely
+  behind the chat. Scaling the film about a point below the viewport crops
+  vertically as well and lifts him into the clear band above the panel.
+
+## Sound
+
+A dry tick on press, synthesised with Web Audio rather than loaded as a file:
+nothing to download, and an envelope is drier than a small sample. Two voices —
+`tap` for chips, tabs and disclosure rows, `press` for primary actions and
+crossing worlds. Deliberately quiet; a tick that announces itself is worse than
+silence.
+
 ## Empty states
 
 A first-class surface here, not an afterthought. The site launches with almost

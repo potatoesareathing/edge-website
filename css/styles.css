@@ -482,7 +482,7 @@ fieldset.field { border: 0; margin: 0; }
   text-transform: uppercase;
 }
 .chat__log {
-  flex: 1; min-height: 120px; overflow-y: auto; overflow-x: hidden; padding: 1rem;
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 1rem;
   display: flex; flex-direction: column; gap: .65rem;
 }
 .msg { display: flex; max-width: 84%; }
@@ -856,13 +856,28 @@ table.board-table {
   left: 0;
   top: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   opacity: 1;
   object-fit: cover;
+  /* He stands left of centre and low in the frame. On a portrait phone cover
+     discards most of the width, and a centred crop removed him from his own
+     world. On wide screens the crop is vertical, so this changes nothing. */
+  object-position: 36% 58%;
   z-index: 155;
 }
 
 /* -- the world you arrive in ---------------------------------------------- */
+
+/* Sits under the world's own content but over the film. */
+.world::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgba(12,12,14,.72) 0%, rgba(12,12,14,.42) 30%,
+                               rgba(12,12,14,.52) 70%, rgba(12,12,14,.78) 100%);
+}
 
 .world {
   position: fixed;
@@ -875,6 +890,18 @@ table.board-table {
   transition: opacity .45s var(--ease);
 }
 .world.is-in { opacity: 1; }
+
+/* Content rises in on arrival, matching the homepage's own entrance so the
+   two worlds animate by the same rules rather than each having its own. */
+.world.is-in .world__bar   { animation: worldIn .5s var(--ease) .06s both; }
+.world.is-in .world .chat,
+.world.is-in .chat         { animation: worldIn .55s var(--ease) .14s both; }
+.world.is-in .world__sub   { animation: worldIn .55s var(--ease) .2s both; }
+.world.is-in .faq-list     { animation: worldIn .6s var(--ease) .26s both; }
+@keyframes worldIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
 
 .world__bar {
   position: sticky;
@@ -924,28 +951,31 @@ table.board-table {
 
 /* The chat belongs to the world. It keeps the board language so it is part of
    EDGE, but it is inset into the scene rather than floated over a page. */
-.world .chat__log { scrollbar-width: thin; scrollbar-color: var(--rule) transparent; }
+.world .chat__log { flex: 0 1 auto; max-height: min(34vh, 300px); min-height: 72px; scrollbar-width: thin; scrollbar-color: var(--rule) transparent; }
 .world .chat__log::-webkit-scrollbar { width: 8px; }
 .world .chat__log::-webkit-scrollbar-track { background: transparent; }
 .world .chat__log::-webkit-scrollbar-thumb { background: var(--rule); border: 0; }
 
 .world .chat {
-  height: min(52vh, 440px);
-  background: rgba(14,14,16,.86);
+  height: auto;
+  max-height: none;
+  background: rgba(12,12,14,.94);
   border: 3px solid var(--rule);
   margin-bottom: 0;
 }
-.world .faq-item { background: rgba(14,14,16,.86); }
+.world .faq-item { background: rgba(12,12,14,.92); }
+
+@media (orientation: portrait) and (max-width: 860px) {
+  .portal-src.is-world {
+    transform: scale(1.5);
+    transform-origin: 30% 108%;
+  }
+}
 
 @media (max-width: 680px) {
   .ask-fab span { display: none; }
   .ask-fab { padding: .8rem; right: 16px; }
-  .world .chat__log { scrollbar-width: thin; scrollbar-color: var(--rule) transparent; }
-.world .chat__log::-webkit-scrollbar { width: 8px; }
-.world .chat__log::-webkit-scrollbar-track { background: transparent; }
-.world .chat__log::-webkit-scrollbar-thumb { background: var(--rule); border: 0; }
-
-.world .chat { height: 46vh; }
+  .world .chat__log { max-height: 26vh; }
 }
 
 /* Without motion the tear is meaningless, so the world is simply shown. */
@@ -1175,4 +1205,54 @@ table.board-table {
 @media (max-width: 680px) {
   .home { min-height: calc(100svh - 62px); }
   .home__title { font-size: clamp(3.4rem, 19vw, 6rem); }
+}
+
+/* == 20. PHONES ============================================================
+   One scale for small screens rather than per-component guesses. On a 375px
+   phone the logotype was 339px wide — 90% of the viewport — and buttons stood
+   61px tall at 19.2px type, which is why everything read as oversized and
+   inconsistent between the two worlds.
+   ========================================================================== */
+
+@media (max-width: 680px) {
+  /* Type comes down as a system, so both worlds shrink by the same rules. */
+  body { font-size: 16px; }
+
+  .home__title img { width: 72%; }
+  .home__mark      { height: clamp(46px, 13vw, 62px); }
+  .home__line      { font-size: 1rem; max-width: 26ch; }
+  .home            { gap: .85rem; }
+
+  .plate {
+    font-size: 1.02rem;
+    padding: .62rem 1.15rem;
+  }
+  .home__actions { gap: .5rem; }
+
+  .panel__head h1 { font-size: clamp(2.2rem, 12vw, 3rem); }
+  .sec-title      { font-size: clamp(1.35rem, 6.5vw, 1.8rem); }
+
+  /* The world matches the homepage instead of running its own sizes. */
+  .world__bar    { padding: .7rem 16px; }
+  .world__title  { font-size: 1.15rem; }
+  .world__back   { font-size: .88rem; padding: .45rem .8rem; }
+  .world__id img { height: 20px; }
+  .world__inner  { padding: 26vh 16px 3.5rem; }
+  .world__sub    { font-size: 1rem; margin-top: 1.2rem; }
+
+  .faq-item summary { font-size: 1.02rem; padding: .75rem .9rem; gap: .7rem; }
+  .faq-item summary::after { font-size: 1.25rem; }
+  .faq-item p { font-size: .94rem; padding: .75rem .9rem .9rem; }
+
+  .chip, .check span, .subtab { font-size: .94rem; }
+  .chat__form input { font-size: 16px; }   /* 16px stops iOS zooming the page */
+  .chat__chips { padding: .6rem .8rem; }
+  .msg__body { font-size: .92rem; }
+}
+
+/* Short landscape phones: the world's chat cannot claim half the height or the
+   questions below it are unreachable. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .world .chat__log { height: 26vh; }
+  .world__bar  { padding-block: .45rem; }
 }
