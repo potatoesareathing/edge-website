@@ -201,6 +201,20 @@ Two geometry problems the world had on a portrait phone:
   behind the chat. Scaling the film about a point below the viewport crops
   vertically as well and lifts him into the clear band above the panel.
 
+The leaderboard drops **W** and **L** on a phone: both are derivable from the
+record and together cost 150px, while Points and Move carry the story. The
+table then fits 375px with no sideways scroll.
+
+Overriding a base rule inside the phone media query only works if the selector
+carries the same weight. `table.board-table` and `.board-table thead th` each
+outrank the bare class, so `.board-table { min-width: 0 }` silently lost and
+the table stayed 640px wide. This is the same specificity mistake the mark
+rule made — check the base selector before writing the override.
+
+Type steps down one notch below 680px: the body scale to 15px and the world's
+own controls with it. Measured at 375x812, every row of the FAQ world sits
+inside the 16-359 column with nothing clipped.
+
 ## Sound
 
 A dry tick on press, synthesised with Web Audio rather than loaded as a file:

@@ -1215,17 +1215,19 @@ table.board-table {
    ========================================================================== */
 
 @media (max-width: 680px) {
-  /* Type comes down as a system, so both worlds shrink by the same rules. */
-  body { font-size: 16px; }
+  /* Type comes down as a system, so both worlds shrink by the same rules.
+     Most sizes are rem-based, so the root carries most of the reduction and
+     the overrides below only handle what needs to fall further. */
+  body { font-size: 15px; }
 
   .home__title img { width: 72%; }
   .home__mark      { height: clamp(46px, 13vw, 62px); }
-  .home__line      { font-size: 1rem; max-width: 26ch; }
+  .home__line      { font-size: .98rem; max-width: 26ch; }
   .home            { gap: .85rem; }
 
   .plate {
-    font-size: 1.02rem;
-    padding: .62rem 1.15rem;
+    font-size: .98rem;
+    padding: .58rem 1.05rem;
   }
   .home__actions { gap: .5rem; }
 
@@ -1234,20 +1236,35 @@ table.board-table {
 
   /* The world matches the homepage instead of running its own sizes. */
   .world__bar    { padding: .7rem 16px; }
-  .world__title  { font-size: 1.15rem; }
-  .world__back   { font-size: .88rem; padding: .45rem .8rem; }
+  .world__title  { font-size: 1.08rem; }
+  .world__back   { font-size: .84rem; padding: .42rem .75rem; }
   .world__id img { height: 20px; }
   .world__inner  { padding: 26vh 16px 3.5rem; }
-  .world__sub    { font-size: 1rem; margin-top: 1.2rem; }
+  .world__sub    { font-size: .95rem; margin-top: 1.1rem; }
 
-  .faq-item summary { font-size: 1.02rem; padding: .75rem .9rem; gap: .7rem; }
+  .faq-item summary { font-size: .98rem; padding: .7rem .85rem; gap: .6rem; }
   .faq-item summary::after { font-size: 1.25rem; }
-  .faq-item p { font-size: .94rem; padding: .75rem .9rem .9rem; }
+  .faq-item p { font-size: .9rem; padding: .7rem .85rem .85rem; }
 
-  .chip, .check span, .subtab { font-size: .94rem; }
+  .chip, .check span, .subtab { font-size: .9rem; padding-block: .38rem; }
   .chat__form input { font-size: 16px; }   /* 16px stops iOS zooming the page */
+
+  /* W and L are derivable from the record and cost 150px of width. Points and
+     Move carry the story on a phone; the full table is there on a laptop. */
+  table.board-table { min-width: 0; }
+  .board-table th:nth-child(5), .board-table td:nth-child(5),
+  .board-table th:nth-child(6), .board-table td:nth-child(6) { display: none; }
+  /* Selectors here must match the base rules' weight, not undercut it:
+     `table.board-table` beats `.board-table`, and `.board-table thead th`
+     beats `.board-table th`. Both were lost once already. */
+  .board-table thead th,
+  .board-table td { padding: .6rem .5rem; font-size: .88rem; }
+  .board-table thead th { font-size: .82rem; letter-spacing: .05em; }
+  .board-table .rank { width: 40px; font-size: 1.15rem; }
+  .board-table .ign  { font-size: 1rem; }
+  .board-table .pts  { font-size: 1.05rem; }
   .chat__chips { padding: .6rem .8rem; }
-  .msg__body { font-size: .92rem; }
+  .msg__body { font-size: .9rem; padding: .6rem .8rem; }
 }
 
 /* Short landscape phones: the world's chat cannot claim half the height or the
