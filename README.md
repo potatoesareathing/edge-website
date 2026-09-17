@@ -6,7 +6,7 @@ opens from the bottom-right corner.
 Plain HTML, CSS and JavaScript. No build step, no framework, no install.
 Double-click `index.html` and it runs.
 
-Live: <https://edge-ruas.netlify.app>
+Live: <https://potatoesareathing.github.io/edge-website/>
 
 ---
 
@@ -239,17 +239,33 @@ one-sided borders and animated layout properties.
 
 ## 7. Deploying
 
-Deploys go to Netlify. **Always publish a clean tree, never the working
-folder** — the CLI's `--dir` ignores `.gitignore`, and publishing the folder
-directly once put files online that should never have been there:
+The site is served by **GitHub Pages** from `main` at the repo root. There is
+no build step, so a push is a deploy:
+
+```bash
+git push origin main
+```
+
+Pages publishes committed files only, which is the safety property that matters
+here. Publishing a working folder directly once put files online that should
+never have been there, because a `--dir` upload ignores `.gitignore`. Serving
+straight from the branch makes that mistake impossible.
+
+Two things this host requires and the site already satisfies: every asset path
+is relative, because Pages serves from the `/edge-website/` subpath rather than
+a domain root, and no tracked file or folder starts with `_`, which Jekyll
+would otherwise skip.
+
+Netlify (`edge-ruas`) was the original host and the config is still in
+`netlify.toml`. It stopped accepting deploys in September 2026 — the account
+returns `Account credit usage exceeded - new deploys are blocked until credits
+are added`, surfaced by the CLI only as a bare `Forbidden`. If that account is
+topped up, the clean-tree publish still works:
 
 ```bash
 git archive --format=tar HEAD | tar -x -C /tmp/publish
-npx netlify-cli deploy --prod --dir=/tmp/publish
+npx netlify deploy --prod --dir=/tmp/publish
 ```
-
-Better still, link the GitHub repo in the Netlify dashboard. Git-sourced builds
-can only publish committed files, which makes that mistake impossible.
 
 Repo: <https://github.com/potatoesareathing/edge-website>
 
