@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EDGE Website — Owner's Technical Manual</title>
+<style>
+@page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+@page :first { margin: 0; }
+
+* { box-sizing: border-box; }
+html { font-size: 10.5pt; }
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.58; color: #16161a; margin: 0;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
+/* ---------- cover ---------- */
+.cover {
+  height: 297mm; background: #101012; color: #F5F5F3;
+  padding: 38mm 22mm; page-break-after: always; position: relative;
+}
+.cover__mark { width: 28mm; margin-bottom: 12mm; }
+.cover h1 { font-size: 33pt; line-height: 1.08; margin: 0 0 6mm;
+  font-family: "Segoe UI", Helvetica, sans-serif; font-weight: 700;
+  letter-spacing: -.01em; border: 0; padding: 0; page-break-before: auto; }
+.cover h2 { font-size: 13pt; font-weight: 400; color: #A6A6A3; margin: 0 0 18mm;
+  font-family: "Segoe UI", Helvetica, sans-serif; border: 0; padding: 0; }
+.cover__rule { height: 3px; background: #F5F5F3; width: 40mm; margin-bottom: 8mm; }
+.cover__meta { position: absolute; bottom: 28mm; left: 22mm; right: 22mm;
+  font-family: "Segoe UI", Helvetica, sans-serif; font-size: 9.5pt;
+  color: #A6A6A3; line-height: 1.85; }
+.cover__meta strong { color: #F5F5F3; font-weight: 600; display: inline-block; min-width: 26mm; }
+
+/* ---------- headings ---------- */
+h1, h2, h3, h4 { font-family: "Segoe UI", Helvetica, sans-serif; line-height: 1.22; }
+h1 {
+  font-size: 21pt; margin: 0 0 7mm; padding-bottom: 3mm;
+  border-bottom: 3px solid #16161a; page-break-before: always; page-break-after: avoid;
+}
+h1 .num { display: block; font-size: 8.5pt; letter-spacing: .16em; text-transform: uppercase;
+  color: #7a7a80; margin-bottom: 2.5mm; font-weight: 600; }
+h2 { font-size: 14pt; margin: 8mm 0 3mm; page-break-after: avoid; }
+h3 { font-size: 11.5pt; margin: 6mm 0 2mm; page-break-after: avoid; }
+h4 { font-size: 10pt; margin: 4mm 0 1.5mm; page-break-after: avoid; color: #3a3a42; }
+p { margin: 0 0 3.2mm; }
+ul, ol { margin: 0 0 3.5mm; padding-left: 6mm; }
+li { margin-bottom: 1.6mm; }
+a { color: #16161a; }
+strong { font-weight: 700; }
+
+/* ---------- code ---------- */
+code { font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+  font-size: 8.8pt; background: #f0f0f2; padding: .4mm 1.1mm; border-radius: 2px; }
+pre { font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+  font-size: 8.3pt; line-height: 1.46; background: #f6f6f7; border-left: 3px solid #16161a;
+  padding: 3mm 4mm; margin: 0 0 4mm; white-space: pre-wrap; word-wrap: break-word;
+  page-break-inside: avoid; }
+pre code { background: none; padding: 0; font-size: inherit; }
+
+/* ---------- callouts ---------- */
+.box { border: 1.5px solid #16161a; padding: 3.5mm 4mm; margin: 0 0 4.5mm; page-break-inside: avoid; }
+.box__t { font-family: "Segoe UI", Helvetica, sans-serif; font-weight: 700; font-size: 8.8pt;
+  letter-spacing: .1em; text-transform: uppercase; margin-bottom: 2mm; }
+.box p:last-child, .box ul:last-child, .box ol:last-child, .box pre:last-child { margin-bottom: 0; }
+.box--warn { border-color: #a3261c; background: #fdf4f3; }
+.box--warn .box__t { color: #a3261c; }
+.box--verify { border-color: #8a6d00; background: #fdfaef; }
+.box--verify .box__t { color: #8a6d00; }
+.box--key { background: #f3f3f5; }
+.box--term { border: 0; border-left: 4px solid #c8c8cc; padding: 1mm 0 1mm 4mm; background: none;
+  margin-bottom: 3.5mm; }
+.box--term .box__t { color: #5a5a62; letter-spacing: .06em; margin-bottom: 1mm; }
+
+/* ---------- tables ---------- */
+table { width: 100%; border-collapse: collapse; margin: 0 0 4.5mm; font-size: 8.8pt;
+  font-family: "Segoe UI", Helvetica, sans-serif; }
+th { background: #16161a; color: #fff; text-align: left; padding: 2mm 2.5mm;
+  font-weight: 600; font-size: 8.4pt; }
+td { padding: 2mm 2.5mm; border-bottom: 1px solid #dcdce0; vertical-align: top; line-height: 1.42; }
+tr { page-break-inside: avoid; }
+td code { font-size: 7.9pt; }
+
+/* ---------- diagrams ---------- */
+figure { margin: 0 0 5mm; page-break-inside: avoid; }
+figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-family: "Segoe UI", Helvetica, sans-serif; font-size: 8.3pt;
+  color: #5a5a62; margin-top: 1.5mm; }
+.sv-l { font-family: "Segoe UI", Helvetica, sans-serif; font-size: 9px; fill: #16161a; }
+.sv-s { font-family: "Segoe UI", Helvetica, sans-serif; font-size: 7.5px; fill: #5a5a62; }
+.sv-b { font-family: "Segoe UI", Helvetica, sans-serif; font-size: 9.5px; fill: #16161a; font-weight: 700; }
+.sv-w { font-family: "Segoe UI", Helvetica, sans-serif; font-size: 9px; fill: #fff; font-weight: 600; }
+.sv-ws { font-family: "Segoe UI", Helvetica, sans-serif; font-size: 7.5px; fill: #c8c8cc; }
+.sv-m { font-family: Consolas, monospace; font-size: 8px; fill: #16161a; }
+
+/* ---------- toc ---------- */
+.toc ol { list-style: none; padding: 0; counter-reset: p; margin: 0; }
+.toc > ol > li { counter-increment: p; margin-bottom: 3mm;
+  font-family: "Segoe UI", Helvetica, sans-serif; font-size: 10pt; font-weight: 600; }
+.toc > ol > li::before { content: counter(p) ".\00a0\00a0"; color: #7a7a80; }
+.toc ul { list-style: none; padding-left: 8mm; margin: 1mm 0 0; font-weight: 400;
+  font-size: 8.8pt; color: #4a4a52; }
+.toc ul li { margin-bottom: .5mm; }
+
+.lead { font-size: 11.5pt; color: #3a3a42; margin-bottom: 5mm; }
+hr { border: 0; border-top: 1px solid #dcdce0; margin: 6mm 0; }
+.avoid { page-break-inside: avoid; }
+.tight li { margin-bottom: .8mm; }
+</style>
+</head>
+<body>

@@ -1,0 +1,430 @@
+<!-- ============================== PART 10 ============================== -->
+<h1><span class="num">Part 10</span>Known gaps and unfinished work</h1>
+
+<p class="lead">Everything the code itself flags as incomplete, plus everything that could
+not be determined from the project files. Nothing here is guessed at.</p>
+
+<h2>10.1 &nbsp;Marked TODO in the code</h2>
+
+<table>
+<tr><th style="width:26%">Where</th><th style="width:44%">What is missing</th><th style="width:30%">Consequence today</th></tr>
+<tr><td><code>content.js:126</code></td><td>Supabase <code>url</code> and <code>anon_key</code> are empty strings.</td>
+<td><strong>Registrations go nowhere.</strong> The single most important gap.</td></tr>
+<tr><td><code>content.js:227</code></td><td>Leaderboard is five rows of <code>PLAYER-01 / Full Name</code> with zero points.</td>
+<td>The Players tab shows obvious placeholder data to anyone who visits.</td></tr>
+<tr><td><code>content.js:236</code></td><td>Both rosters are placeholder players.</td>
+<td>Same.</td></tr>
+<tr><td><code>content.js:302</code></td><td><code>crew</code> is an empty array.</td>
+<td>The "Who runs it" section hides itself. Intentional behaviour, but the club has no
+named committee on its own site.</td></tr>
+<tr><td><code>content.js:15</code></td><td>Instagram, Discord and YouTube links are empty.</td>
+<td>The footer renders no social links at all.</td></tr>
+<tr><td><code>content.js:20</code></td><td>Club email <code>edge@msruas.ac.in</code> marked <em>TODO confirm</em>.</td>
+<td>May not be a real address. If it bounces, the site's only contact route is dead.</td></tr>
+<tr><td><code>content.js:87</code></td><td>Branch list marked <em>TODO replace with the exact names RUAS uses</em>.</td>
+<td>Students may not find their branch; data quality suffers.</td></tr>
+<tr><td><code>content.js:289</code></td><td>Founded year "2026" marked <em>TODO confirm</em>.</td>
+<td>A factual claim on the About page that may be wrong.</td></tr>
+<tr><td><code>content.js:38, 307</code></td><td>Blog posts and updates are written as plausible examples, marked TODO.</td>
+<td>The site describes events that may not have happened.</td></tr>
+<tr><td><code>join.js:103</code></td><td>Register number validation deliberately permissive, <em>TODO tighten once the
+RUAS format is confirmed</em>.</td>
+<td>Accepts almost anything 4&ndash;20 characters. Low risk, but typos pass.</td></tr>
+</table>
+
+<div class="box box--warn">
+  <div class="box__t">The content problem, stated plainly</div>
+  <p>Your site is architecturally finished and factually empty. Every system works;
+  almost every piece of information in it is a placeholder. Before you show this to
+  students, one afternoon with <code>content.js</code> matters more than any code change in this
+  manual.</p>
+</div>
+
+<h2>10.2 &nbsp;Needs verification</h2>
+
+<p>These could not be determined from the project files. Do not assume either way.</p>
+
+<table>
+<tr><th style="width:34%">Question</th><th style="width:66%">Why it is unresolved</th></tr>
+<tr><td>Does a Supabase project exist at all?</td>
+<td>The schema file and the client code exist, but nothing in the repository records a
+project URL, an account, or whether the SQL was ever run. <strong>Check by signing in to
+Supabase</strong>, or assume it does not and follow 11.14 from the start.</td></tr>
+
+<tr><td>Is <code>edge@msruas.ac.in</code> a working address?</td>
+<td>Marked TODO in the code. Send it a test email.</td></tr>
+
+<tr><td>Was the club actually founded in 2026?</td>
+<td>Marked TODO. Confirm with the committee.</td></tr>
+
+<tr><td>What ffmpeg command produced the crossfaded loops?</td>
+<td>Not recorded anywhere in the project. The technique is documented in
+<code>DESIGN.md</code>; the exact invocation is not. Procedure 11.2 gives a command that should
+reproduce it &mdash; test before relying on it.</td></tr>
+
+<tr><td>Who else has access to the GitHub account?</td>
+<td>Not determinable from the repository. Check the account's settings.</td></tr>
+
+<tr><td>Does the club own any domain name?</td>
+<td>No <code>CNAME</code> file exists and no domain appears anywhere in the project, which
+strongly suggests no &mdash; but a domain could be registered and simply unused.</td></tr>
+
+<tr><td>Is there a privacy notice or consent requirement?</td>
+<td>The form collects personal data from students. The site says only "Your details are
+used only to contact you about EDGE." Whether RUAS requires more is an institutional
+question, not a technical one. <strong>Ask before collecting at scale.</strong></td></tr>
+</table>
+
+<h2>10.3 &nbsp;Things that work but are worth knowing about</h2>
+
+<ul>
+<li><strong>The back button skips tab changes.</strong> <code>history.replaceState</code> replaces rather
+than adds history entries. Deliberate, but it surprises people.</li>
+<li><strong>The leaderboard hides two columns on phones.</strong> W and L are dropped below 680px
+because they cost 150px of width and are derivable from the record. The full table is
+there on a laptop.</li>
+<li><strong>A comment in <code>portal.js</code> says "two triangles"</strong> but the code uploads three
+vertices and draws one oversized triangle covering clip space &mdash; a standard trick that
+avoids a seam down the diagonal. The comment is slightly wrong; the code is correct.</li>
+<li><strong><code>serve.js</code> is published but never runs.</strong> GitHub Pages executes nothing.
+Harmless, but do not expect it to do anything in production.</li>
+<li><strong><code>EDGE_ASK</code> and <code>EDGE_SOUND</code> are exposed but unused.</strong> Deliberate hooks for
+features not yet built.</li>
+</ul>
+
+<!-- ============================== PART 11 ============================== -->
+<h1><span class="num">Part 11</span>The maintenance playbook</h1>
+
+<p class="lead">Eighteen procedures for the jobs you will actually do, written against your
+real files. Every one ends the same way, so learn that ending once.</p>
+
+<div class="box box--key">
+  <div class="box__t">The ending, used by every procedure below</div>
+  <pre>node serve.js                          # preview at http://localhost:8790
+# check it, then:
+git status                             # what changed?
+git diff                               # exactly which lines?
+git add -A
+git commit -m "describe what changed"
+git push                               # this is the deployment
+# wait ~60s, then hard-refresh the live site: Ctrl+Shift+R</pre>
+  <p>Referred to below as <strong>[preview, commit, push]</strong>.</p>
+</div>
+
+<h2>11.1 &nbsp;Change homepage text</h2>
+<ol class="tight">
+<li>The hero line ("Esports and gaming at Ramaiah&hellip;") is written directly in
+<code>index.html</code>, in <code>&lt;p class="home__line"&gt;</code>. Edit it there.</li>
+<li>Everything <em>below</em> the hero comes from <code>content.js</code> &rarr; <code>about</code>: <code>lead</code>,
+<code>body</code> (an array of paragraphs), <code>facts</code>, <code>pillars</code>.</li>
+<li>[preview, commit, push]</li>
+</ol>
+<p><strong>What breaks:</strong> nothing structural. If the About section goes blank, you broke JSON
+syntax in <code>content.js</code> &mdash; see 12.6.</p>
+
+<h2>11.2 &nbsp;Replace a video</h2>
+<p>The hard part is not swapping the file; it is the crossfade that makes the loop
+invisible.</p>
+<ol class="tight">
+<li>Keep your new source out of the repo: name it <code>homeworld-source.mp4</code>, which
+<code>.gitignore</code> already excludes.</li>
+<li>Produce a crossfaded loop. For an 8-second source producing a 7-second loop:
+<pre>ffmpeg -i homeworld-source.mp4 -filter_complex ^
+ "[0:v]trim=0:1,setpts=PTS-STARTPTS[head]; ^
+  [0:v]trim=7:8,setpts=PTS-STARTPTS[tail]; ^
+  [tail][head]blend=all_expr='A*(1-T/1)+B*(T/1)'[fade]; ^
+  [0:v]trim=1:7,setpts=PTS-STARTPTS[mid]; ^
+  [fade][mid]concat=n=2:v=1[out]" ^
+ -map "[out]" -an -c:v libx264 -crf 26 -pix_fmt yuv420p homeworld.mp4</pre>
+<span style="font-size:9pt"><em>Needs verification &mdash; this reconstructs the technique; test the
+output before shipping.</em></span></li>
+<li>Check the size. Target under 4 MB. Raise <code>-crf</code> (28, 30) to shrink it.</li>
+<li>Extract a matching poster:
+<pre>ffmpeg -i homeworld.mp4 -ss 2 -vframes 1 -q:v 4 homeworld-poster.jpg</pre></li>
+<li>Put both in <code>assets/video/</code>, replacing the old ones. Filenames must stay the same,
+or update <code>VIDEO_SRC</code> at <code>app.js:735</code>.</li>
+<li><strong>Test the loop:</strong> watch it for 30 seconds. If you can see where it restarts, the
+crossfade failed.</li>
+<li>[preview, commit, push]</li>
+</ol>
+<p><strong>What breaks:</strong> the FAQ world's video <em>must keep its audio track</em> &mdash; the portal
+ramps its volume to 40%. Adding <code>-an</code> to that one would silence the feature.</p>
+
+<h2>11.3 &nbsp;Add a page</h2>
+<p>Your site has no pages, only tabs. Adding a genuine second HTML file would break the
+single-page model. <strong>Add a tab instead</strong> &mdash; 11.4.</p>
+<p>If you truly need a separate URL (for sharing, or for search engines), create
+<code>rules.html</code> as a copy of <code>index.html</code> with the body replaced, keeping the same
+stylesheet and script tags. Be aware you now maintain the header and footer in two
+places, which is how sites drift out of sync.</p>
+
+<h2>11.4 &nbsp;Add a navigation tab</h2>
+<p>Four edits, in order. Miss one and the tab appears but does nothing.</p>
+<ol class="tight">
+<li><strong><code>index.html</code></strong> &mdash; add the button next to the others, copying every attribute:
+<pre>&lt;button class="tab" role="tab" id="tab-rules" aria-controls="panel-rules"
+        aria-selected="false" data-tab="rules"&gt;Rules&lt;/button&gt;</pre></li>
+<li><strong><code>index.html</code></strong> &mdash; add the panel inside <code>&lt;main&gt;</code>:
+<pre>&lt;section class="panel" id="panel-rules" role="tabpanel"
+         aria-labelledby="tab-rules" tabindex="0"&gt;
+  &lt;div class="panel__head"&gt;&lt;h1 class="painted"&gt;Rules&lt;/h1&gt;&lt;/div&gt;
+  &lt;div id="rulesBody"&gt;&lt;/div&gt;
+&lt;/section&gt;</pre></li>
+<li><strong><code>app.js:45</code></strong> &mdash; add the name to the router:
+<pre>const TABS = ["about", "players", "updates", "join", "rules"];</pre></li>
+<li><strong>Content</strong> &mdash; either write it into the HTML directly, or add a <code>rules</code> key in
+<code>content.js</code> and a small renderer in <code>app.js</code> called from <code>init()</code>.</li>
+<li>[preview, commit, push]</li>
+</ol>
+<p><strong>What breaks:</strong> forget step 3 and clicking the tab does nothing &mdash; <code>showTab</code> falls
+back to About because the name is not in <code>TABS</code>. Forget the ARIA attributes and the tab
+is unusable with a screen reader.</p>
+
+<h2>11.5 &nbsp;Add a blog post with a photo</h2>
+<ol class="tight">
+<li><strong>Optimise the image first.</strong> A phone photo is 4&ndash;8 MB. Resize to about 1600px
+wide and save as JPEG at quality 80 &mdash; usually 200&ndash;400 KB. Use Squoosh
+(squoosh.app), GIMP, or: <code>ffmpeg -i big.jpg -vf scale=1600:-1 -q:v 5 small.jpg</code></li>
+<li>Create <code>assets/blog/</code> if it does not exist. Use lowercase names with hyphens.</li>
+<li>Add the entry at the top of <code>EDGE.blog</code>:
+<pre>{
+  type:  "post",
+  title: "Valorant tryouts — day two",
+  date:  "2026-10-04",
+  tag:   "Events",
+  media: "assets/blog/tryouts-day2.jpg",
+  alt:   "Players at the tryouts, seated at the lab machines",
+  body:  "Twenty-two players across four hours.",
+  credit: "Ananya R"
+}</pre></li>
+<li>[preview, commit, push]</li>
+</ol>
+<p><strong>What breaks:</strong> a wrong <code>media</code> path shows a broken image. Skipping <code>alt</code> makes the
+post invisible to screen readers. Skipping optimisation is the single most common way a
+fast site becomes slow.</p>
+<p>For an Instagram post instead, use <code>type: "instagram"</code> and paste the post URL into
+<code>url</code>. No API key is needed. An empty <code>url</code> is skipped silently.</p>
+
+<h2>11.6 &nbsp;Update the leaderboard and rosters</h2>
+<ol class="tight">
+<li>Open <code>content.js</code>, find <code>players.leaderboard</code> (line ~227).</li>
+<li>Replace each row. <code>move</code> is the change in position since the last update &mdash; positive
+is a climb, negative a drop, 0 unchanged:
+<pre>{ ign: "ZENITH", name: "Rahul Menon", game: "Valorant",
+  points: 1420, w: 18, l: 6, move: 2 }</pre></li>
+<li>Order does not matter for display order &mdash; the table renders in array order, so
+<strong>put them in the order you want them shown</strong>.</li>
+<li>For rosters, find <code>players.rosters</code>. Set <code>status: "recruiting"</code> with an empty
+<code>players: []</code> for a team you are still forming; it shows a tryout call instead.</li>
+<li>[preview, commit, push]</li>
+</ol>
+<p><strong>What breaks:</strong> a missing comma or unclosed quote empties the <em>entire site</em>, because
+<code>content.js</code> fails to parse and every renderer loses its data. Loud and immediately
+obvious. Fix: 12.6.</p>
+
+<h2>11.7 &nbsp;Change what the chatbot knows</h2>
+<p><strong>Do not edit <code>faq-bot.js</code>.</strong> Edit <code>EDGE.faq.entries</code> in <code>content.js</code>.</p>
+<h4>To improve an answer the bot already gives</h4>
+<p>Edit the <code>a</code> string. Nothing else changes.</p>
+<h4>To fix a question the bot misunderstands</h4>
+<p>Find the entry that <em>should</em> have matched and add the words the person actually typed
+to its <code>keywords</code>, including slang and misspellings.</p>
+<h4>To add a whole new question</h4>
+<pre>{
+  q: "Can I join two teams?",
+  a: "No. You can try out for more than one title, but you play for one roster per season.",
+  keywords: ["two", "multiple", "both", "second", "another", "team", "teams", "switch"]
+}</pre>
+<p>It appears in the chat <em>and</em> in the static "Every question" list automatically.</p>
+<h4>If the bot answers too eagerly or too rarely</h4>
+<p>Only then touch <code>faq-bot.js:96</code>: <code>CONFIDENCE_BAR = 1.4</code>. Raise it to make the bot
+more cautious, lower it to make it guess more. Change it in steps of 0.1 and test.</p>
+<p><strong>What breaks:</strong> piling keywords onto one entry makes it swallow unrelated questions.
+If one answer starts appearing for everything, that entry has too many generic keywords.</p>
+
+<h2>11.8 &nbsp;Add an event or deadline</h2>
+<ol class="tight">
+<li>Add to <code>EDGE.updates</code>:
+<pre>{
+  kind: "deadline",          // deadline | event | announcement | result
+  pinned: true,              // optional — floats it to the top
+  title: "BGMI tryouts — registration closes",
+  date: "2026-10-12",        // YYYY-MM-DD, always
+  time: "23:59",             // optional, drives the countdown precisely
+  venue: "Main Campus",      // optional
+  body:  "Submit the Join form on the Roster path before this closes."
+}</pre></li>
+<li>[preview, commit, push]</li>
+</ol>
+<p>The countdown retargets automatically to the nearest future deadline. Past events move
+to the archive on their own. <strong>You never manually archive anything.</strong></p>
+<p><strong>What breaks:</strong> a wrong date silently archives the event immediately, or aims the
+countdown at the wrong thing. Always use <code>YYYY-MM-DD</code>.</p>
+
+<h2>11.9 &nbsp;Change an image or the logo</h2>
+<ol class="tight">
+<li><strong>Check the dimensions of what you are replacing.</strong> The mark is 398&times;333 and
+the wordmark 665&times;183. Neither is square.</li>
+<li>Replace the file, keeping the same name.</li>
+<li><strong>Bump the version marker</strong> in <code>index.html</code> &mdash; every occurrence of
+<code>edge-mark.svg?v=2</code> becomes <code>?v=3</code>. There are six references to the mark and four to
+the wordmark.</li>
+<li>[preview, commit, push], then hard-refresh.</li>
+</ol>
+<div class="box box--warn">
+  <div class="box__t">Do not "fix" logo sizing with a blanket CSS rule</div>
+  <p>Adding <code>img[src*="edge-mark.svg"] { height: … }</code> looks like a tidy global fix. An
+  attribute selector outranks a class, so it overrides every component's own height and
+  breaks the mark everywhere at once. This has already happened once. Each use sets its
+  own height and lets width follow.</p>
+</div>
+
+<h2>11.10 &nbsp;Update dependencies</h2>
+<p>You have none. There is nothing to update, and that is the correct state. If someone
+proposes adding a package, ask what it does that 30 lines of your own code could not.</p>
+
+<h2>11.11 &nbsp;Back the project up</h2>
+<table>
+<tr><th style="width:26%">What</th><th style="width:40%">How</th><th style="width:34%">How often</th></tr>
+<tr><td>All code and assets</td><td><code>git push</code> &mdash; GitHub holds a complete copy including
+every past version.</td><td>Automatic, every deployment</td></tr>
+<tr><td>Registration data</td><td>Supabase dashboard &rarr; Table Editor &rarr; Export CSV. Store it
+somewhere private.</td><td><strong>Monthly</strong>, and before any schema change</td></tr>
+<tr><td>Video sources</td><td>Copy <code>*-source.mp4</code> to cloud storage. <strong>Not in git.</strong></td>
+<td>Once &mdash; do it today</td></tr>
+<tr><td><code>_archive-v1/</code></td><td>Copy it somewhere. Gitignored.</td><td>Once</td></tr>
+<tr><td>A full offline snapshot</td><td><code>git bundle create edge-backup.bundle --all</code> &mdash; one
+file containing the entire repository and its history.</td><td>Each semester</td></tr>
+</table>
+
+<h2>11.12 &nbsp;Restore from a backup</h2>
+<h4>Undo uncommitted changes to one file</h4>
+<pre>git checkout -- js/content.js</pre>
+<h4>Undo a commit that is already live</h4>
+<pre>git log --oneline          # find the bad commit's hash
+git revert a1b2c3d         # creates a NEW commit undoing it
+git push</pre>
+<p>Use <code>revert</code>, not <code>reset</code>. It is safe on published history.</p>
+<h4>Recover the whole project onto a new computer</h4>
+<pre>git clone https://github.com/potatoesareathing/edge-website.git</pre>
+<h4>Recover a single deleted file from history</h4>
+<pre>git log --oneline -- js/portal.js       # find a commit that had it
+git checkout a1b2c3d -- js/portal.js</pre>
+
+<h2>11.13 &nbsp;Change an API key</h2>
+<ol class="tight">
+<li>Supabase dashboard &rarr; Project Settings &rarr; API. Copy the new <strong>anon public</strong> key.</li>
+<li>Paste into <code>content.js</code> &rarr; <code>join.backend.supabase.anon_key</code>.</li>
+<li>[preview, commit, push]. Submit one test registration and confirm it appears in the
+dashboard, then delete the test row.</li>
+</ol>
+<p><strong>What breaks:</strong> between rotating the key and pushing, every submission fails and
+queues in visitors' browsers. Do it quickly, and at a quiet time.</p>
+<p><strong>Never</strong> paste the <em>service role</em> key here. It bypasses all security.</p>
+
+<h2>11.14 &nbsp;Turn the registration form on &mdash; do this first</h2>
+<p>The most important procedure in this manual. About twenty minutes.</p>
+<ol>
+<li><strong>Create the project.</strong> supabase.com &rarr; sign up &rarr; New project. Choose the region
+nearest India. Save the database password somewhere safe; you will rarely need it but
+cannot recover it.</li>
+<li><strong>Create the table.</strong> SQL Editor &rarr; New query. Paste the entire contents of
+<code>supabase-schema.sql</code> &rarr; Run. It creates the table, the constraints, and the security
+policy.</li>
+<li><strong>Copy the two values.</strong> Project Settings &rarr; API. You need the <strong>Project URL</strong>
+(<code>https://abcdefgh.supabase.co</code>) and the <strong>anon public</strong> key.</li>
+<li><strong>Paste them in</strong> at <code>content.js:126</code>:
+<pre>backend: {
+  mode: "supabase",
+  supabase: {
+    url:      "https://abcdefgh.supabase.co",
+    anon_key: "eyJhbGciOi...",
+    table:    "registrations"
+  }
+}</pre></li>
+<li><strong>Verify the security &mdash; do not skip this.</strong> Run the two commands at the bottom of
+<code>supabase-schema.sql</code>. The insert must succeed. <strong>The select must return an empty list
+<code>[]</code>.</strong> If it returns rows, RLS is not protecting you: stop, fix it, and do not go
+live.</li>
+<li><strong>Test end to end.</strong> [preview, commit, push], then submit a real registration on
+the live site. Confirm the row appears in the dashboard. Delete the test row.</li>
+<li><strong>Check the console.</strong> The warning <em>"The join form is not connected yet"</em> should be
+gone.</li>
+</ol>
+<div class="box box--key">
+  <div class="box__t">Anyone who registered before this</div>
+  <p>Their data is in <code>localStorage</code> on their own device and will be sent automatically
+  the next time they open the site &mdash; <code>flush()</code> runs on every page load. Anyone who never
+  returns is lost. If you ran a club fair before connecting, assume those registrations
+  are gone and collect again.</p>
+</div>
+
+<h2>11.15 &nbsp;Self-host the fonts</h2>
+<p>Removes a third party from every page load, makes the site work fully offline, and
+avoids the flash of fallback text.</p>
+<ol class="tight">
+<li>Download Chakra Petch and Archivo from fonts.google.com (both are open source).</li>
+<li>Put the <code>.woff2</code> files in <code>assets/fonts/</code>.</li>
+<li>Add to the top of <code>styles.css</code>:
+<pre>@font-face {
+  font-family: "Chakra Petch"; font-weight: 700; font-display: swap;
+  src: url("../assets/fonts/ChakraPetch-Bold.woff2") format("woff2");
+}</pre>
+Repeat for each weight you use: Chakra Petch 500/600/700, Archivo 400/500/600.</li>
+<li>Delete the three <code>&lt;link&gt;</code> tags for Google Fonts from <code>index.html</code>.</li>
+<li>[preview, commit, push]</li>
+</ol>
+<p><strong>What breaks:</strong> miss a weight and that text silently falls back. Check headings,
+buttons and body text after.</p>
+
+<h2>11.16 &nbsp;Add a second portal world</h2>
+<p>The portal was built to be reused. To send Players into its own dimension:</p>
+<ol class="tight">
+<li>Produce a crossfaded loop for it (11.2) and add it as
+<code>assets/video/players-world.mp4</code> plus a poster.</li>
+<li>In <code>index.html</code>, copy the <code>&lt;video class="portal-src"&gt;</code> element, giving it a new
+<code>id</code>. Copy the <code>&lt;section class="world"&gt;</code> block and give it a new <code>id</code> and its own
+content.</li>
+<li>In <code>app.js</code>, copy <code>initAsk()</code> to <code>initPlayersWorld()</code>, changing the four element
+ids and the video path. Call it from <code>init()</code>.</li>
+<li>[preview, commit, push]</li>
+</ol>
+<div class="box box--warn">
+  <div class="box__t">One real constraint</div>
+  <p><code>portal.js</code> holds a <em>single</em> set of module-level state &mdash; one <code>video</code>, one
+  <code>origin</code>, one <code>progress</code>. Two worlds can exist, but only one may be open or peeking at
+  a time. Opening a second while the first is peeking will confuse it. If you need
+  genuinely concurrent portals, the module must be refactored to create instances.</p>
+</div>
+
+<h2>11.17 &nbsp;Connect a custom domain</h2>
+<ol class="tight">
+<li>Buy the domain (Namecheap, Cloudflare, or an Indian registrar for a <code>.in</code>). Budget
+about &#8377;800&ndash;1,500 per year and <strong>note the renewal date</strong>.</li>
+<li>At the registrar, add DNS records pointing at GitHub:
+<pre>Type   Name   Value
+A      @      185.199.108.153
+A      @      185.199.109.153
+A      @      185.199.110.153
+A      @      185.199.111.153
+CNAME  www    potatoesareathing.github.io</pre>
+<em>Verify these IPs against GitHub's current documentation &mdash; they change rarely but they
+do change.</em></li>
+<li>GitHub repo &rarr; Settings &rarr; Pages &rarr; Custom domain &rarr; enter it &rarr; Save. This creates a
+<code>CNAME</code> file in your repository.</li>
+<li>Wait for DNS to propagate (minutes to 24 hours), then tick <strong>Enforce HTTPS</strong>.</li>
+<li><strong>Your asset paths already work</strong>, because they are relative. Moving from a subpath
+to a domain root changes nothing in your code.</li>
+</ol>
+<p><strong>What breaks:</strong> forgetting to re-tick Enforce HTTPS leaves the site on plain HTTP. A
+lapsed renewal takes the site down and frees the name for anyone to buy.</p>
+
+<h2>11.18 &nbsp;Add a favicon</h2>
+<ol class="tight">
+<li>Export the EDGE mark as a 32&times;32 and a 180&times;180 PNG on a dark background.</li>
+<li>Save as <code>assets/favicon-32.png</code> and <code>assets/apple-touch-icon.png</code>.</li>
+<li>Add to <code>&lt;head&gt;</code> in <code>index.html</code>:
+<pre>&lt;link rel="icon" href="assets/favicon-32.png" sizes="32x32"&gt;
+&lt;link rel="apple-touch-icon" href="assets/apple-touch-icon.png"&gt;</pre></li>
+<li>[preview, commit, push]. You may need to close and reopen the tab to see it.</li>
+</ol>

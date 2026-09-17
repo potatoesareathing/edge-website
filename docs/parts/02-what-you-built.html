@@ -1,0 +1,207 @@
+<!-- ============================== PART 1 ============================== -->
+<h1><span class="num">Part 1</span>What you actually built</h1>
+
+<p class="lead">Before any detail, get the shape of the thing in your head. Your site is
+simpler than you probably fear and more unusual than you probably realise.</p>
+
+<h2>1.1 &nbsp;The five honest sentences</h2>
+
+<ol>
+<li><strong>Your website is 22 files.</strong> One HTML file, one stylesheet, six JavaScript files,
+four media files, four documents, and a few configuration files. That is all of it.</li>
+<li><strong>It has no dependencies.</strong> There is no <code>package.json</code>, no <code>node_modules</code>
+folder, no framework. Nothing was downloaded from anyone to make it run. This is rare
+and it is a large part of why it will still work in five years.</li>
+<li><strong>It has no build step.</strong> The files you edit are the exact files a visitor's browser
+receives. Nothing compiles, bundles, transpiles or minifies. What you see is what ships.</li>
+<li><strong>It has no backend of its own.</strong> No server of yours runs any code. The site is
+static files handed out by GitHub. The one piece of server-side work it wants to do &mdash;
+storing registrations &mdash; is delegated to an outside service that is not yet connected.</li>
+<li><strong>All of its content lives in one file.</strong> <code>js/content.js</code> holds every piece of
+text, every roster, the leaderboard, the events, the FAQ answers. You can run the club's
+website for a year without opening any other file.</li>
+</ol>
+
+<h2>1.2 &nbsp;The architecture in one picture</h2>
+
+<figure>
+<svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="a1" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 z" fill="#16161a"/>
+    </marker>
+    <marker id="a2" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 z" fill="#8a6d00"/>
+    </marker>
+  </defs>
+
+  <!-- ===== VISITOR ===== -->
+  <rect x="20" y="14" width="860" height="176" fill="#f6f6f7" stroke="#16161a" stroke-width="1.5"/>
+  <text x="34" y="33" class="sv-b">THE VISITOR'S DEVICE — a phone or laptop on campus</text>
+  <text x="34" y="46" class="sv-s">Everything in this box runs on their machine, not yours. This is "the client" / "the frontend".</text>
+
+  <rect x="38" y="58" width="180" height="60" fill="#fff" stroke="#16161a"/>
+  <text x="48" y="76" class="sv-l">Browser (Chrome, Safari…)</text>
+  <text x="48" y="90" class="sv-s">Downloads your files, draws</text>
+  <text x="48" y="101" class="sv-s">the page, runs your JavaScript</text>
+
+  <rect x="238" y="58" width="150" height="60" fill="#fff" stroke="#16161a"/>
+  <text x="248" y="76" class="sv-l">GPU / WebGL</text>
+  <text x="248" y="90" class="sv-s">Draws the portal effect</text>
+  <text x="248" y="101" class="sv-s">js/portal.js talks to it</text>
+
+  <rect x="408" y="58" width="150" height="60" fill="#fff" stroke="#16161a"/>
+  <text x="418" y="76" class="sv-l">Web Audio</text>
+  <text x="418" y="90" class="sv-s">Click sounds, generated</text>
+  <text x="418" y="101" class="sv-s">not downloaded (sound.js)</text>
+
+  <rect x="578" y="58" width="150" height="60" fill="#fff" stroke="#16161a"/>
+  <text x="588" y="76" class="sv-l">Video decoder</text>
+  <text x="588" y="90" class="sv-s">Plays the two .mp4 loops</text>
+
+  <rect x="748" y="58" width="114" height="60" fill="#fff" stroke="#a3261c" stroke-dasharray="3 2"/>
+  <text x="758" y="76" class="sv-l">localStorage</text>
+  <text x="758" y="90" class="sv-s">Registrations are</text>
+  <text x="758" y="101" class="sv-s">stranded here today</text>
+
+  <rect x="38" y="128" width="824" height="46" fill="#ececee" stroke="#16161a" stroke-dasharray="3 2"/>
+  <text x="48" y="145" class="sv-l">The page in memory — the DOM</text>
+  <text x="48" y="161" class="sv-s">Your HTML becomes a live tree of objects. Your JavaScript adds, removes and restyles nodes in it. Nothing is saved back.</text>
+
+  <!-- arrow down -->
+  <line x1="450" y1="190" x2="450" y2="224" stroke="#16161a" stroke-width="1.5" marker-end="url(#a1)"/>
+  <text x="460" y="212" class="sv-s">HTTPS request — "give me the site"</text>
+
+  <!-- ===== HOSTING ===== -->
+  <rect x="20" y="230" width="860" height="196" fill="#16161a"/>
+  <text x="34" y="250" class="sv-w">GITHUB PAGES — your host. Serves files. Runs no code of yours.</text>
+  <text x="34" y="263" class="sv-ws">Reads whatever is committed on the "main" branch. A git push is a deployment.</text>
+
+  <rect x="38" y="276" width="176" height="64" fill="#fff"/>
+  <text x="48" y="294" class="sv-b">index.html</text>
+  <text x="48" y="308" class="sv-s">The only page. All four</text>
+  <text x="48" y="319" class="sv-s">"pages" live inside it as</text>
+  <text x="48" y="330" class="sv-s">hidden sections.</text>
+
+  <rect x="228" y="276" width="176" height="64" fill="#fff"/>
+  <text x="238" y="294" class="sv-b">css/styles.css</text>
+  <text x="238" y="308" class="sv-s">1,275 lines. Every colour,</text>
+  <text x="238" y="319" class="sv-s">size, layout and animation.</text>
+
+  <rect x="418" y="276" width="228" height="64" fill="#fff"/>
+  <text x="428" y="294" class="sv-b">js/ — six files, loaded in order</text>
+  <text x="428" y="308" class="sv-s">content.js · portal.js · app.js</text>
+  <text x="428" y="319" class="sv-s">faq-bot.js · join.js · sound.js</text>
+  <text x="428" y="330" class="sv-s">content.js must be first.</text>
+
+  <rect x="660" y="276" width="202" height="64" fill="#fff"/>
+  <text x="670" y="294" class="sv-b">assets/</text>
+  <text x="670" y="308" class="sv-s">2 SVG logos, 2 mp4 loops</text>
+  <text x="670" y="319" class="sv-s">(3.9 MB each), 2 poster jpgs.</text>
+  <text x="670" y="330" class="sv-s">7.9 MB of the 8 MB total.</text>
+
+  <rect x="38" y="352" width="824" height="58" fill="#2a2a30"/>
+  <text x="48" y="370" class="sv-w">Not served to visitors, but in the repository</text>
+  <text x="48" y="386" class="sv-ws">README.md · ARCHITECTURE.md · DESIGN.md · PRODUCT.md — your own documentation</text>
+  <text x="48" y="399" class="sv-ws">supabase-schema.sql (setup script) · netlify.toml (inert — old host) · serve.js (local preview) · .gitignore</text>
+
+  <!-- ===== EXTERNAL ===== -->
+  <line x1="180" y1="426" x2="180" y2="462" stroke="#16161a" stroke-width="1.5" marker-end="url(#a1)"/>
+  <line x1="450" y1="426" x2="450" y2="462" stroke="#16161a" stroke-width="1.5" marker-end="url(#a1)"/>
+  <line x1="730" y1="426" x2="730" y2="462" stroke="#8a6d00" stroke-width="1.5"
+        stroke-dasharray="4 3" marker-end="url(#a2)"/>
+
+  <text x="20" y="450" class="sv-b">THIRD PARTIES — servers you do not own, contacted by the visitor's browser</text>
+
+  <rect x="66" y="466" width="228" height="76" fill="#fff" stroke="#16161a" stroke-width="1.5"/>
+  <text x="76" y="484" class="sv-b">Google Fonts</text>
+  <text x="76" y="498" class="sv-s">Two typefaces: Chakra Petch</text>
+  <text x="76" y="509" class="sv-s">and Archivo. Requested by</text>
+  <text x="76" y="520" class="sv-s">index.html on every visit.</text>
+  <text x="76" y="534" class="sv-s">If it fails: fallback fonts.</text>
+
+  <rect x="336" y="466" width="228" height="76" fill="#fff" stroke="#16161a" stroke-width="1.5"/>
+  <text x="346" y="484" class="sv-b">Instagram embed.js</text>
+  <text x="346" y="498" class="sv-s">Only fetched if a blog entry</text>
+  <text x="346" y="509" class="sv-s">has a post URL. None do</text>
+  <text x="346" y="520" class="sv-s">today, so it is never loaded.</text>
+  <text x="346" y="534" class="sv-s">No API key needed.</text>
+
+  <rect x="616" y="466" width="228" height="76" fill="#fdfaef" stroke="#8a6d00" stroke-width="1.5"
+        stroke-dasharray="4 3"/>
+  <text x="626" y="484" class="sv-b">Supabase — NOT CONNECTED</text>
+  <text x="626" y="498" class="sv-s">Would receive registrations.</text>
+  <text x="626" y="509" class="sv-s">The code is written and the</text>
+  <text x="626" y="520" class="sv-s">database script exists, but</text>
+  <text x="626" y="534" class="sv-s">the two keys are blank.</text>
+
+  <text x="20" y="568" class="sv-s">Solid line = happens on every visit today.  Dashed gold = written but inactive.  Dashed red = data going nowhere useful.</text>
+  <text x="20" y="583" class="sv-s">Notice what is absent: no server of yours, no framework, no build tool, no analytics, no login system, no CDN of your own.</text>
+</svg>
+<figcaption><strong>Figure 1.</strong> The whole system. Three layers: the visitor's device, the host
+that hands out files, and three outside services. You own the middle layer only.</figcaption>
+</figure>
+
+<h2>1.3 &nbsp;What your site is <em>not</em></h2>
+
+<p>Half of understanding a system is knowing what it does not contain. People will
+assume your site has these things because most sites do. It does not:</p>
+
+<table>
+<tr><th style="width:26%">Thing it does not have</th><th style="width:37%">What that means</th><th style="width:37%">Why it is fine (or not)</th></tr>
+<tr><td><strong>A framework</strong><br>(React, Vue, Next.js)</td>
+    <td>No library imposes structure on your code. You wrote plain JavaScript that
+    talks to the browser directly.</td>
+    <td><strong>Fine, and a real advantage.</strong> Frameworks break as they upgrade. Plain
+    JavaScript from 2015 still runs today. Nothing here will rot.</td></tr>
+<tr><td><strong>A build step</strong></td>
+    <td>Nothing turns your source into different output files. Edit a file, push it,
+    it is live exactly as written.</td>
+    <td><strong>Fine.</strong> You lose automatic minification (smaller files) and cannot use
+    newer syntax that old browsers reject. Neither matters at this size.</td></tr>
+<tr><td><strong>A backend</strong></td>
+    <td>No code of yours runs on a server. Nothing can happen on your site while
+    nobody is looking at it.</td>
+    <td><strong>Fine for now.</strong> The moment you need email notifications, an admin page,
+    or scheduled jobs, you will need one. Part 13 covers what that would take.</td></tr>
+<tr><td><strong>Accounts or logins</strong></td>
+    <td>No <em>authentication</em> &mdash; no way for anyone to prove who they are. Nobody
+    signs in, so there is nothing to sign into.</td>
+    <td><strong>Fine, and a relief.</strong> Authentication is where most beginner sites get
+    breached. You cannot leak passwords you never collected.</td></tr>
+<tr><td><strong>A database you run</strong></td>
+    <td>Rosters, leaderboard and events are hardcoded in <code>js/content.js</code> and
+    change only when you edit and push.</td>
+    <td><strong>Fine at club scale.</strong> Editing a file and pushing takes two minutes.
+    A database would be worth it at hundreds of rows changing weekly.</td></tr>
+<tr><td><strong>Analytics</strong></td>
+    <td>Nothing counts visitors. You have no idea how many people use the site.</td>
+    <td><strong>A genuine gap</strong>, and a privacy win. Part 9 covers adding a
+    privacy-respecting counter if you want one.</td></tr>
+<tr><td><strong>Error monitoring</strong></td>
+    <td>If the site breaks for a visitor, nothing tells you. You only find out if
+    somebody complains.</td>
+    <td><strong>A genuine gap.</strong> The most likely failure &mdash; the portal on an old
+    phone &mdash; is already handled gracefully in code, but you would not know.</td></tr>
+<tr><td><strong>A custom domain</strong></td>
+    <td>The address is <code>potatoesareathing.github.io/edge-website/</code>. You do not
+    own a domain name, so there is no <em>DNS</em> to configure.</td>
+    <td><strong>Fine, but weak for a club.</strong> Part 11.17 covers buying
+    <code>edgeruas.in</code> or similar and pointing it here.</td></tr>
+<tr><td><strong>A favicon</strong></td>
+    <td>No little icon in the browser tab. There is no <code>favicon.ico</code> in the project.</td>
+    <td><strong>Small but visible gap.</strong> Five-minute fix, Part 11.18.</td></tr>
+<tr><td><strong>robots.txt / sitemap.xml</strong></td>
+    <td>No instructions for search engines. Google will still find and index the
+    site; it just has no guidance.</td>
+    <td><strong>Minor.</strong> Worth adding once the content is real.</td></tr>
+</table>
+
+<div class="box box--key">
+  <div class="box__t">The thing to take from this</div>
+  <p>You did not build a small version of a complicated thing. You built a
+  <em>genuinely simple</em> thing that happens to have two sophisticated pieces in it
+  (the WebGL portal and the video system). Simple systems are maintainable by one
+  person. Keep it that way: every dependency you add is a thing that can break
+  while you are not looking.</p>
+</div>

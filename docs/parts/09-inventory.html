@@ -1,0 +1,325 @@
+<!-- ============================== PART 9 ============================== -->
+<h1><span class="num">Part 9</span>The maintenance inventory</h1>
+
+<p class="lead">Everything you own, in one place. For each item: what it is, why it exists,
+how you know it needs attention, how to update it, what breaks if you get it wrong, and
+how often to check. Items are ordered by how likely you are to touch them.</p>
+
+<h2>9.1 &nbsp;Content</h2>
+
+<table>
+<tr><th style="width:15%">Item</th><th style="width:21%">What &amp; why</th><th style="width:16%">How you know</th>
+    <th style="width:16%">How to update</th><th style="width:20%">Risk if wrong</th><th style="width:12%">Cadence</th></tr>
+
+<tr><td><strong>Leaderboard</strong></td>
+<td><code>content.js:227</code>. The standings table. Currently all placeholders
+(<code>PLAYER-01</code> / <code>Full Name</code>).</td>
+<td>A tournament finished; the table is stale or fake.</td>
+<td>Edit the array, push. Procedure 11.6.</td>
+<td>A missing comma empties the whole site. Wrong <code>move</code> values mislead but break nothing.</td>
+<td>After every event</td></tr>
+
+<tr><td><strong>Rosters</strong></td>
+<td><code>content.js:236</code>. Official teams. Also placeholders.</td>
+<td>Tryouts concluded; someone left.</td>
+<td>Edit <code>players</code> array. Set <code>status: "recruiting"</code> with empty players for a team
+you are forming.</td>
+<td>Same syntax risk. A player named in public who has left is a real-world problem.</td>
+<td>Each semester</td></tr>
+
+<tr><td><strong>Updates &amp; events</strong></td>
+<td><code>content.js:307</code>. Drives the list, the archive split, and the countdown.</td>
+<td>An event passed, or a new one is announced.</td>
+<td>Add an entry with <code>kind</code>, <code>title</code>, <code>date</code>, <code>body</code>. Past events archive
+themselves.</td>
+<td>A wrong date puts an event in the archive immediately, or points the countdown at the
+wrong thing.</td>
+<td>Weekly in season</td></tr>
+
+<tr><td><strong>Blog / from the club</strong></td>
+<td><code>content.js:38</code>. Photos and write-ups. Two entry types.</td>
+<td>You ran something and have photos.</td>
+<td>Add an entry; put images in <code>assets/blog/</code>. Procedure 11.5.</td>
+<td>A wrong <code>media</code> path shows a broken image. Huge unoptimised photos slow the page badly.</td>
+<td>After events</td></tr>
+
+<tr><td><strong>About copy</strong></td>
+<td><code>content.js:270</code>. Lead, body, facts, pillars, crew.</td>
+<td>The club's description drifts from reality; a new committee.</td>
+<td>Edit the strings. Leave <code>crew</code> empty and the section hides itself.</td>
+<td>Cosmetic only.</td>
+<td>Yearly</td></tr>
+
+<tr><td><strong>FAQ knowledge</strong></td>
+<td><code>content.js:155</code>. The chatbot's entire brain and the static FAQ list.</td>
+<td>Someone asks a question the bot fumbles.</td>
+<td>Add keywords to an existing entry, or add a new entry. Procedure 11.7.</td>
+<td>Too many keywords on one entry makes it swallow unrelated questions.</td>
+<td>Monthly</td></tr>
+
+<tr><td><strong>Social links</strong></td>
+<td><code>content.js:15</code>. <strong>All three are empty strings today</strong>, so the footer shows no
+links at all.</td>
+<td>Look at the footer &mdash; it is bare.</td>
+<td>Paste full URLs including <code>https://</code>.</td>
+<td>A Discord invite that expires becomes a dead link nobody notices.</td>
+<td>Quarterly</td></tr>
+
+<tr><td><strong>Branch list</strong></td>
+<td><code>content.js:87</code>. The form's dropdown. Marked <em>TODO confirm</em> in the code.</td>
+<td>A student cannot find their branch.</td>
+<td>Replace with the exact RUAS names.</td>
+<td>Wrong names produce unusable registration data.</td>
+<td>Once, then yearly</td></tr>
+</table>
+
+<h2>9.2 &nbsp;Assets</h2>
+
+<table>
+<tr><th style="width:15%">Item</th><th style="width:21%">What &amp; why</th><th style="width:16%">How you know</th>
+    <th style="width:16%">How to update</th><th style="width:20%">Risk if wrong</th><th style="width:12%">Cadence</th></tr>
+
+<tr><td><strong>Logo SVGs</strong></td>
+<td>Vector traces of the real artwork. Mark is <strong>398&times;333</strong>, wordmark
+<strong>665&times;183</strong>. Neither is square.</td>
+<td>The logo looks squashed, stretched or the wrong size.</td>
+<td>Replace the file, bump <code>?v=2</code> to <code>?v=3</code> everywhere in <code>index.html</code>.</td>
+<td><strong>High.</strong> Wrong aspect ratio distorts it everywhere. Never add a blanket
+<code>img[src*="edge-mark"]</code> CSS rule &mdash; it outranks every component and breaks all sizes.</td>
+<td>Rarely</td></tr>
+
+<tr><td><strong>Videos</strong></td>
+<td>Two 3.9 MB loops. 7 seconds each, crossfaded so the loop point is invisible.
+<strong>97% of your page weight.</strong></td>
+<td>You want a new look, or the loop visibly jumps.</td>
+<td>Procedure 11.2. Must be re-crossfaded, not just trimmed.</td>
+<td><strong>High.</strong> An uncrossfaded loop jumps every 7 seconds. An oversized file punishes
+students on mobile data.</td>
+<td>Rarely</td></tr>
+
+<tr><td><strong>Video posters</strong></td>
+<td>Still frames shown before the video loads, and permanently for anyone on a saving
+connection.</td>
+<td>You changed a video and the poster no longer matches.</td>
+<td>Extract a frame with ffmpeg, save as jpg.</td>
+<td>Low, but a mismatched poster is a visible flash.</td>
+<td>With the video</td></tr>
+
+<tr><td><strong>Video sources</strong></td>
+<td>The uncut originals. <strong>Gitignored &mdash; not in GitHub, not backed up anywhere.</strong></td>
+<td>You need to re-edit and cannot find them.</td>
+<td>Nothing to update &mdash; just <strong>copy them to cloud storage today</strong>.</td>
+<td><strong>Permanent loss</strong> on disk failure.</td>
+<td>Back up now</td></tr>
+
+<tr><td><strong>Blog images</strong></td>
+<td><code>assets/blog/</code> &mdash; referenced by <code>content.js</code>. The folder does not exist yet.</td>
+<td>A card shows a broken image.</td>
+<td>Resize to about 1600px wide, compress, then add. Procedure 11.5.</td>
+<td>Unoptimised phone photos are 4&ndash;8 MB each and will make the page unusable on mobile.</td>
+<td>With posts</td></tr>
+
+<tr><td><strong>Favicon</strong></td>
+<td><strong>Does not exist.</strong> The browser tab shows a blank page icon.</td>
+<td>Look at your tab.</td>
+<td>Procedure 11.18.</td>
+<td>None.</td>
+<td>Once</td></tr>
+</table>
+
+<h2>9.3 &nbsp;Code and configuration</h2>
+
+<table>
+<tr><th style="width:15%">Item</th><th style="width:21%">What &amp; why</th><th style="width:16%">How you know</th>
+    <th style="width:16%">How to update</th><th style="width:20%">Risk if wrong</th><th style="width:12%">Cadence</th></tr>
+
+<tr><td><strong>Dependencies</strong></td>
+<td><strong>You have none.</strong> No <code>package.json</code>, no <code>node_modules</code>.</td>
+<td>Not applicable.</td>
+<td>Nothing to do. This is the single biggest maintenance saving in the project.</td>
+<td>The risk is <em>adding</em> one. Every dependency is a thing that can break, get abandoned,
+or ship a security flaw.</td>
+<td><strong>Never</strong></td></tr>
+
+<tr><td><strong>Framework versions</strong></td>
+<td>No framework. Plain browser JavaScript.</td>
+<td>Not applicable.</td>
+<td>Nothing.</td>
+<td>None.</td>
+<td><strong>Never</strong></td></tr>
+
+<tr><td><strong>Browser compatibility</strong></td>
+<td>Your code uses <code>replaceChildren</code> (2020), optional chaining <code>?.</code> (2020),
+<code>IntersectionObserver</code>, WebGL, Web Audio.</td>
+<td>Someone reports a blank or broken section on an old phone.</td>
+<td>Test on a real old Android occasionally. Every advanced feature already has a
+fallback.</td>
+<td>Low. A browser older than about 2020 would struggle, but the graceful degradation
+means it fails softly.</td>
+<td>Yearly</td></tr>
+
+<tr><td><strong>Security patches</strong></td>
+<td>Nothing to patch in your own code &mdash; no server, no dependencies, no login.</td>
+<td>Not applicable to the frontend.</td>
+<td>Your only real security surface is the Supabase RLS policy.</td>
+<td>See 9.4.</td>
+<td>&mdash;</td></tr>
+
+<tr><td><strong><code>.gitignore</code></strong></td>
+<td>Keeps third-party video and the untracked sources out of the public repo.</td>
+<td>You add files that should not be public.</td>
+<td>Add a line before the first commit of that file.</td>
+<td><strong>High.</strong> Git history is permanent &mdash; publishing something once cannot be fully
+undone.</td>
+<td>When adding files</td></tr>
+
+<tr><td><strong><code>netlify.toml</code></strong></td>
+<td><strong>Inert.</strong> Old host's configuration. GitHub Pages ignores it.</td>
+<td>You believe its cache rules are in effect. They are not.</td>
+<td>Keep or delete. Do not rely on it.</td>
+<td>Only confusion.</td>
+<td>&mdash;</td></tr>
+
+<tr><td><strong>Documentation</strong></td>
+<td>README, ARCHITECTURE, DESIGN, PRODUCT, and this manual.</td>
+<td>Something in them contradicts the code.</td>
+<td>Edit as part of the same commit as the change.</td>
+<td><strong>Underrated.</strong> Documentation that lies is worse than none.</td>
+<td>With every change</td></tr>
+</table>
+
+<h2>9.4 &nbsp;Data, services and security</h2>
+
+<table>
+<tr><th style="width:15%">Item</th><th style="width:21%">What &amp; why</th><th style="width:16%">How you know</th>
+    <th style="width:16%">How to update</th><th style="width:20%">Risk if wrong</th><th style="width:12%">Cadence</th></tr>
+
+<tr><td><strong>Supabase connection</strong></td>
+<td><code>content.js:126</code>. Two blank values are the only reason registrations do not save.</td>
+<td>Console warning on every load. Registrations you never receive.</td>
+<td>Procedure 11.14.</td>
+<td><strong>Critical &mdash; currently failing.</strong></td>
+<td><strong>Fix now</strong></td></tr>
+
+<tr><td><strong>The anon key</strong></td>
+<td>Public by design. Visible in your source. Safe <em>only</em> because of RLS.</td>
+<td>You rotate it, or suspect abuse.</td>
+<td>Rotate in the dashboard, paste the new value, push. Procedure 11.13.</td>
+<td>Low on its own &mdash; unless RLS is misconfigured, in which case it is the key to all
+your data.</td>
+<td>If compromised</td></tr>
+
+<tr><td><strong>The service role key</strong></td>
+<td>Bypasses all security. <strong>Must never appear in this project in any file.</strong></td>
+<td>If it is ever in your repo, treat it as compromised immediately.</td>
+<td>Rotate it in Supabase at once.</td>
+<td><strong>Catastrophic.</strong> Full read, write and delete on all data.</td>
+<td>Never commit</td></tr>
+
+<tr><td><strong>RLS policy</strong></td>
+<td>Insert-only for anonymous visitors. The only thing protecting student data.</td>
+<td>Run the two <code>curl</code> checks in <code>supabase-schema.sql</code>. The select must return <code>[]</code>.</td>
+<td>SQL Editor in the dashboard.</td>
+<td><strong>Catastrophic.</strong> A careless select policy exposes every phone number and email.</td>
+<td>Verify at launch, then quarterly</td></tr>
+
+<tr><td><strong>Registration data</strong></td>
+<td>Real personal data about real students: names, register numbers, phones, emails.</td>
+<td>You need the list; or a student asks to be removed.</td>
+<td>Read and export CSV from the Supabase dashboard.</td>
+<td>Legal and ethical. Do not share the export. Delete it when finished.</td>
+<td>Export monthly</td></tr>
+
+<tr><td><strong>Backups</strong></td>
+<td>Code is backed up by GitHub automatically. <strong>Registrations are not.</strong> Video
+sources are not.</td>
+<td>Nothing tells you. That is the danger.</td>
+<td>Procedure 11.11.</td>
+<td><strong>High.</strong> Free-tier databases can be paused or deleted for inactivity.</td>
+<td>Monthly</td></tr>
+
+<tr><td><strong>HTTPS certificate</strong></td>
+<td>Issued and renewed by GitHub automatically.</td>
+<td>A browser warning. Extremely unlikely.</td>
+<td>Nothing, unless you add a custom domain.</td>
+<td>None today.</td>
+<td>&mdash;</td></tr>
+
+<tr><td><strong>Hosting quota</strong></td>
+<td>GitHub Pages soft limits: 1 GB site, 100 GB bandwidth/month. You use 8 MB.</td>
+<td>GitHub emails you. You are at under 1% of both.</td>
+<td>Nothing.</td>
+<td>None at your scale. Note that videos dominate bandwidth: 1,000 visits who all watch
+is about 8 GB.</td>
+<td>Yearly</td></tr>
+</table>
+
+<h2>9.5 &nbsp;Quality: the things nobody asks about until they break</h2>
+
+<table>
+<tr><th style="width:15%">Item</th><th style="width:21%">Current state</th><th style="width:16%">How you know</th>
+    <th style="width:16%">How to update</th><th style="width:20%">Risk if wrong</th><th style="width:12%">Cadence</th></tr>
+
+<tr><td><strong>Performance</strong></td>
+<td>~8 MB total, but only ~200 KB before the video is conditionally attached. Good.</td>
+<td>The site feels slow on a phone on campus wifi.</td>
+<td>Compress images before adding; never remove the connection checks around the video.</td>
+<td>Medium. Adding big unoptimised images is the realistic way this degrades.</td>
+<td>After adding media</td></tr>
+
+<tr><td><strong>Accessibility</strong></td>
+<td>Genuinely good: ARIA tabs with arrow keys, <code>alt</code> text, labelled fields,
+<code>role="alert"</code> errors, full reduced-motion support.</td>
+<td>Navigate the whole site using only Tab and Enter.</td>
+<td>Keep new controls to real <code>&lt;button&gt;</code> elements. Never use a <code>&lt;div&gt;</code> as a button.</td>
+<td>Medium. Easy to erode one careless addition at a time.</td>
+<td>After UI changes</td></tr>
+
+<tr><td><strong>SEO</strong></td>
+<td>Title and description set. <strong>No <code>robots.txt</code>, no <code>sitemap.xml</code></strong>, and one page
+means one search result.</td>
+<td>Search for "EDGE RUAS esports" and see what appears.</td>
+<td>Improve the description in <code>index.html</code> once content is real.</td>
+<td>Low.</td>
+<td>Yearly</td></tr>
+
+<tr><td><strong>Analytics</strong></td>
+<td><strong>None.</strong> You have no idea how many people use the site.</td>
+<td>You cannot answer "did the club fair drive traffic?"</td>
+<td>Optional. A privacy-respecting counter like GoatCounter is one script tag.</td>
+<td>Adding a tracker has privacy implications; students deserve consideration.</td>
+<td>Optional</td></tr>
+
+<tr><td><strong>Error monitoring</strong></td>
+<td><strong>None.</strong> If the site breaks for a visitor, nothing tells you.</td>
+<td>Only from a complaint.</td>
+<td>Optional. The realistic substitute: open the site on a real phone monthly and watch
+the console.</td>
+<td>Medium. You could be broken for weeks without knowing.</td>
+<td>Monthly manual check</td></tr>
+
+<tr><td><strong>Logs</strong></td>
+<td>No server logs exist &mdash; you have no server. The only logs are the browser console
+on the visitor's own device.</td>
+<td>Not applicable.</td>
+<td>Nothing.</td>
+<td>None, but understand the implication: <strong>you cannot investigate a problem you cannot
+reproduce.</strong></td>
+<td>&mdash;</td></tr>
+
+<tr><td><strong>Forms &amp; email</strong></td>
+<td>One form. <strong>No email system at all</strong> &mdash; nothing notifies you of a registration, and
+nothing confirms to the student.</td>
+<td>You have to check the dashboard manually.</td>
+<td>Would require a backend or a Supabase Edge Function. A real project.</td>
+<td>Medium: a registration nobody notices is a student who thinks they were ignored.</td>
+<td>Consider later</td></tr>
+
+<tr><td><strong>Domain &amp; DNS</strong></td>
+<td>None. Using GitHub's subdomain.</td>
+<td>Not applicable today.</td>
+<td>Procedure 11.17 if you buy one.</td>
+<td>Once you own a domain, a missed renewal takes the site down and the name can be
+bought by anyone.</td>
+<td>Annual renewal</td></tr>
+</table>

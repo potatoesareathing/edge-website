@@ -1,0 +1,303 @@
+<!-- ============================== PART 7 ============================== -->
+<h1><span class="num">Part 7</span>Hosting, deployment and the outside world</h1>
+
+<p class="lead">How your files get from your laptop to a student's phone, and every
+outside party involved on the way.</p>
+
+<h2>7.1 &nbsp;Git, GitHub and GitHub Pages &mdash; three different things</h2>
+
+<p>People use these names interchangeably. They are not the same, and understanding the
+difference makes deployment obvious.</p>
+
+<div class="box box--term">
+  <div class="box__t">Git</div>
+  <p>A program on <em>your computer</em> that records snapshots of your project. Each snapshot
+  is a <strong>commit</strong>, with a message saying what changed and why. Git works entirely
+  offline. It is your undo history, at project scale, forever.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">GitHub</div>
+  <p>A website that stores a copy of your git repository in the cloud. It is your
+  backup, your collaboration point, and &mdash; for you &mdash; your deployment mechanism.
+  Your account is <code>potatoesareathing</code>; your repository is <code>edge-website</code>.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">GitHub Pages</div>
+  <p>A feature of GitHub that takes whatever is committed on a chosen branch and serves
+  it as a website. Yours is configured to serve the <strong><code>main</code></strong> branch from the
+  <strong>root</strong> folder. It runs no code &mdash; it only hands out files.</p>
+</div>
+
+<h2>7.2 &nbsp;What a deployment actually is</h2>
+
+<figure>
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="f1" markerWidth="8" markerHeight="8" refX="7" refY="2.6" orient="auto">
+      <path d="M0,0 L7,2.6 L0,5.2 z" fill="#16161a"/>
+    </marker>
+  </defs>
+
+  <rect x="20" y="40" width="190" height="96" fill="#f6f6f7" stroke="#16161a" stroke-width="1.5"/>
+  <text x="32" y="60" class="sv-b">1. Your laptop</text>
+  <text x="32" y="78" class="sv-s">You edit js/content.js</text>
+  <text x="32" y="92" class="sv-s">and save the file.</text>
+  <text x="32" y="112" class="sv-s">Nothing has happened yet.</text>
+  <text x="32" y="124" class="sv-s">The live site is unchanged.</text>
+
+  <line x1="210" y1="88" x2="252" y2="88" stroke="#16161a" stroke-width="1.5" marker-end="url(#f1)"/>
+  <text x="212" y="80" class="sv-m">git add</text>
+
+  <rect x="258" y="40" width="190" height="96" fill="#f6f6f7" stroke="#16161a" stroke-width="1.5"/>
+  <text x="270" y="60" class="sv-b">2. Commit</text>
+  <text x="270" y="78" class="sv-s">git commit -m "..."</text>
+  <text x="270" y="96" class="sv-s">A permanent snapshot with</text>
+  <text x="270" y="108" class="sv-s">a message. Still local —</text>
+  <text x="270" y="120" class="sv-s">still nothing is live.</text>
+
+  <line x1="448" y1="88" x2="490" y2="88" stroke="#16161a" stroke-width="1.5" marker-end="url(#f1)"/>
+  <text x="450" y="80" class="sv-m">git push</text>
+
+  <rect x="496" y="40" width="190" height="96" fill="#16161a"/>
+  <text x="508" y="60" class="sv-w">3. GitHub</text>
+  <text x="508" y="78" class="sv-ws">The commit arrives on the</text>
+  <text x="508" y="90" class="sv-ws">main branch. Your backup</text>
+  <text x="508" y="102" class="sv-ws">is now current.</text>
+  <text x="508" y="122" class="sv-ws">Pages notices automatically.</text>
+
+  <line x1="686" y1="88" x2="728" y2="88" stroke="#16161a" stroke-width="1.5" marker-end="url(#f1)"/>
+
+  <rect x="734" y="40" width="146" height="96" fill="#16161a"/>
+  <text x="746" y="60" class="sv-w">4. Live</text>
+  <text x="746" y="78" class="sv-ws">Pages rebuilds and</text>
+  <text x="746" y="90" class="sv-ws">publishes. Usually</text>
+  <text x="746" y="102" class="sv-ws">under a minute.</text>
+  <text x="746" y="122" class="sv-ws">No action from you.</text>
+
+  <rect x="20" y="166" width="860" height="52" fill="#ececee" stroke="#16161a" stroke-dasharray="3 2"/>
+  <text x="32" y="186" class="sv-b">The one-line version</text>
+  <text x="32" y="204" class="sv-m">git add -A  &amp;&amp;  git commit -m "what changed"  &amp;&amp;  git push</text>
+
+  <rect x="20" y="234" width="860" height="48" fill="#fdfaef" stroke="#8a6d00"/>
+  <text x="32" y="253" class="sv-b">Why this is safer than uploading a folder</text>
+  <text x="32" y="270" class="sv-s">Git publishes only what is committed, so .gitignore is genuinely enforced. A folder upload ignores it — which is exactly</text>
+  <text x="32" y="282" class="sv-s">how third-party video was once published by accident. Never deploy by dragging a folder anywhere.</text>
+</svg>
+<figcaption><strong>Figure 7.</strong> Deployment. Three commands, no dashboard, no build.</figcaption>
+</figure>
+
+<h3>The commands you will actually use</h3>
+
+<table>
+<tr><th style="width:36%">Command</th><th style="width:64%">What it does</th></tr>
+<tr><td><code>git status</code></td><td>What have I changed? Run this constantly. It is free and it prevents mistakes.</td></tr>
+<tr><td><code>git diff</code></td><td>Show me the exact lines I changed. Run before every commit.</td></tr>
+<tr><td><code>git add -A</code></td><td>Stage everything for the next commit.</td></tr>
+<tr><td><code>git commit -m "message"</code></td><td>Take the snapshot.</td></tr>
+<tr><td><code>git push</code></td><td>Send it to GitHub. <strong>This is the deployment.</strong></td></tr>
+<tr><td><code>git log --oneline</code></td><td>History, newest first. Yours has 15 commits.</td></tr>
+<tr><td><code>git checkout -- path/to/file</code></td><td>Throw away uncommitted changes to one file. Your undo.</td></tr>
+<tr><td><code>git revert &lt;hash&gt;</code></td><td>Undo a commit that is already pushed, by making a new commit that reverses it. Safe.</td></tr>
+</table>
+
+<div class="box box--warn">
+  <div class="box__t">Two commands to avoid until you understand them</div>
+  <p><code>git reset --hard</code> permanently discards uncommitted work with no undo.
+  <code>git push --force</code> can erase history on GitHub, including other people's. Neither is
+  needed for anything in this manual.</p>
+</div>
+
+<h2>7.3 &nbsp;Every external service, and what happens if it fails</h2>
+
+<table>
+<tr><th style="width:17%">Service</th><th style="width:10%">Account</th><th style="width:10%">Cost</th>
+    <th style="width:28%">What it does</th><th style="width:35%">If it disappears</th></tr>
+
+<tr><td><strong>GitHub</strong><br>+ Pages</td><td><code>potatoesareathing</code></td><td>Free</td>
+<td>Stores your code; serves the live site; issues the HTTPS certificate.</td>
+<td><strong>Site goes down.</strong> But you hold a complete copy in your local git repository &mdash;
+every file and every commit. Push it to GitLab, Codeberg or Cloudflare Pages and you are
+live again the same day. <strong>This is your most important account.</strong></td></tr>
+
+<tr><td><strong>Google Fonts</strong></td><td>None</td><td>Free</td>
+<td>Serves Chakra Petch and Archivo on every page load.</td>
+<td>Text falls back to a generic sans-serif. The site works; it looks wrong. You can
+self-host the fonts &mdash; Procedure 11.15 &mdash; which also removes a third party from every
+visit.</td></tr>
+
+<tr><td><strong>Instagram</strong></td><td>None</td><td>Free</td>
+<td>Renders pasted post URLs. No API key, no developer account. Script loaded only if a
+blog entry has a URL &mdash; none do today, so it is never contacted.</td>
+<td>Embed cards do not render. Nothing else is affected.</td></tr>
+
+<tr><td><strong>Supabase</strong></td><td><span style="color:#a3261c">not created</span></td><td>Free tier</td>
+<td><em>Would</em> store registrations in a Postgres database.</td>
+<td>Not connected, so nothing to lose yet. Once live: registrations fail and queue in
+visitors' browsers. Data is exportable as CSV &mdash; export regularly (11.6).</td></tr>
+
+<tr><td><strong>Netlify</strong></td><td><code>aaliyahaijaz2006</code></td><td>Blocked</td>
+<td><strong>Former host. No longer serving anything.</strong> Deploys are refused: <em>"Account credit
+usage exceeded"</em>.</td>
+<td>Nothing. Already replaced. <code>netlify.toml</code> remains in the repo but is inert.</td></tr>
+</table>
+
+<div class="box box--key">
+  <div class="box__t">Read that table as a dependency risk register</div>
+  <p>Only one row can take your site down: GitHub. Everything else degrades. That is an
+  unusually good position &mdash; most sites have five or six single points of failure &mdash; and
+  it is a direct consequence of having no build step and no dependencies.</p>
+</div>
+
+<h2>7.4 &nbsp;HTTPS, DNS and caching on your current host</h2>
+
+<h3>HTTPS</h3>
+<p>Handled entirely by GitHub. Your repository reports <code>https_enforced: true</code>, so
+visitors arriving over plain HTTP are redirected. The certificate is issued and renewed
+automatically. <strong>Nothing to maintain</strong> &mdash; unless you add a custom domain, in which case
+you must wait for the certificate to be issued and re-tick "Enforce HTTPS".</p>
+
+<h3>DNS</h3>
+<p>You have none. GitHub owns <code>github.io</code>. The subpath <code>/edge-website/</code> comes from the
+repository name.</p>
+
+<div class="box box--key">
+  <div class="box__t">Why the subpath works at all</div>
+  <p>Because every asset path in your site is <em>relative</em> &mdash; <code>css/styles.css</code>, not
+  <code>/css/styles.css</code>. A leading slash means "from the domain root", which would resolve to
+  <code>github.io/css/styles.css</code> and 404.</p>
+  <p><strong>Rule: never start an asset path with a slash in this project.</strong> It will work in
+  local preview and break in production, which is the worst kind of bug.</p>
+</div>
+
+<h3>Caching</h3>
+<p>GitHub Pages sets its own cache headers and <strong>you cannot configure them</strong>. The rules in
+<code>netlify.toml</code> do nothing. In practice Pages serves assets with a ten-minute cache, which
+is short enough that stale files are rarely a problem &mdash; but when you do replace an image
+and still see the old one, add or bump a version marker:</p>
+
+<pre>&lt;img src="assets/edge-mark.svg?v=3"&gt;   &lt;!-- was ?v=2 --&gt;</pre>
+
+<p>The browser treats a different query string as a different file. This is why every
+logo reference in your HTML already carries <code>?v=2</code>.</p>
+
+<h3>One Pages-specific requirement</h3>
+<p>GitHub Pages runs files through Jekyll, a site generator, which <strong>ignores any file or
+folder whose name starts with an underscore</strong>. Your project has none, so it works. If you
+ever add <code>_drafts/</code> or <code>_assets/</code>, those files will silently not publish. The fix is an
+empty file named <code>.nojekyll</code> at the repository root.</p>
+
+<!-- ============================== PART 8 ============================== -->
+<h1><span class="num">Part 8</span>What happens if Claude disappears tomorrow</h1>
+
+<p class="lead">The honest answer: your website keeps running, unchanged, indefinitely.
+Nothing in it calls an AI service. But your ability to <em>change</em> it depends on things
+you should secure now.</p>
+
+<h2>8.1 &nbsp;What is genuinely at risk</h2>
+
+<table>
+<tr><th style="width:26%">Concern</th><th style="width:16%">Real risk</th><th style="width:58%">Why</th></tr>
+<tr><td>The site stops working</td><td><strong>None</strong></td>
+<td>No AI service is contacted at runtime. The chatbot is a keyword matcher running on
+the visitor's device. Delete every AI tool from your life and the site is unaffected.</td></tr>
+<tr><td>You cannot deploy</td><td><strong>None</strong></td>
+<td>Deployment is <code>git push</code>. That is a standard tool that predates all of this and
+will outlive it.</td></tr>
+<tr><td>You cannot make content changes</td><td><strong>Low</strong></td>
+<td><code>content.js</code> is plain data with comments. Part 11 gives you the procedures.</td></tr>
+<tr><td>You cannot fix a visual bug</td><td>Medium</td>
+<td>CSS is learnable and the browser's inspector teaches it to you interactively. Part 12
+covers the method.</td></tr>
+<tr><td>You cannot modify <code>portal.js</code></td><td><strong>High</strong></td>
+<td>Shader programming is a genuine specialism. Realistic mitigation: <strong>do not modify
+it</strong>. It works, it is documented, and it degrades gracefully. If it ever breaks beyond
+repair, delete the script tag &mdash; the FAQ world still opens, just without the effect.</td></tr>
+<tr><td>You lose the video sources</td><td><strong>High</strong></td>
+<td>The two <code>-source.mp4</code> files are gitignored and exist only on your laptop. A disk
+failure loses them permanently. <strong>Back them up today.</strong></td></tr>
+</table>
+
+<h2>8.2 &nbsp;What to secure this week</h2>
+
+<h3>Accounts and credentials</h3>
+<ul>
+<li><strong>GitHub</strong> (<code>potatoesareathing</code>) &mdash; the critical one. Turn on two-factor
+authentication. Write down the recovery codes and keep them somewhere physical. If the
+club will outlive you, add a second committee member as a collaborator now.</li>
+<li><strong>Netlify</strong> (<code>aaliyahaijaz2006</code>) &mdash; no longer needed. Keep the login noted in
+case you return to it.</li>
+<li><strong>Supabase</strong> &mdash; when you create it, record which email owns it. A project tied to
+a graduating student's personal account is a club asset that walks out the door.</li>
+<li><strong>Domain registrar</strong> &mdash; if you ever buy a domain, this becomes as critical as
+GitHub, and it has a renewal date that will lapse silently.</li>
+</ul>
+
+<h3>Files that exist in only one place</h3>
+<ul>
+<li><code>assets/video/homeworld-source.mp4</code> and <code>faq-world-source.mp4</code> &mdash; the originals
+before the crossfade edit.</li>
+<li><code>_archive-v1/</code> &mdash; the first version of the site.</li>
+<li>The original logo artwork the SVGs were traced from.</li>
+</ul>
+<p>Copy all of these to cloud storage or an external drive. They are not in git and
+GitHub does not have them.</p>
+
+<h3>Knowledge that lives only in the documentation</h3>
+<p>Four files in your repository carry reasoning that is not recoverable from the code:
+<code>README.md</code> (how to set up and deploy), <code>ARCHITECTURE.md</code> (thirteen invariants &mdash; rules
+that must stay true), <code>DESIGN.md</code> (why it looks this way, and a record of past mistakes),
+<code>PRODUCT.md</code> (who the site is for). Plus this manual.</p>
+
+<p><strong>Keep them updated.</strong> Documentation that lies is worse than none, because you will
+trust it.</p>
+
+<h2>8.3 &nbsp;Vendor lock-in, honestly assessed</h2>
+
+<table>
+<tr><th style="width:22%">Dependency</th><th style="width:14%">Lock-in</th><th style="width:64%">Escape route</th></tr>
+<tr><td>AI tooling</td><td><strong>None</strong></td>
+<td>Nothing in the codebase references it. The code is plain HTML, CSS and JavaScript
+that any developer &mdash; or any future tool &mdash; can read.</td></tr>
+<tr><td>GitHub Pages</td><td><strong>Very low</strong></td>
+<td>Your site is static files. Cloudflare Pages, GitLab Pages, Codeberg Pages, Vercel
+and a $3/month shared host all serve it unchanged. Migration is: push the same repo
+elsewhere, point it at <code>main</code>. Under an hour.</td></tr>
+<tr><td>Git</td><td>Low, and worth it</td>
+<td>Git is the industry standard and fully decentralised &mdash; your local clone <em>is</em> a
+complete repository. This is lock-in to an open format, which is the only acceptable
+kind.</td></tr>
+<tr><td>Supabase</td><td>Medium, once used</td>
+<td>The database is standard PostgreSQL, so the data and the schema are portable. What
+is Supabase-specific is the REST API shape in <code>join.js:211</code> and the RLS policy syntax.
+Moving would mean rewriting one function. Export your data as CSV regularly regardless.</td></tr>
+<tr><td>Google Fonts</td><td>Low</td>
+<td>Both fonts are open source. Download the files, put them in <code>assets/fonts/</code>, add an
+<code>@font-face</code> block, delete the two <code>&lt;link&gt;</code> tags. Procedure 11.15.</td></tr>
+<tr><td>WebGL / the portal</td><td><strong>Conceptual</strong></td>
+<td>Not vendor lock-in &mdash; knowledge lock-in. Nobody can take WebGL away, but you may not
+be able to change the shader. Treat <code>portal.js</code> as a finished component.</td></tr>
+</table>
+
+<h2>8.4 &nbsp;The recovery drill</h2>
+
+<p>Do this once, now, while nothing is wrong. It takes fifteen minutes and it converts
+"I hope I could recover" into "I have recovered before".</p>
+
+<pre>cd ~/Desktop
+git clone https://github.com/potatoesareathing/edge-website.git edge-test
+cd edge-test
+node serve.js
+# open http://localhost:8790 — the whole site should work</pre>
+
+<p>If that works, you have proved that GitHub alone is enough to rebuild your entire
+project on any computer. Delete the test folder afterwards.</p>
+
+<div class="box box--key">
+  <div class="box__t">The summary</div>
+  <p>Your genuine dependencies are <strong>one GitHub account</strong>, <strong>two video source files
+  that are not backed up</strong>, and <strong>your own understanding</strong>. The first needs two-factor
+  authentication and a second owner. The second needs a copy made today. The third is
+  what this manual is for.</p>
+</div>

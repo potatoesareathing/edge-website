@@ -1,0 +1,322 @@
+<!-- ============================== PART 4 ============================== -->
+<h1><span class="num">Part 4</span>Read the codebase</h1>
+
+<p class="lead">A tour of every file you own: what it is responsible for, whether it is safe
+to edit, and how it connects to the others. This is the part to have open the first few
+times you change something.</p>
+
+<h2>4.1 &nbsp;The whole project, annotated</h2>
+
+<pre>EDGE-Website/
+│
+├── index.html            354 lines   The only page. All four tabs live inside it.
+├── css/
+│   └── styles.css      1,275 lines   Every visual decision, in 20 numbered sections.
+├── js/
+│   ├── content.js        334 lines   ALL CONTENT. Edit this one.
+│   ├── app.js            862 lines   Router, renderers, video, motion, portal wiring.
+│   ├── portal.js         428 lines   The WebGL transition. Self-contained.
+│   ├── faq-bot.js        278 lines   The chatbot matcher.
+│   ├── join.js           374 lines   Form validation and submission.
+│   └── sound.js           91 lines   Synthesised click sounds.
+├── assets/
+│   ├── edge-mark.svg                 The ghost. 398 x 333. Traced from your artwork.
+│   ├── edge-wordmark.svg             The EDGE lettering. 665 x 183.
+│   └── video/
+│       ├── homeworld.mp4        3.9 MB   Homepage loop, 7s, crossfaded, no audio.
+│       ├── homeworld-poster.jpg 100 KB   Still frame shown before/instead of the video.
+│       ├── faq-world.mp4        3.9 MB   The pixel world. 7s, crossfaded, HAS audio.
+│       └── faq-world-poster.jpg 120 KB
+│
+├── README.md                         Setup, deployment, how to change things.
+├── ARCHITECTURE.md                   The 13 invariants — rules that must stay true.
+├── DESIGN.md                         Why the site looks as it does. Records past mistakes.
+├── PRODUCT.md                        What the club is and who the site is for.
+├── supabase-schema.sql               Run once in Supabase to create the database.
+├── serve.js               33 lines   Tiny local preview server. Never deployed usefully.
+├── netlify.toml           27 lines   Old host's config. INERT on GitHub Pages.
+└── .gitignore                        What git must never publish.</pre>
+
+<h2>4.2 &nbsp;Safe, careful, and dangerous</h2>
+
+<p>Judge every file by one question: <em>if I get this wrong, how much breaks and how
+obviously?</em></p>
+
+<table>
+<tr><th style="width:20%">File</th><th style="width:14%">Verdict</th><th style="width:66%">Why</th></tr>
+
+<tr><td><code>js/content.js</code></td><td><strong>Safe</strong></td>
+<td>Designed to be edited. It is data, not logic. The worst realistic mistake is a
+missing comma or quote, which empties the site &mdash; loudly and obviously, and fixed by
+undoing your change. <strong>Make 90% of your edits here.</strong></td></tr>
+
+<tr><td>The four <code>.md</code> docs</td><td><strong>Safe</strong></td>
+<td>Not served to visitors. Cannot break anything. Keep them current; they are your
+memory.</td></tr>
+
+<tr><td><code>index.html</code></td><td>Careful</td>
+<td>Safe to change visible words. <strong>Dangerous to change or remove an <code>id</code></strong> &mdash;
+JavaScript finds elements by id, and a renamed id means a renderer silently does
+nothing. Also do not reorder the script tags (3.2).</td></tr>
+
+<tr><td><code>css/styles.css</code></td><td>Careful</td>
+<td>Can only break appearance, never logic &mdash; but appearance breaks can make the site
+unusable (an invisible button is a broken button). The specificity trap in 4.6 has
+bitten this project twice.</td></tr>
+
+<tr><td><code>js/app.js</code></td><td>Careful</td>
+<td>The largest logic file. A syntax error here stops the router, every renderer, the
+video and the portal wiring at once. Change one function at a time and reload.</td></tr>
+
+<tr><td><code>js/join.js</code></td><td>Careful</td>
+<td>Handles real student data. A broken validation rule means bad data or a form nobody
+can submit. Always test both paths (Member and Roster) after touching it.</td></tr>
+
+<tr><td><code>js/faq-bot.js</code></td><td>Careful</td>
+<td>The matching logic is tuned. You almost never need to edit this file &mdash; to change
+what the bot <em>says</em>, edit <code>content.js</code>. See 6.2 before touching the scoring.</td></tr>
+
+<tr><td><code>js/portal.js</code></td><td><strong>Dangerous</strong></td>
+<td>Contains a GPU shader in a different language (GLSL), embedded as a string. A typo
+there does not crash &mdash; it prints a warning to a console you are not watching and the
+portal silently falls back to no effect. <strong>Do not edit without reading 6.1.</strong></td></tr>
+
+<tr><td><code>js/sound.js</code></td><td>Careful</td>
+<td>Small and isolated. Worst case: a bad number makes a loud or ugly noise. Easy to
+revert.</td></tr>
+
+<tr><td><code>.gitignore</code></td><td><strong>Dangerous</strong></td>
+<td>Not because it breaks the site &mdash; because removing lines can <em>publish things that
+must stay private</em>. Its first three lines keep third-party video out of your public
+repository. See 4.5.</td></tr>
+
+<tr><td><code>netlify.toml</code></td><td>Obsolete</td>
+<td>Does nothing now. Keep it or delete it; see 4.4.</td></tr>
+
+<tr><td><code>serve.js</code></td><td>Safe</td>
+<td>Development only. Even if you broke it completely the live site is unaffected.</td></tr>
+
+<tr><td><code>assets/*</code></td><td>Careful</td>
+<td>Replacing a file is fine. <strong>Changing an image's aspect ratio is not</strong> &mdash; the logo
+crisis came from a square file replacing a 398&times;333 one. See 11.9.</td></tr>
+</table>
+
+<h2>4.3 &nbsp;What each file is responsible for</h2>
+
+<h3>index.html &mdash; the skeleton and the sockets</h3>
+
+<p>Three jobs. First, it declares the page's metadata: the title, the description search
+engines show, the <code>viewport</code> tag that makes the site work on phones at all. Second, it
+lays out the visible structure. Third, and most importantly for you, it provides
+<strong>empty containers with ids</strong> for JavaScript to fill.</p>
+
+<p>Its structure, top to bottom:</p>
+
+<ul class="tight">
+<li><code>.homeworld</code> &mdash; the background video layer, deliberately placed outside everything
+else. The comment at line 16 explains why: the panel entrance animation uses
+<code>clip-path</code>, and a clip-path on a parent also clips fixed-position children. Nesting
+the video inside would have cropped it.</li>
+<li><code>.topbar</code> &mdash; logo and the four tab buttons.</li>
+<li><code>main.shell</code> &mdash; four <code>&lt;section class="panel"&gt;</code> elements, one per tab. Only one has
+the class <code>is-active</code> at a time.</li>
+<li><code>.footer</code></li>
+<li><code>#portalCanvas</code>, <code>#faqVideo</code>, <code>.ask-fab</code>, <code>#faqWorld</code> &mdash; the Ask EDGE system, all
+outside <code>main</code> because it is not part of any tab.</li>
+<li>The six script tags.</li>
+</ul>
+
+<div class="box box--warn">
+  <div class="box__t">The ids JavaScript depends on</div>
+  <p>Renaming or deleting any of these silently disables a feature. There is no error;
+  the section just stays empty.</p>
+  <p><code>homeworld</code> · <code>homeworldVideo</code> · <code>homeworldScrim</code> · <code>panel-about</code> ·
+  <code>panel-players</code> · <code>panel-updates</code> · <code>panel-join</code> · <code>tab-about</code> (and the
+  other three) · <code>aboutLead</code> · <code>aboutBody</code> · <code>aboutFacts</code> · <code>aboutPillars</code> ·
+  <code>aboutCrew</code> · <code>aboutCrewWrap</code> · <code>blogFilters</code> · <code>blogLead</code> · <code>blogGrid</code> ·
+  <code>boardBody</code> · <code>boardNote</code> · <code>viewLeaderboard</code> · <code>viewRoster</code> ·
+  <code>countdownSlot</code> · <code>updatesList</code> · <code>updatesArchive</code> · <code>joinForm</code> ·
+  <code>joinHeading</code> · <code>joinIntro</code> · <code>pathValue</code> · <code>memberFields</code> ·
+  <code>rosterFields</code> · <code>interestChecks</code> · <code>formStatus</code> · <code>joinSuccess</code> ·
+  <code>footerLinks</code> · <code>footerTagline</code> · <code>footerUni</code> · <code>year</code> ·
+  <code>portalCanvas</code> · <code>faqVideo</code> · <code>askFab</code> · <code>faqWorld</code> · <code>worldBack</code> ·
+  <code>chatLog</code> · <code>chatChips</code> · <code>chatForm</code> · <code>chatInput</code> · <code>faqList</code></p>
+</div>
+
+<h3>js/content.js &mdash; everything you will actually change</h3>
+
+<p>One object, <code>EDGE</code>, with seven top-level sections:</p>
+
+<table>
+<tr><th style="width:18%">Key</th><th style="width:10%">Line</th><th style="width:72%">Holds</th></tr>
+<tr><td><code>club</code></td><td>15</td><td>Name, university, tagline, email, and the three social links
+(Instagram, Discord, YouTube). <strong>All three social links are currently empty strings</strong>, so
+the footer renders no links at all.</td></tr>
+<tr><td><code>blog</code></td><td>38</td><td>The feed on the About tab. Two entry types: <code>"post"</code> (your own
+photo or clip) and <code>"instagram"</code> (paste a post URL, no API key needed). An Instagram entry
+with an empty <code>url</code> is skipped silently.</td></tr>
+<tr><td><code>join</code></td><td>71</td><td>Form copy, the branch list, years, game titles, non-playing
+interests, success messages &mdash; and, at line 126, <code>backend</code>, which decides where
+submissions go.</td></tr>
+<tr><td><code>faq</code></td><td>144</td><td>The chatbot's entire brain: greeting, fallback message,
+suggestion chips, and the <code>entries</code> array &mdash; each a question, an answer and a list of
+keywords.</td></tr>
+<tr><td><code>players</code></td><td>222</td><td><code>leaderboard</code> (the table) and <code>rosters</code> (the teams).</td></tr>
+<tr><td><code>about</code></td><td>270</td><td>Lead paragraph, body paragraphs, the four facts, the four
+pillars, and <code>crew</code> &mdash; the committee. Leave <code>crew</code> empty and the whole section hides itself.</td></tr>
+<tr><td><code>updates</code></td><td>307</td><td>Events, deadlines, announcements and results. Dates drive
+the countdown and the past/upcoming split automatically.</td></tr>
+</table>
+
+<h3>js/app.js &mdash; the main program</h3>
+
+<p>Read it as seven independent systems that happen to share a file. Each is separated
+by a banner comment.</p>
+
+<table>
+<tr><th style="width:24%">System</th><th style="width:12%">Line</th><th style="width:64%">Responsibility</th></tr>
+<tr><td>Helpers</td><td>16&ndash;41</td><td><code>byId</code>, <code>el</code>, <code>fill</code>, <code>parseDate</code>. Small and used everywhere.</td></tr>
+<tr><td>Tab router</td><td>43&ndash;90</td><td><code>showTab()</code> and <code>initTabs()</code>. Also handles keyboard arrows and the URL hash.</td></tr>
+<tr><td>Blog</td><td>92&ndash;237</td><td><code>postCard()</code>, <code>renderBlog()</code>, the tag filters, and the lazy Instagram script loader.</td></tr>
+<tr><td>Players</td><td>238&ndash;342</td><td>Leaderboard table, roster cards, and the Leaderboard/Roster sub-tab switch.</td></tr>
+<tr><td>Updates</td><td>343&ndash;466</td><td>Event rows, the live countdown to the next deadline, past/upcoming split.</td></tr>
+<tr><td>About + footer</td><td>467&ndash;543</td><td><code>renderFooter()</code>, <code>renderAbout()</code>.</td></tr>
+<tr><td>Ask wiring</td><td>544&ndash;642</td><td><code>initAsk()</code> &mdash; when to peek, when to commit, when to come back. Owns no effect itself.</td></tr>
+<tr><td>Magnet + glitch</td><td>644&ndash;718</td><td>The launcher leaning toward the cursor; the hover text flash.</td></tr>
+<tr><td>Homeworld</td><td>719&ndash;799</td><td>The background video's entire lifecycle.</td></tr>
+<tr><td>Reveals + boot</td><td>800&ndash;862</td><td>Scroll-triggered entrance, then <code>init()</code> which starts everything in order.</td></tr>
+</table>
+
+<h3>css/styles.css &mdash; twenty numbered sections</h3>
+
+<p>Find things by its section banners rather than by scrolling:</p>
+
+<pre>1.  TOKENS      the colour and font variables — start here
+2.  BASE        resets, body, typography
+3.  PAINTED BOARD   the .board and .plate components
+4.  NAV RAIL    the top bar and tabs
+5.  PANELS      the four tab surfaces
+6.  BLOG        7. JOIN     8. FAQ      9. PLAYERS    10. UPDATES
+11. ABOUT       12. FOOTER
+13. RESPONSIVE  the first phone adjustments
+14. CLASSES EMITTED BY app.js   styles for nodes JavaScript creates
+15. SECTION HEADINGS
+16. ASK EDGE — PORTAL AND WORLD    the largest section
+17. INTERACTION  hover, glitch, magnet
+18. HOMEWORLD    the video layer and scrim
+19. SCROLL REVEAL
+20. PHONES       the max-width: 680px overrides — added last, overrides earlier rules</pre>
+
+<div class="box box--key">
+  <div class="box__t">Tokens: change a colour in one place</div>
+  <p>Section 1 defines variables used everywhere else:</p>
+  <pre>--board: #101012;   --white: #F5F5F3;   --grey: #A6A6A3;
+--signal: #FFFFFF;  --display: "Chakra Petch";  --body: "Archivo";</pre>
+  <p>Change <code>--board</code> and every surface on the site changes with it. This is why the
+  whole design could be converted from colour to monochrome without rewriting components.</p>
+</div>
+
+<h2>4.4 &nbsp;Files that are obsolete, generated, or misleading</h2>
+
+<p>You asked to be told about these explicitly. There are four.</p>
+
+<table>
+<tr><th style="width:20%">File</th><th style="width:16%">Status</th><th style="width:64%">What you should know</th></tr>
+
+<tr><td><code>netlify.toml</code></td><td><strong>Inert</strong></td>
+<td>Written for Netlify, which no longer hosts you. <strong>GitHub Pages ignores it
+entirely.</strong> Its cache-control rules &mdash; including the one-week cache on videos &mdash; are
+not in effect. This matters: GitHub Pages sets its own cache headers and you cannot
+configure them. Keep the file only if you might return to Netlify; it is otherwise
+dead weight that will confuse you in a year.</td></tr>
+
+<tr><td><code>serve.js</code></td><td>Dev only</td>
+<td>A 33-line local web server. Useful for previewing with Instagram embeds, which do
+not always run from a <code>file://</code> address. It is committed and therefore published, but
+GitHub Pages will never execute it &mdash; Pages runs no code. Harmless.</td></tr>
+
+<tr><td><code>supabase-schema.sql</code></td><td>Not yet run</td>
+<td>A setup script, not part of the running site. Read it before you connect the
+database; section 3 of it is the most security-critical text in your project.</td></tr>
+
+<tr><td><code>_archive-v1/</code></td><td>Local only</td>
+<td>The first version of the site, kept on your disk and excluded by <code>.gitignore</code>.
+Not published, not backed up by GitHub. If you want it preserved, copy it somewhere
+else &mdash; a disk failure loses it.</td></tr>
+</table>
+
+<h2>4.5 &nbsp;The dangerous lines in .gitignore</h2>
+
+<pre>assets/frames/
+assets/jinn_punch.original.mp4</pre>
+
+<p>These exclude AI-generated footage of a Tekken character and the frames cut from it.
+It is third-party intellectual property, it is not used by the site, and it must not be
+published. It was once accidentally put online, because a deploy command that uploads a
+folder ignores <code>.gitignore</code> entirely.</p>
+
+<div class="box box--warn">
+  <div class="box__t">Two rules that follow from that incident</div>
+  <ol>
+  <li><strong>Never deploy by uploading a folder.</strong> Deploy by pushing to git. Git only
+  publishes what is committed, so <code>.gitignore</code> is actually enforced.</li>
+  <li><strong>Deleting a line from <code>.gitignore</code> can publish a file on your next commit.</strong>
+  Before removing any line, look at what it is hiding.</li>
+  </ol>
+  <p>Note also that git history is permanent: once something is committed and pushed,
+  deleting it later does not remove it from the repository's history. Anyone can
+  recover it. Getting this right the first time is the only reliable approach.</p>
+</div>
+
+<p>The file also excludes the two <strong>video source files</strong>
+(<code>homeworld-source.mp4</code>, <code>faq-world-source.mp4</code>). Those are the originals before the
+crossfade edit. They exist only on your computer. <strong>They are not backed up anywhere.</strong>
+If you ever need to re-edit the loops, you need them &mdash; copy them to cloud storage.</p>
+
+<h2>4.6 &nbsp;The CSS trap that has bitten this project twice</h2>
+
+<p>When two CSS rules target the same element, the browser picks the winner by
+<em>specificity</em> &mdash; a score based on how precisely the selector names the element, not on
+which rule appears later.</p>
+
+<pre>table.board-table { min-width: 640px; }   /* element + class = stronger */
+.board-table     { min-width: 0;     }   /* class only     = weaker  */</pre>
+
+<p>The second rule loses even though it comes later and sits inside a phone media query.
+This is exactly what happened: the leaderboard stayed 640px wide on a 375px phone, and
+nothing in the browser reported an error. The fix was to match the weight:</p>
+
+<pre>table.board-table { min-width: 0; }</pre>
+
+<p>The same mistake in the opposite direction broke the logo. A blanket rule
+<code>img[src*="edge-mark.svg"]</code> was added to control the mark's size; an attribute
+selector outranks a plain class, so it overrode every component's own height and
+collapsed the logos.</p>
+
+<div class="box box--key">
+  <div class="box__t">The habit to build</div>
+  <p>Before writing a CSS override, find the rule you are trying to beat and copy its
+  selector shape. If the original says <code>table.board-table</code>, your override says
+  <code>table.board-table</code>. Verify in the browser's element inspector, which shows
+  overridden rules struck through &mdash; if your new rule appears struck through, you lost
+  on specificity.</p>
+</div>
+
+<h2>4.7 &nbsp;Where secrets should live</h2>
+
+<p>A hard truth for a static site: <strong>there is nowhere truly safe.</strong> Anything the
+browser can read, a visitor can read. You have no server and no build step, so there is
+no mechanism to hide a value.</p>
+
+<p>This means:</p>
+<ul>
+<li>The Supabase <em>anon key</em> goes in <code>content.js</code> in plain sight. That is by design &mdash;
+it is called "anon public" because it is meant to be public.</li>
+<li>The Supabase <em>service role key</em> must <strong>never</strong> appear in this project, in any file,
+ever. It bypasses all security rules. It belongs only in the Supabase dashboard.</li>
+<li>Your GitHub password and any access tokens live in your machine's credential
+manager, never in a file in the repository.</li>
+<li>If you ever need a genuine secret in a web request &mdash; an email service key, a
+payment key &mdash; that request must be made by a backend, not by the browser. There is no
+workaround.</li>
+</ul>

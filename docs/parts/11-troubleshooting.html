@@ -1,0 +1,297 @@
+<!-- ============================== PART 12 ============================== -->
+<h1><span class="num">Part 12</span>Troubleshooting: how to find a fault yourself</h1>
+
+<p class="lead">The instinct when something breaks is to describe the symptom to an AI and
+ask for a fix. That works until it doesn't, and it never teaches you anything. This part
+teaches the alternative: <strong>locate the fault before you try to fix it.</strong></p>
+
+<h2>12.1 &nbsp;The discipline</h2>
+
+<p>Debugging is not guessing repeatedly. It is narrowing a search space. Every step
+should <em>eliminate</em> possibilities, and you should be able to say what you learned from
+each one.</p>
+
+<ol>
+<li><strong>Reproduce it.</strong> Exactly what did you click, on what device, in what browser?
+A bug you cannot reproduce is one you cannot verify you fixed.</li>
+<li><strong>Locate the layer.</strong> Which of the seven layers in 12.2 is it in? Most of your
+time should go here.</li>
+<li><strong>Read the error.</strong> Error messages are precise. Beginners skim them; the message
+almost always names the file and the line.</li>
+<li><strong>Form one hypothesis</strong> and test it. One at a time, or you will not know which
+change worked.</li>
+<li><strong>Fix, verify, and write down what it was.</strong> A bug that recurs and is re-diagnosed
+from scratch has cost you twice.</li>
+</ol>
+
+<h2>12.2 &nbsp;Which layer is it in?</h2>
+
+<figure>
+<svg viewBox="0 0 900 480" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="g1" markerWidth="8" markerHeight="8" refX="7" refY="2.6" orient="auto">
+      <path d="M0,0 L7,2.6 L0,5.2 z" fill="#16161a"/>
+    </marker>
+  </defs>
+
+  <rect x="300" y="14" width="300" height="34" fill="#16161a"/>
+  <text x="450" y="36" class="sv-w" text-anchor="middle">Something is wrong. Start here.</text>
+  <line x1="450" y1="48" x2="450" y2="72" stroke="#16161a" stroke-width="1.5" marker-end="url(#g1)"/>
+
+  <rect x="290" y="76" width="320" height="42" fill="#f6f6f7" stroke="#16161a" stroke-width="1.5"/>
+  <text x="450" y="94" class="sv-b" text-anchor="middle">Does it happen on the LIVE site,</text>
+  <text x="450" y="108" class="sv-b" text-anchor="middle">or only in local preview?</text>
+
+  <!-- left: local only -->
+  <line x1="290" y1="97" x2="180" y2="97" stroke="#16161a" stroke-width="1.5"/>
+  <line x1="180" y1="97" x2="180" y2="134" stroke="#16161a" stroke-width="1.5" marker-end="url(#g1)"/>
+  <text x="186" y="92" class="sv-s">local only</text>
+  <rect x="60" y="138" width="240" height="56" fill="#fff" stroke="#16161a"/>
+  <text x="72" y="156" class="sv-l">Not deployed yet, or a cache.</text>
+  <text x="72" y="170" class="sv-s">Did you push? Check git status.</text>
+  <text x="72" y="184" class="sv-s">Then hard-refresh: Ctrl+Shift+R</text>
+
+  <!-- right: live too -->
+  <line x1="610" y1="97" x2="720" y2="97" stroke="#16161a" stroke-width="1.5"/>
+  <line x1="720" y1="97" x2="720" y2="134" stroke="#16161a" stroke-width="1.5" marker-end="url(#g1)"/>
+  <text x="626" y="92" class="sv-s">both / live</text>
+  <rect x="620" y="138" width="250" height="56" fill="#fff" stroke="#16161a"/>
+  <text x="632" y="156" class="sv-l">It is a real bug in the code.</text>
+  <text x="632" y="170" class="sv-s">Continue below. Open DevTools</text>
+  <text x="632" y="184" class="sv-s">first: F12, Console tab.</text>
+
+  <line x1="450" y1="200" x2="450" y2="224" stroke="#16161a" stroke-width="1.5" marker-end="url(#g1)"/>
+
+  <rect x="300" y="228" width="300" height="38" fill="#f6f6f7" stroke="#16161a" stroke-width="1.5"/>
+  <text x="450" y="252" class="sv-b" text-anchor="middle">Is there a RED error in the Console?</text>
+
+  <line x1="300" y1="247" x2="150" y2="247" stroke="#16161a" stroke-width="1.5"/>
+  <line x1="150" y1="247" x2="150" y2="286" stroke="#16161a" stroke-width="1.5" marker-end="url(#g1)"/>
+  <text x="156" y="242" class="sv-s">yes</text>
+  <rect x="30" y="290" width="250" height="72" fill="#fdf4f3" stroke="#a3261c"/>
+  <text x="42" y="308" class="sv-b">JAVASCRIPT layer</text>
+  <text x="42" y="324" class="sv-s">The message names the file and</text>
+  <text x="42" y="336" class="sv-s">line. Click it. Read the line above</text>
+  <text x="42" y="348" class="sv-s">and below too — the cause is</text>
+  <text x="42" y="360" class="sv-s">often just before the crash.</text>
+
+  <line x1="450" y1="266" x2="450" y2="290" stroke="#16161a" stroke-width="1.5" marker-end="url(#g1)"/>
+  <text x="456" y="282" class="sv-s">no</text>
+
+  <rect x="300" y="294" width="300" height="38" fill="#f6f6f7" stroke="#16161a" stroke-width="1.5"/>
+  <text x="450" y="318" class="sv-b" text-anchor="middle">Is a section EMPTY that should have content?</text>
+
+  <line x1="600" y1="313" x2="750" y2="313" stroke="#16161a" stroke-width="1.5"/>
+  <line x1="750" y1="313" x2="750" y2="352" stroke="#16161a" stroke-width="1.5" marker-end="url(#g1)"/>
+  <text x="700" y="308" class="sv-s">yes</text>
+  <rect x="620" y="356" width="250" height="72" fill="#fdfaef" stroke="#8a6d00"/>
+  <text x="632" y="374" class="sv-b">CONTENT or DATA layer</text>
+  <text x="632" y="390" class="sv-s">content.js failed to parse, or an</text>
+  <text x="632" y="402" class="sv-s">id in index.html was renamed so</text>
+  <text x="632" y="414" class="sv-s">the renderer found nothing to</text>
+  <text x="632" y="426" class="sv-s">fill. See 12.6.</text>
+
+  <line x1="450" y1="332" x2="450" y2="356" stroke="#16161a" stroke-width="1.5" marker-end="url(#g1)"/>
+  <text x="456" y="348" class="sv-s">no</text>
+
+  <rect x="230" y="360" width="370" height="38" fill="#f6f6f7" stroke="#16161a" stroke-width="1.5"/>
+  <text x="415" y="384" class="sv-b" text-anchor="middle">Open the Network tab and reload. Any RED rows?</text>
+
+  <line x1="230" y1="379" x2="150" y2="379" stroke="#16161a" stroke-width="1.5"/>
+  <line x1="150" y1="379" x2="150" y2="414" stroke="#16161a" stroke-width="1.5" marker-end="url(#g1)"/>
+  <text x="120" y="374" class="sv-s">yes</text>
+  <rect x="30" y="418" width="250" height="52" fill="#fff" stroke="#16161a"/>
+  <text x="42" y="436" class="sv-b">ASSET or NETWORK layer</text>
+  <text x="42" y="452" class="sv-s">404 = wrong path or missing file.</text>
+  <text x="42" y="464" class="sv-s">403/5xx = the host or service.</text>
+
+  <line x1="415" y1="398" x2="415" y2="422" stroke="#16161a" stroke-width="1.5" marker-end="url(#g1)"/>
+  <text x="421" y="414" class="sv-s">no</text>
+  <rect x="295" y="426" width="290" height="44" fill="#ececee" stroke="#16161a" stroke-dasharray="3 2"/>
+  <text x="307" y="444" class="sv-b">CSS layer — it is a styling problem</text>
+  <text x="307" y="460" class="sv-s">Nothing errored, everything loaded. Use the element inspector: 12.5.</text>
+</svg>
+<figcaption><strong>Figure 8.</strong> Narrow before you fix. Each question eliminates whole categories.</figcaption>
+</figure>
+
+<h2>12.3 &nbsp;Browser DevTools &mdash; the four tabs that matter</h2>
+
+<p>Press <strong>F12</strong> (or Ctrl+Shift+I). This is the single most valuable tool you own and it
+is already installed.</p>
+
+<table>
+<tr><th style="width:16%">Tab</th><th style="width:36%">What it shows</th><th style="width:48%">Use it for</th></tr>
+
+<tr><td><strong>Console</strong></td>
+<td>Errors, warnings, and anything your code logged. <strong>Look here first, always.</strong></td>
+<td>Red text = JavaScript crashed. It names the file and line. Your site also writes
+deliberate messages here &mdash; the join form's <em>"not connected yet"</em> warning appears on
+every load right now.</td></tr>
+
+<tr><td><strong>Elements</strong></td>
+<td>The live DOM, and every CSS rule applying to whatever you select, in priority order.</td>
+<td>Any "why does it look like that" question. Rules that lost on specificity appear
+<s>struck through</s>. You can edit values live to experiment &mdash; changes vanish on
+refresh, which makes it a safe sandbox.</td></tr>
+
+<tr><td><strong>Network</strong></td>
+<td>Every file requested, its status code, size and timing. Reload with it open.</td>
+<td>Is the video actually downloading? Did the CSS load? Is the Supabase request being
+made, and what did it answer? Red rows are failures.</td></tr>
+
+<tr><td><strong>Application</strong></td>
+<td>Stored data. Under Local Storage you will find <code>edge_join_queue</code>.</td>
+<td>Seeing whether registrations are stuck in the queue on this device &mdash; direct
+evidence of the form problem in 6.3.</td></tr>
+</table>
+
+<div class="box box--key">
+  <div class="box__t">On a phone you cannot press F12</div>
+  <p>Connect an Android phone by USB, open <code>chrome://inspect</code> on your laptop, and you
+  get the full DevTools for the phone's browser. For iPhone, enable Web Inspector in
+  Safari settings and use Safari on a Mac.</p>
+  <p>Failing that, resize your desktop browser window to phone width. It catches most
+  layout problems, though not touch-specific or performance ones.</p>
+</div>
+
+<h2>12.4 &nbsp;Symptom to cause, for your specific site</h2>
+
+<table>
+<tr><th style="width:26%">Symptom</th><th style="width:20%">Most likely layer</th><th style="width:54%">Check, in this order</th></tr>
+
+<tr><td>Whole site is blank or unstyled</td><td>CSS or HTML</td>
+<td>Network tab: did <code>styles.css</code> load (200, not 404)? Console: an HTML syntax error
+can break parsing. Try the last commit: <code>git stash</code> then reload.</td></tr>
+
+<tr><td><strong>Every dynamic section is empty</strong></td><td>content.js</td>
+<td>Console will show a syntax error naming a line in <code>content.js</code> &mdash; almost always a
+missing comma, an unclosed quote or a stray bracket. See 12.6.</td></tr>
+
+<tr><td>One section is empty, others fine</td><td>HTML id, or that renderer</td>
+<td>Did you rename an id in <code>index.html</code>? The renderer calls <code>byId("blogGrid")</code>, gets
+<code>null</code>, and returns silently. Compare against the id list in 4.3.</td></tr>
+
+<tr><td>Nothing is clickable anywhere</td><td>CSS stacking</td>
+<td>An invisible element is covering the page. In Elements, hover nodes to see what
+highlights over the content. This is the <code>[hidden]</code> bug from 6.1 &mdash; confirm
+<code>[hidden] { display: none !important; }</code> still exists in <code>styles.css</code>.</td></tr>
+
+<tr><td>Portal does nothing on hover</td><td>WebGL or the video</td>
+<td>Console for a <code>[portal] shader:</code> warning. Network tab: is <code>faq-world.mp4</code>
+downloading? Test <code>EDGE_PORTAL.supported()</code> in the console &mdash; <code>false</code> means no WebGL,
+and the fallback should still open the world plainly.</td></tr>
+
+<tr><td>Portal opens but is silent</td><td>Autoplay policy</td>
+<td>Expected if the visitor has not clicked anything yet. Click once, then hover. If it
+is still silent, check the video actually has an audio track.</td></tr>
+
+<tr><td>Background video never plays</td><td>Deliberate, probably</td>
+<td>Three gates in 5.4: is it the About tab? Is reduced motion on? Is the connection
+flagged as data-saving? All three are intentional. Then check Network for the mp4.</td></tr>
+
+<tr><td>Form says success but nothing arrives</td><td><strong>Configuration</strong></td>
+<td><strong>This is your current state.</strong> Console shows the warning. Application tab &rarr;
+Local Storage &rarr; <code>edge_join_queue</code> holds the rows. Fix: 11.14.</td></tr>
+
+<tr><td>Form rejects a valid input</td><td>Validation rules</td>
+<td><code>join.js:93</code>. Phone must be 10 digits starting 6&ndash;9. Register number must be
+4&ndash;20 characters of letters, digits, slash or hyphen.</td></tr>
+
+<tr><td>Chatbot gives the wrong answer</td><td>Keywords</td>
+<td>Not a bug &mdash; a tuning issue. Add the words the person typed to the right entry's
+<code>keywords</code>. See 11.7.</td></tr>
+
+<tr><td>Logo looks wrong size or squashed</td><td>CSS or cache</td>
+<td>Elements tab: check <code>naturalWidth</code> is 398. If it is 200, you are seeing a cached old
+file &mdash; bump <code>?v=</code>. If the natural size is right, a CSS rule is overriding the
+component height (4.6).</td></tr>
+
+<tr><td>Change pushed but site unchanged</td><td>Cache or deployment</td>
+<td>Hard-refresh (Ctrl+Shift+R). Check GitHub shows your commit. Check repo &rarr; Actions
+for a failed Pages build. Wait two minutes.</td></tr>
+
+<tr><td>Works on desktop, broken on phone</td><td>CSS media queries</td>
+<td>Section 20 of <code>styles.css</code>. Remember specificity (4.6) &mdash; a phone override that
+appears later can still lose.</td></tr>
+</table>
+
+<h2>12.5 &nbsp;Diagnosing a CSS problem properly</h2>
+
+<p>CSS problems feel mysterious because nothing errors. The method removes the mystery:</p>
+
+<ol class="tight">
+<li>Right-click the misbehaving element &rarr; <strong>Inspect</strong>.</li>
+<li>The Styles panel lists every rule affecting it, <strong>strongest first</strong>.</li>
+<li>Find the property that is wrong. If your intended rule appears
+<s>struck through</s>, it lost on specificity &mdash; the winning rule is above it. Match its
+selector shape (4.6).</li>
+<li>If the property is not listed at all, your selector does not match. Check for a typo
+or a missing parent class.</li>
+<li>Edit the value directly in the panel to confirm your fix works, <em>then</em> make the same
+change in <code>styles.css</code>.</li>
+<li>Use the <strong>Computed</strong> tab to see the final value of everything, and the box-model
+diagram to see actual padding, border and margin.</li>
+</ol>
+
+<h2>12.6 &nbsp;The most likely error you will ever cause</h2>
+
+<p>A syntax error in <code>content.js</code>. It empties the entire site, which is alarming and
+completely recoverable.</p>
+
+<pre>Uncaught SyntaxError: Unexpected token '}'    content.js:241</pre>
+
+<p>Almost always one of three things:</p>
+<ul class="tight">
+<li><strong>A missing comma</strong> between two entries in an array.</li>
+<li><strong>An unescaped apostrophe</strong> inside a single-quoted string:
+<code>'don't'</code> ends the string early. Use double quotes: <code>"don't"</code>.</li>
+<li><strong>A missing closing bracket</strong> <code>}</code> or <code>]</code>.</li>
+</ul>
+
+<p>The reported line number is where the parser <em>noticed</em>, which is often a line or two
+after the real mistake. Look just above it.</p>
+
+<pre>git diff js/content.js     # see exactly what you changed
+git checkout -- js/content.js   # or: throw it all away and start again</pre>
+
+<h2>12.7 &nbsp;Deciding whether it is your fault</h2>
+
+<table>
+<tr><th style="width:34%">Test</th><th style="width:66%">What it tells you</th></tr>
+<tr><td>Does it break in a private/incognito window?</td>
+<td>No &rarr; it is a cache or an extension on your machine, not a real bug.</td></tr>
+<tr><td>Does it break in a different browser?</td>
+<td>No &rarr; a browser-specific issue, usually a feature one browser lacks.</td></tr>
+<tr><td>Did it work at the last commit?</td>
+<td><code>git stash</code>, reload, <code>git stash pop</code>. If the old version works, your change caused
+it &mdash; and <code>git diff</code> shows you exactly what you did.</td></tr>
+<tr><td>Is the file reaching the browser at all?</td>
+<td>Network tab. A 404 is a path problem, not a code problem.</td></tr>
+<tr><td>Is GitHub itself down?</td>
+<td><code>githubstatus.com</code>. Rare, but it happens, and there is nothing to fix.</td></tr>
+</table>
+
+<h2>12.8 &nbsp;When you do ask for help</h2>
+
+<p>Asking well is a skill, and it is the same skill whether you are asking a person, a
+forum or an AI. Include:</p>
+
+<ul class="tight">
+<li><strong>What you expected</strong> and <strong>what happened instead.</strong></li>
+<li><strong>The exact error text</strong>, copied, not described.</li>
+<li><strong>Which layer you have already ruled out</strong>, and how.</li>
+<li><strong>The relevant code</strong>, not the whole file.</li>
+<li><strong>What you already tried.</strong></li>
+</ul>
+
+<p>That list is not politeness. Writing it out solves a surprising share of problems
+before you finish &mdash; the act of stating precisely what you expected is often where the
+wrong assumption reveals itself.</p>
+
+<div class="box box--key">
+  <div class="box__t">The rule that makes you independent</div>
+  <p><strong>Never apply a fix you do not understand.</strong> If something is suggested and you
+  cannot say why it works, ask for the reasoning before applying it. A site held together
+  by changes you cannot explain is a site you cannot maintain &mdash; and you will have simply
+  traded one dependency for another.</p>
+</div>

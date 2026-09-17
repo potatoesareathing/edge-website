@@ -1,0 +1,268 @@
+<!-- ============================== PART 2 ============================== -->
+<h1><span class="num">Part 2</span>The vocabulary</h1>
+
+<p class="lead">These are the words people will use when they talk to you about your site.
+Each one is defined here in terms of your actual project, not in the abstract. Read this
+part once; you will come back to it.</p>
+
+<h2>2.1 &nbsp;Client and server</h2>
+
+<div class="box box--term">
+  <div class="box__t">Client</div>
+  <p>The machine asking for something. On your site, the client is the visitor's phone
+  or laptop, specifically the browser running on it. Everything in the top box of
+  Figure 1 is the client.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Server</div>
+  <p>A machine that sits waiting for requests and answers them. Your server is a
+  GitHub computer somewhere. When someone types your address, their browser asks
+  that machine for <code>index.html</code>, and it sends the file back.</p>
+  <p>Your server is a <em>static</em> server: it only hands over files that already exist.
+  It never thinks. It cannot check a password, save a form, or send an email.</p>
+</div>
+
+<p>The word "server" confuses beginners because it means both the physical machine and
+the program running on it. When someone says "is your server down?", they mean "is the
+thing that hands out your files responding?" For you, that is GitHub's problem, not yours.</p>
+
+<h2>2.2 &nbsp;Frontend and backend</h2>
+
+<div class="box box--term">
+  <div class="box__t">Frontend</div>
+  <p>Everything that runs on the client. Your HTML, your CSS, all six JavaScript files,
+  the WebGL portal, the chatbot, the form validation. <strong>Your site is 100% frontend.</strong></p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Backend</div>
+  <p>Code that runs on a server, where the visitor cannot see or change it. You have
+  <strong>no backend of your own</strong>. Supabase, once connected, acts as a rented backend:
+  their servers run the database, and you never manage a machine.</p>
+</div>
+
+<p>This distinction matters enormously for security. Anything in your frontend is
+readable by anyone &mdash; right-click, "View Source", and every line of your JavaScript is
+there. This is not a flaw; it is how the web works. It is why you must never put a
+secret password in frontend code, and why the FAQ chatbot is a keyword matcher rather
+than a real AI model (Part 6.2 explains).</p>
+
+<h2>2.3 &nbsp;How a page is actually made</h2>
+
+<div class="box box--term">
+  <div class="box__t">HTML</div>
+  <p>The structure and content. Your <code>index.html</code> says "there is a header here,
+  a table there, a form below it". It is a skeleton, not a picture.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">CSS</div>
+  <p>The appearance. Your <code>css/styles.css</code> says "headers are white on near-black,
+  33 pixels tall, in Chakra Petch". Same skeleton, different clothes.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">JavaScript</div>
+  <p>The behaviour. Your six <code>js/</code> files make things happen: switch tabs, answer
+  questions, validate the form, draw the portal. HTML and CSS are descriptions;
+  JavaScript is instructions.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">The DOM (Document Object Model)</div>
+  <p>When the browser reads your HTML, it builds a live tree of objects in memory.
+  That tree is the DOM. Your JavaScript does not edit <code>index.html</code> &mdash; it edits the
+  DOM, and the screen updates to match.</p>
+  <p>This is why your changes vanish on refresh: the file on disk never changed. It is
+  also why <code>js/content.js</code> exists &mdash; to make content changes permanent, they have
+  to live in a file.</p>
+</div>
+
+<h2>2.4 &nbsp;Words about code organisation</h2>
+
+<div class="box box--term">
+  <div class="box__t">Component</div>
+  <p>A reusable piece of interface. Frameworks make this formal; your site does it with
+  <em>functions that build DOM nodes</em>. <code>postCard()</code> in <code>js/app.js:121</code> takes one
+  blog entry and returns a finished card. That is a component, even without the label.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">State</div>
+  <p>Information that changes while the page is open and that the interface must reflect.
+  Your site has very little, which is why it is easy to reason about. Examples: which tab
+  is showing (<code>showTab</code>), which join path is selected (<code>let path = "member"</code> in
+  <code>js/join.js:27</code>), how far the portal has opened (<code>progress</code> in <code>js/portal.js:137</code>).</p>
+  <p>Bugs in complicated apps are usually state bugs: two places disagree about what is
+  true. You avoided most of these by keeping state in one place per system.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Routing</div>
+  <p>Deciding what to show based on the address. Your site uses <em>hash routing</em>: the
+  part of the URL after the <code>#</code>. Visiting <code>&hellip;/#players</code> shows the Players section.
+  <code>showTab()</code> in <code>js/app.js:47</code> is your entire router &mdash; 20 lines.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Middleware</div>
+  <p>Code that sits between a request arriving and it being answered, doing something
+  to it on the way &mdash; checking a login, logging the request. <strong>Your site has none</strong>,
+  because it has no backend. The word is in this manual only so you are not thrown
+  when someone uses it.</p>
+</div>
+
+<h2>2.5 &nbsp;Words about data moving</h2>
+
+<div class="box box--term">
+  <div class="box__t">API (Application Programming Interface)</div>
+  <p>An agreed way for one program to ask another for something. Not a thing you can
+  point at &mdash; a contract.</p>
+  <p>Your site uses three: the <em>browser APIs</em> built into every browser (WebGL, Web
+  Audio, localStorage, fetch); the <em>Supabase REST API</em>, which is how your form would
+  save a registration; and Instagram's embed script, which is an API of sorts.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Endpoint</div>
+  <p>One specific address within an API. Your form's endpoint, once configured, is</p>
+  <pre>https://YOUR-PROJECT.supabase.co/rest/v1/registrations</pre>
+  <p>Built in <code>js/join.js:211</code> from the URL and table name in <code>content.js</code>. Sending a
+  <code>POST</code> request to that address means "add a row to the registrations table".</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Request and response &middot; GET and POST</div>
+  <p>A request asks; a response answers. <strong>GET</strong> means "give me something" &mdash; every
+  file your site loads is a GET. <strong>POST</strong> means "here is some data, do something with
+  it" &mdash; your form uses POST. The difference matters: GETs can be cached and repeated
+  safely, POSTs change something and should not be repeated blindly.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Status code</div>
+  <p>A number in every response saying how it went. <strong>200</strong> fine. <strong>404</strong> no such
+  file. <strong>403</strong> forbidden &mdash; this is what Netlify returned when its credits ran out.
+  <strong>409</strong> conflict &mdash; your form treats this as "this register number already signed
+  up" (<code>js/join.js:226</code>). <strong>500</strong> the server broke.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">JSON</div>
+  <p>A text format for structured data, and the way your form talks to Supabase. It
+  looks like JavaScript objects because it is derived from them:</p>
+  <pre>{"path":"member","full_name":"Asha K","phone":"9876543210"}</pre>
+</div>
+
+<h2>2.6 &nbsp;Words about running and shipping</h2>
+
+<div class="box box--term">
+  <div class="box__t">Dependency</div>
+  <p>Someone else's code your project needs in order to work. <strong>Your project has
+  zero.</strong> Nothing is installed; nothing can break when its author changes it.</p>
+  <p>You do use three outside <em>services</em> at runtime (Google Fonts, Instagram,
+  Supabase), which is a different kind of reliance &mdash; covered in Part 7.3.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Build process</div>
+  <p>A program that transforms your source files into the files that actually ship &mdash;
+  combining, shrinking, converting newer syntax to older. <strong>Your site has none.</strong>
+  <code>netlify.toml</code> says <code>command = ""</code>, meaning "there is nothing to run".</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Deployment</div>
+  <p>Getting your files from your computer to the machine that serves them. For you,
+  deployment is one command: <code>git push</code>. GitHub Pages notices the new commit and
+  republishes within about a minute.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Hosting</div>
+  <p>Renting the machine and the address. GitHub Pages hosts you for free, with no
+  bandwidth bill and no credit system &mdash; which is exactly why the site moved there.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">DNS (Domain Name System)</div>
+  <p>The phone book of the internet: it turns a name into the numeric address of a
+  machine. <strong>You do not use DNS</strong>, because you do not own a domain name. GitHub
+  owns <code>github.io</code> and manages its DNS. If you ever buy <code>edgeruas.in</code>, configuring
+  DNS becomes your job &mdash; Part 11.17.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">CDN (Content Delivery Network)</div>
+  <p>Copies of your files kept on machines around the world, so a visitor is served
+  from one physically near them. <strong>You get one free</strong> &mdash; GitHub Pages runs your
+  site through a CDN automatically. Google Fonts is also a CDN. Nothing to configure.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Cache</div>
+  <p>A saved copy kept to avoid fetching again. Caching is the single most common
+  cause of "I fixed it but it still looks broken". Your logo problem was exactly this:
+  the old host was told to keep asset files for 24 hours, so a corrected logo could
+  not reach anyone.</p>
+  <p>The fix used in your code is <em>cache busting</em> &mdash; the <code>?v=2</code> on every
+  <code>edge-mark.svg?v=2</code> in <code>index.html</code>. Change the number and browsers treat it as a
+  different file.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Environment variable</div>
+  <p>A value supplied to a program from outside its code, so the same code can behave
+  differently in different places &mdash; and so secrets stay out of the source.</p>
+  <p><strong>Your site has none, and cannot have any.</strong> There is no build step and no server,
+  so there is nowhere for a value to be injected. This is why your Supabase key would
+  sit in plain sight in <code>content.js</code>, and why the database's security rules &mdash; not
+  secrecy &mdash; are what protect student data. Part 6.3 covers this properly; it is the
+  most important security idea in your project.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Authentication vs authorisation</div>
+  <p><em>Authentication</em> is proving who you are (logging in). <em>Authorisation</em> is what
+  you are allowed to do once known. Your site has no authentication. It does have
+  authorisation, in the database: anonymous visitors may insert a registration and may
+  do nothing else.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Webhook</div>
+  <p>A reverse API call: instead of you asking a service for news, the service calls
+  <em>you</em> when something happens. <strong>You have none</strong>, and could not receive one
+  without a backend. Mentioned because it will come up if you ever add "email me when
+  someone registers".</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">HTTPS and certificates</div>
+  <p>The <code>s</code> means the connection is encrypted, so nobody between the visitor and the
+  server can read or alter it. It requires a <em>certificate</em> proving the site is who it
+  claims. GitHub Pages issues and renews yours automatically, and your repository has
+  <code>https_enforced: true</code>, so plain HTTP is redirected. <strong>Nothing to maintain</strong> &mdash;
+  but if you add a custom domain you must re-enable it.</p>
+</div>
+
+<h2>2.7 &nbsp;Two words specific to your site</h2>
+
+<div class="box box--term">
+  <div class="box__t">WebGL</div>
+  <p>A browser API for drawing with the graphics chip (GPU) instead of the normal
+  page-drawing machinery. You reach for it when you need something per-pixel and fast &mdash;
+  your portal's torn, refracting edge is computed for every pixel, sixty times a second.
+  The normal CSS engine cannot do that.</p>
+  <p>Programs that run on the GPU are called <em>shaders</em> and are written in a separate
+  C-like language, GLSL. Yours is 80 lines of text inside <code>js/portal.js:50&ndash;128</code>.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Three.js</div>
+  <p>A popular library that wraps WebGL in friendlier concepts &mdash; scenes, cameras,
+  meshes. <strong>Your site does not use it</strong>, deliberately. Three.js is around 600 KB;
+  your portal has no scene, no camera and no 3D geometry, so it would be a large
+  download to do less. Knowing the name matters because people will assume it is there.</p>
+</div>

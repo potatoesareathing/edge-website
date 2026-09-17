@@ -1,0 +1,267 @@
+<!-- ============================== PART 3 ============================== -->
+<h1><span class="num">Part 3</span>What happens when someone opens the site</h1>
+
+<p class="lead">Follow one visitor from typing the address to the page being usable. If you
+understand this sequence, most "why is it doing that?" questions answer themselves.</p>
+
+<h2>3.1 &nbsp;The sequence</h2>
+
+<figure>
+<svg viewBox="0 0 900 690" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="b1" markerWidth="8" markerHeight="8" refX="7" refY="2.6" orient="auto">
+      <path d="M0,0 L7,2.6 L0,5.2 z" fill="#16161a"/>
+    </marker>
+  </defs>
+
+  <line x1="46" y1="34" x2="46" y2="656" stroke="#c8c8cc" stroke-width="1"/>
+
+  <!-- step template positions -->
+  <g>
+    <circle cx="46" cy="44" r="11" fill="#16161a"/><text x="46" y="48" class="sv-w" text-anchor="middle">1</text>
+    <text x="70" y="40" class="sv-b">Browser requests the address</text>
+    <text x="70" y="54" class="sv-s">GitHub Pages responds with index.html — 15 KB of text. Nothing is drawn yet.</text>
+  </g>
+
+  <g>
+    <circle cx="46" cy="88" r="11" fill="#16161a"/><text x="46" y="92" class="sv-w" text-anchor="middle">2</text>
+    <text x="70" y="84" class="sv-b">Browser reads &lt;head&gt; and pauses</text>
+    <text x="70" y="98" class="sv-s">It finds the stylesheet link and the Google Fonts link. CSS is "render-blocking": the browser</text>
+    <text x="70" y="110" class="sv-s">refuses to draw anything until styles.css arrives, so nobody sees unstyled text flash past.</text>
+  </g>
+
+  <g>
+    <circle cx="46" cy="144" r="11" fill="#16161a"/><text x="46" y="148" class="sv-w" text-anchor="middle">3</text>
+    <text x="70" y="140" class="sv-b">The page is drawn — but mostly empty</text>
+    <text x="70" y="154" class="sv-s">Header, tabs, the hero with the logo, and the form's skeleton appear. The leaderboard, roster,</text>
+    <text x="70" y="166" class="sv-s">blog, updates, footer and FAQ are all EMPTY at this moment. They are built by JavaScript.</text>
+    <rect x="70" y="174" width="800" height="18" fill="#f6f6f7" stroke="#c8c8cc"/>
+    <text x="78" y="186" class="sv-s">The video does not load here either: the &lt;video&gt; tags have no src. Only the poster image shows.</text>
+  </g>
+
+  <g>
+    <circle cx="46" cy="216" r="11" fill="#16161a"/><text x="46" y="220" class="sv-w" text-anchor="middle">4</text>
+    <text x="70" y="212" class="sv-b">The six scripts run, in this exact order</text>
+  </g>
+
+  <rect x="70" y="226" width="800" height="152" fill="#f6f6f7" stroke="#16161a"/>
+  <rect x="80" y="234" width="126" height="32" fill="#16161a"/>
+  <text x="90" y="247" class="sv-w">content.js</text><text x="90" y="259" class="sv-ws">defines EDGE</text>
+  <text x="214" y="252" class="sv-s">Creates one global object holding every piece of content. Runs no logic.</text>
+
+  <rect x="80" y="272" width="126" height="32" fill="#2a2a30"/>
+  <text x="90" y="285" class="sv-w">portal.js</text><text x="90" y="297" class="sv-ws">defines EDGE_PORTAL</text>
+  <text x="214" y="290" class="sv-s">Publishes the portal API. Touches no GPU yet — setup is lazy, on first use.</text>
+
+  <rect x="80" y="310" width="126" height="32" fill="#2a2a30"/>
+  <text x="90" y="323" class="sv-w">app.js</text><text x="90" y="335" class="sv-ws">the main program</text>
+  <text x="214" y="322" class="sv-s">Waits for DOMContentLoaded, then runs init(): starts the video system, the tab router,</text>
+  <text x="214" y="334" class="sv-s">the portal wiring, and every renderer that fills the empty sections from EDGE.</text>
+
+  <rect x="80" y="348" width="126" height="22" fill="#4a4a52"/>
+  <text x="90" y="362" class="sv-w">faq-bot · join · sound</text>
+  <text x="214" y="362" class="sv-s">Each wires up its own section and posts the first chat message. Independent of one another.</text>
+
+  <g>
+    <circle cx="46" cy="400" r="11" fill="#16161a"/><text x="46" y="404" class="sv-w" text-anchor="middle">5</text>
+    <text x="70" y="396" class="sv-b">The page fills in</text>
+    <text x="70" y="410" class="sv-s">Leaderboard rows, roster cards, blog posts, updates, footer links, FAQ list and the chat</text>
+    <text x="70" y="422" class="sv-s">greeting all appear. This is why a broken content.js empties the site rather than breaking one part.</text>
+  </g>
+
+  <g>
+    <circle cx="46" cy="450" r="11" fill="#16161a"/><text x="46" y="454" class="sv-w" text-anchor="middle">6</text>
+    <text x="70" y="446" class="sv-b">The homeworld video is attached — conditionally</text>
+    <text x="70" y="460" class="sv-s">Only on the About tab, only if the visitor has not asked for reduced motion, and only if the</text>
+    <text x="70" y="472" class="sv-s">connection is not flagged as saving data or 2G. Otherwise the poster image stands in and the</text>
+    <text x="70" y="484" class="sv-s">3.9 MB file is never downloaded. This is a deliberate kindness to students on mobile data.</text>
+  </g>
+
+  <g>
+    <circle cx="46" cy="512" r="11" fill="#16161a"/><text x="46" y="516" class="sv-w" text-anchor="middle">7</text>
+    <text x="70" y="508" class="sv-b">Motion is armed</text>
+    <text x="70" y="522" class="sv-s">initReveals() hides certain blocks and watches for them to scroll into view. initGlitch() reads</text>
+    <text x="70" y="534" class="sv-s">the text of headings into a data attribute so CSS can flash a doubled copy on hover.</text>
+    <text x="70" y="546" class="sv-s">initGlitch runs LAST on purpose — it must see the text the renderers just created.</text>
+  </g>
+
+  <g>
+    <circle cx="46" cy="578" r="11" fill="#16161a"/><text x="46" y="582" class="sv-w" text-anchor="middle">8</text>
+    <text x="70" y="574" class="sv-b">The site is idle and waiting</text>
+    <text x="70" y="588" class="sv-s">Nothing runs until the visitor does something. Scrolling raises the scrim over the video.</text>
+    <text x="70" y="600" class="sv-s">Clicking a tab swaps a CSS class. Hovering the Ask button wakes the GPU for the first time.</text>
+  </g>
+
+  <rect x="70" y="616" width="800" height="44" fill="#fdf4f3" stroke="#a3261c"/>
+  <text x="80" y="632" class="sv-b">Never happens on any visit today:</text>
+  <text x="80" y="646" class="sv-s">No call to Supabase (keys blank) · no Instagram script (no post URLs) · no analytics · no login · no cookies set.</text>
+</svg>
+<figcaption><strong>Figure 2.</strong> From address bar to idle page. Steps 1&ndash;3 are the browser; 4&ndash;7
+are your code; step 8 is the resting state.</figcaption>
+</figure>
+
+<h2>3.2 &nbsp;Why the script order is not negotiable</h2>
+
+<p>At the bottom of <code>index.html</code>:</p>
+
+<pre>&lt;script src="js/content.js"&gt;&lt;/script&gt;
+&lt;script src="js/portal.js"&gt;&lt;/script&gt;
+&lt;script src="js/app.js"&gt;&lt;/script&gt;
+&lt;script src="js/faq-bot.js"&gt;&lt;/script&gt;
+&lt;script src="js/join.js"&gt;&lt;/script&gt;
+&lt;script src="js/sound.js"&gt;&lt;/script&gt;</pre>
+
+<p>Plain <code>&lt;script&gt;</code> tags run strictly in order, each finishing before the next starts.
+That is the entire mechanism holding your site together, and it imposes two rules:</p>
+
+<ul>
+<li><strong><code>content.js</code> must come first.</strong> It creates the global <code>EDGE</code> object. Every
+other file reads from it. Move it later and four files fail at once &mdash;
+<code>app.js:14</code> would log <code>[EDGE] content.js did not load.</code> and stop.</li>
+<li><strong><code>portal.js</code> must come before <code>app.js</code>.</strong> <code>app.js</code> reads
+<code>window.EDGE_PORTAL</code> when it wires up the Ask button.</li>
+</ul>
+
+<p>The last three are independent of each other and could be reordered, though there is
+no reason to.</p>
+
+<div class="box box--term">
+  <div class="box__t">Why the scripts are at the bottom of the body</div>
+  <p>A script tag in the <code>&lt;head&gt;</code> blocks the browser from drawing until it has
+  downloaded and run. Putting them last means the visitor sees the page before the
+  JavaScript arrives. Combined with <code>DOMContentLoaded</code>, it also guarantees the
+  HTML elements exist by the time your code looks for them.</p>
+</div>
+
+<h2>3.3 &nbsp;The IIFE pattern, and why every file is wrapped</h2>
+
+<p>Every one of your JavaScript files looks like this:</p>
+
+<pre>(function () {
+  "use strict";
+  // ... everything
+})();</pre>
+
+<div class="box box--term">
+  <div class="box__t">IIFE — Immediately Invoked Function Expression</div>
+  <p>A function that is defined and run in the same breath. Anything declared inside is
+  invisible outside. Without it, every variable in every file would share one global
+  namespace, and two files using <code>const log</code> would collide and break each other.</p>
+  <p><code>"use strict"</code> turns silent mistakes into loud errors &mdash; assigning to an undeclared
+  variable throws instead of quietly creating a global.</p>
+</div>
+
+<p>Because the files are sealed, anything they deliberately share is attached to
+<code>window</code> &mdash; the browser's global object. Your site has exactly five such handoffs:</p>
+
+<table>
+<tr><th style="width:23%">Global</th><th style="width:20%">Created by</th><th style="width:22%">Used by</th><th style="width:35%">What it is</th></tr>
+<tr><td><code>EDGE</code></td><td><code>content.js</code></td><td>app, faq-bot, join</td>
+    <td>The entire content of the site as one object. The most important global.</td></tr>
+<tr><td><code>EDGE_PORTAL</code></td><td><code>portal.js</code></td><td><code>app.js</code></td>
+    <td>The portal's controls: <code>configure</code>, <code>peek</code>, <code>open</code>, <code>close</code>, <code>suspend</code>, <code>isOpen</code>, <code>supported</code>.</td></tr>
+<tr><td><code>EDGE_ASK</code></td><td><code>faq-bot.js</code></td><td>nothing yet</td>
+    <td>Lets other code push a question into the chat. Written for a future deep-link from the Join tab.</td></tr>
+<tr><td><code>EDGE_SOUND</code></td><td><code>sound.js</code></td><td>nothing yet</td>
+    <td><code>play()</code>, <code>mute()</code>. Exposed so you could add a mute toggle later.</td></tr>
+<tr><td><code>__edgeHomeworld</code></td><td><code>app.js</code></td><td><code>app.js</code></td>
+    <td>Internal. Lets the tab router tell the video system which tab is showing. The double
+    underscore is a convention meaning "private, do not rely on this".</td></tr>
+</table>
+
+<h2>3.4 &nbsp;How data flows through the site</h2>
+
+<p>This is the pattern worth internalising, because it is the one you will use whenever
+you change content.</p>
+
+<figure>
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="c1" markerWidth="8" markerHeight="8" refX="7" refY="2.6" orient="auto">
+      <path d="M0,0 L7,2.6 L0,5.2 z" fill="#16161a"/>
+    </marker>
+  </defs>
+
+  <rect x="20" y="70" width="180" height="150" fill="#16161a"/>
+  <text x="34" y="92" class="sv-w">js/content.js</text>
+  <text x="34" y="108" class="sv-ws">ONE object named EDGE</text>
+  <line x1="34" y1="116" x2="186" y2="116" stroke="#4a4a52"/>
+  <text x="34" y="132" class="sv-ws">EDGE.club</text>
+  <text x="34" y="146" class="sv-ws">EDGE.blog</text>
+  <text x="34" y="160" class="sv-ws">EDGE.join</text>
+  <text x="34" y="174" class="sv-ws">EDGE.faq</text>
+  <text x="34" y="188" class="sv-ws">EDGE.players</text>
+  <text x="34" y="202" class="sv-ws">EDGE.about / .updates</text>
+
+  <line x1="200" y1="145" x2="256" y2="145" stroke="#16161a" stroke-width="1.5" marker-end="url(#c1)"/>
+  <text x="204" y="138" class="sv-s">read by</text>
+
+  <rect x="262" y="30" width="230" height="232" fill="#f6f6f7" stroke="#16161a" stroke-width="1.5"/>
+  <text x="276" y="50" class="sv-b">Renderer functions</text>
+  <text x="276" y="63" class="sv-s">Plain functions. Each reads part of</text>
+  <text x="276" y="74" class="sv-s">EDGE and builds DOM nodes.</text>
+  <text x="276" y="96" class="sv-m">renderBlog()</text>
+  <text x="276" y="112" class="sv-m">renderAbout()</text>
+  <text x="276" y="128" class="sv-m">renderLeaderboard()</text>
+  <text x="276" y="144" class="sv-m">renderRosters()</text>
+  <text x="276" y="160" class="sv-m">renderUpdates()</text>
+  <text x="276" y="176" class="sv-m">renderFooter()</text>
+  <text x="276" y="192" class="sv-m">renderList()  (faq-bot)</text>
+  <text x="276" y="208" class="sv-m">fillSelect()  (join)</text>
+  <text x="276" y="236" class="sv-s">All use el() and textContent —</text>
+  <text x="276" y="248" class="sv-s">never innerHTML. See 3.5.</text>
+
+  <line x1="492" y1="145" x2="548" y2="145" stroke="#16161a" stroke-width="1.5" marker-end="url(#c1)"/>
+  <text x="496" y="138" class="sv-s">insert into</text>
+
+  <rect x="554" y="70" width="200" height="150" fill="#ececee" stroke="#16161a" stroke-width="1.5"/>
+  <text x="568" y="92" class="sv-b">Empty slots in</text>
+  <text x="568" y="106" class="sv-b">index.html</text>
+  <text x="568" y="126" class="sv-m">&lt;tbody id="boardBody"&gt;</text>
+  <text x="568" y="142" class="sv-m">&lt;div id="blogGrid"&gt;</text>
+  <text x="568" y="158" class="sv-m">&lt;div id="updatesList"&gt;</text>
+  <text x="568" y="174" class="sv-m">&lt;div id="faqList"&gt;</text>
+  <text x="568" y="196" class="sv-s">Each is an empty container</text>
+  <text x="568" y="208" class="sv-s">with an id. That is the socket.</text>
+
+  <line x1="754" y1="145" x2="810" y2="145" stroke="#16161a" stroke-width="1.5" marker-end="url(#c1)"/>
+
+  <rect x="816" y="100" width="64" height="90" fill="#16161a"/>
+  <text x="848" y="140" class="sv-w" text-anchor="middle">Screen</text>
+  <text x="848" y="156" class="sv-ws" text-anchor="middle">what the</text>
+  <text x="848" y="167" class="sv-ws" text-anchor="middle">visitor</text>
+  <text x="848" y="178" class="sv-ws" text-anchor="middle">sees</text>
+
+  <text x="20" y="285" class="sv-s">One direction only. Nothing writes back to content.js, and the renderers never read from the screen. To change what</text>
+  <text x="20" y="297" class="sv-s">a visitor sees permanently, you change the leftmost box and push. Everything downstream follows automatically.</text>
+</svg>
+<figcaption><strong>Figure 3.</strong> The content pipeline. This one-way flow is the reason you can
+maintain the site by editing a single file.</figcaption>
+</figure>
+
+<h2>3.5 &nbsp;One security decision worth understanding</h2>
+
+<p>Every renderer builds text through a helper at <code>js/app.js:20</code>:</p>
+
+<pre>function el(tag, className, text) {
+  const n = document.createElement(tag);
+  if (className) n.className = className;
+  if (text != null) n.textContent = text;   // <== the important line
+  return n;
+}</pre>
+
+<p>Setting <code>textContent</code> puts text in as <em>text</em>. The alternative, <code>innerHTML</code>, puts
+it in as <em>markup</em> &mdash; meaning any HTML inside the string becomes real elements.</p>
+
+<div class="box box--warn">
+  <div class="box__t">Why this matters — cross-site scripting</div>
+  <p>Suppose a player's in-game name were <code>&lt;script&gt;steal()&lt;/script&gt;</code>. With
+  <code>textContent</code>, visitors see those characters printed on screen. With
+  <code>innerHTML</code>, the browser would <em>run</em> it, in every visitor's session. That attack
+  is called <strong>XSS (cross-site scripting)</strong> and it is one of the most common
+  vulnerabilities on the web.</p>
+  <p>Today all your content is written by you, so the risk is low. The moment any text
+  comes from a database or a form, it becomes real. <strong>The rule:
+  never introduce <code>innerHTML</code> into this project.</strong> There is currently not a single
+  use of it anywhere in your JavaScript, and that is worth keeping true.</p>
+</div>

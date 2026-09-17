@@ -1,0 +1,201 @@
+<!-- ============================== PART 15 ============================== -->
+<h1><span class="num">Part 15</span>Checklists</h1>
+
+<p class="lead">Reusable, and written to be used rather than admired. The first four apply
+to this site; the last applies to whatever you build next.</p>
+
+<h2>15.1 &nbsp;Pre-deployment checklist</h2>
+<p><em>Before every <code>git push</code>. Two minutes.</em></p>
+<ul class="tight">
+<li>Previewed locally (<code>node serve.js</code>) and the change looks right.</li>
+<li><strong>Console is clean</strong> &mdash; no new red errors. (The join-form warning is expected until
+11.14 is done.)</li>
+<li>Checked at phone width &mdash; resize the window to about 375px.</li>
+<li>Clicked through all four tabs; none are blank.</li>
+<li>If you touched the form: submitted once on <em>both</em> Member and Roster paths.</li>
+<li>If you touched the FAQ: hovered the launcher, clicked in, came back out.</li>
+<li><code>git diff</code> read &mdash; you can explain every changed line.</li>
+<li>No secrets, keys or personal data in the diff.</li>
+<li>Commit message says <em>why</em>, not just what.</li>
+</ul>
+
+<h2>15.2 &nbsp;Update checklist</h2>
+<p><em>For content changes, which is most of what you will do.</em></p>
+<ul class="tight">
+<li>Editing <code>content.js</code>, not a logic file &mdash; if not, be sure you need to.</li>
+<li>Commas between every entry; quotes closed; brackets balanced.</li>
+<li>Dates are <code>YYYY-MM-DD</code>.</li>
+<li>New images optimised (under about 400 KB) and given <code>alt</code> text.</li>
+<li>New links include <code>https://</code>.</li>
+<li>Reloaded the preview &mdash; the section actually changed.</li>
+<li>Nothing else broke: the site still renders everywhere.</li>
+<li>Run 15.1 and push.</li>
+</ul>
+
+<h2>15.3 &nbsp;Backup checklist</h2>
+<p><em>Monthly, ten minutes.</em></p>
+<ul class="tight">
+<li><code>git push</code> &mdash; all local work is on GitHub.</li>
+<li><code>git status</code> shows nothing uncommitted that matters.</li>
+<li><strong>Supabase data exported to CSV</strong> and stored somewhere private.</li>
+<li>Video source files (<code>*-source.mp4</code>) exist in cloud storage &mdash; <em>these are not in
+git</em>.</li>
+<li><code>_archive-v1/</code> copied somewhere, if you still want it.</li>
+<li>Original logo artwork backed up.</li>
+<li>Once a semester: <code>git bundle create edge-backup.bundle --all</code>, stored off-machine.</li>
+<li>Once a year: actually test a restore (8.4). An untested backup is a hope.</li>
+</ul>
+
+<h2>15.4 &nbsp;Security checklist</h2>
+<p><em>At launch, then quarterly.</em></p>
+<ul class="tight">
+<li><strong>RLS verified:</strong> the <code>curl</code> select in <code>supabase-schema.sql</code> returns <code>[]</code>. Not
+"probably" &mdash; run it.</li>
+<li>Only an <em>insert</em> policy exists on <code>registrations</code>. No select, update or delete
+policy.</li>
+<li>The <strong>service role key</strong> appears nowhere in the repository. Search for it:
+<code>git log -p | grep -i "service_role"</code></li>
+<li>No passwords, tokens or personal data anywhere in git history.</li>
+<li>GitHub account has two-factor authentication on, with recovery codes stored
+physically.</li>
+<li>Still no <code>innerHTML</code> anywhere: <code>grep -rn "innerHTML" js/</code> returns nothing.</li>
+<li><code>[hidden] { display: none !important; }</code> still present in <code>styles.css</code>.</li>
+<li>HTTPS enforced &mdash; the live URL shows a padlock.</li>
+<li>Exported registration data is stored privately and deleted when finished with.</li>
+<li>Anyone who left the committee no longer has repository access.</li>
+</ul>
+
+<h2>15.5 &nbsp;Future-project checklist</h2>
+<p><em>Before writing a line of your next site.</em></p>
+
+<h4>Decide first</h4>
+<ul class="tight">
+<li>Who is this for, and on what device and connection will they use it?</li>
+<li>What is the one thing it must do well?</li>
+<li>Does it genuinely need a backend, or is static enough? Static is cheaper, faster and
+safer &mdash; start there and add only when forced.</li>
+<li>What happens to it when you graduate or lose interest?</li>
+</ul>
+
+<h4>Set up before building</h4>
+<ul class="tight">
+<li><code>git init</code> and a first commit <strong>before</strong> anything else.</li>
+<li>A <code>.gitignore</code> written before the first commit, not after &mdash; history is permanent.</li>
+<li>A README saying what it is and how to run it, written on day one.</li>
+<li>Content separated from code from the start. Retrofitting this is painful.</li>
+<li>Deployment working on day one, with a placeholder page. Deploying for the first time
+at the end is how launches get delayed.</li>
+</ul>
+
+<h4>While building</h4>
+<ul class="tight">
+<li>Commit small, commit often, explain why.</li>
+<li>Test on a real phone regularly, not just a resized window.</li>
+<li>Keep a running note of decisions and their reasons.</li>
+<li>For every feature: what happens when it fails? Make that acceptable.</li>
+<li>Resist dependencies. Each one needs a justification.</li>
+<li>Real <code>&lt;button&gt;</code> elements, <code>alt</code> on images, labels on inputs &mdash; from the start.</li>
+</ul>
+
+<h4>Before launch</h4>
+<ul class="tight">
+<li>Works on a phone, on a slow connection.</li>
+<li>Works with JavaScript slow or partially failed &mdash; does it degrade or collapse?</li>
+<li>No secrets in frontend code.</li>
+<li>Any collected personal data is protected by a server-side rule, not by obscurity.</li>
+<li>Backups configured and tested.</li>
+<li>Someone other than you can deploy it.</li>
+</ul>
+
+<!-- ============================== CHEAT SHEET ============================== -->
+<h1><span class="num">Part 16</span>The EDGE cheat sheet</h1>
+
+<p class="lead">One page. Print it, or keep it open.</p>
+
+<div style="border:2px solid #16161a;padding:5mm;">
+
+<h3 style="margin-top:0">Deploy</h3>
+<pre style="margin-bottom:3mm">git add -A &amp;&amp; git commit -m "what changed" &amp;&amp; git push</pre>
+<p style="font-size:9pt;margin-bottom:5mm">Live in about a minute. Then hard-refresh:
+<strong>Ctrl+Shift+R</strong>. Preview first with <code>node serve.js</code> &rarr;
+<code>http://localhost:8790</code></p>
+
+<h3>Where things live</h3>
+<table style="font-size:8.6pt;margin-bottom:5mm">
+<tr><td style="width:34%"><strong>All content</strong></td><td><code>js/content.js</code> &mdash; 90% of your edits</td></tr>
+<tr><td>Leaderboard / rosters</td><td><code>content.js</code> &rarr; <code>players</code></td></tr>
+<tr><td>Events &amp; deadlines</td><td><code>content.js</code> &rarr; <code>updates</code></td></tr>
+<tr><td>Chatbot answers</td><td><code>content.js</code> &rarr; <code>faq.entries</code></td></tr>
+<tr><td>Blog posts</td><td><code>content.js</code> &rarr; <code>blog</code></td></tr>
+<tr><td>Social links, email</td><td><code>content.js</code> &rarr; <code>club</code></td></tr>
+<tr><td>Supabase keys</td><td><code>content.js</code> &rarr; <code>join.backend.supabase</code></td></tr>
+<tr><td>Colours &amp; fonts</td><td><code>css/styles.css</code> section 1 (tokens)</td></tr>
+<tr><td>Phone fixes</td><td><code>css/styles.css</code> section 20</td></tr>
+<tr><td>Tab list</td><td><code>js/app.js:45</code></td></tr>
+<tr><td>Videos &amp; logos</td><td><code>assets/</code></td></tr>
+</table>
+
+<h3>Protect these</h3>
+<ul style="font-size:9pt;margin-bottom:5mm" class="tight">
+<li><strong>GitHub account</strong> <code>potatoesareathing</code> &mdash; two-factor on, recovery codes stored.
+Losing this loses the site.</li>
+<li><strong>Supabase service role key</strong> &mdash; never in any file, ever.</li>
+<li><strong>Video sources</strong> <code>assets/video/*-source.mp4</code> &mdash; gitignored, not backed up. Copy
+them somewhere today.</li>
+<li><strong>Registration exports</strong> &mdash; real student data. Store privately, delete when done.</li>
+</ul>
+
+<h3>Backup</h3>
+<p style="font-size:9pt;margin-bottom:5mm">Code: <code>git push</code> (automatic). &nbsp;
+Registrations: Supabase &rarr; Table Editor &rarr; Export CSV, <strong>monthly</strong>. &nbsp;
+Full snapshot: <code>git bundle create edge-backup.bundle --all</code>, each semester.</p>
+
+<h3>When something breaks</h3>
+<ol style="font-size:9pt;margin-bottom:5mm" class="tight">
+<li><strong>F12</strong> &rarr; Console. Red error? It names the file and line.</li>
+<li>Section empty? Syntax error in <code>content.js</code> &mdash; missing comma or unclosed quote.</li>
+<li>Nothing clickable? An invisible element is covering the page. Check
+<code>[hidden] { display: none !important; }</code> is still in the stylesheet.</li>
+<li>Network tab &rarr; reload. Red rows = missing files (404) or a failing service.</li>
+<li>Looks wrong but no errors? Right-click &rarr; Inspect. Struck-through rules lost on
+specificity.</li>
+<li>Pushed but unchanged? Hard-refresh, then check the commit is on GitHub.</li>
+<li>Undo: <code>git checkout -- path/to/file</code> &nbsp;·&nbsp; already pushed:
+<code>git revert &lt;hash&gt;</code></li>
+</ol>
+
+<h3>Rules that must stay true</h3>
+<ul style="font-size:9pt;margin-bottom:5mm" class="tight">
+<li><code>content.js</code> loads <strong>first</strong>; <code>portal.js</code> before <code>app.js</code>.</li>
+<li>Never <code>innerHTML</code>. Always <code>textContent</code>.</li>
+<li>Never start an asset path with <code>/</code> &mdash; relative paths only.</li>
+<li>Never add a blanket <code>img[src*="edge-mark"]</code> CSS rule.</li>
+<li>Match selector weight when overriding CSS (<code>table.board-table</code>, not
+<code>.board-table</code>).</li>
+<li>Only animate <code>transform</code> and <code>opacity</code>.</li>
+<li>Never use <code>requestAnimationFrame</code> for something that must simply happen.</li>
+<li>Never deploy by uploading a folder. Deploy with <code>git push</code>.</li>
+<li>The logo is 398&times;333 and the wordmark 665&times;183. Neither is square.</li>
+<li>A solid white fill means <em>primary action</em> and nothing else.</li>
+</ul>
+
+<h3>Do this first</h3>
+<p style="font-size:9pt;margin-bottom:0"><strong>Connect the form (Procedure 11.14).</strong> Until you
+do, every registration is written to the student's own browser and lost. Then verify RLS:
+the <code>select</code> test must return <code>[]</code>, or anyone can download every student's phone
+number.</p>
+
+</div>
+
+<hr>
+
+<p style="font-size:9pt;color:#5a5a62">
+<strong>Live:</strong> potatoesareathing.github.io/edge-website/ &nbsp;·&nbsp;
+<strong>Repo:</strong> github.com/potatoesareathing/edge-website &nbsp;·&nbsp;
+<strong>Local preview:</strong> <code>node serve.js</code> &rarr; localhost:8790<br>
+Written from the codebase at commit <code>1ca0a30</code>, 17 September 2026. Regenerate this
+document from <code>docs/manual.html</code>.
+</p>
+
+</body>
+</html>

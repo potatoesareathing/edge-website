@@ -1,0 +1,222 @@
+<!-- ============================== PART 13 ============================== -->
+<h1><span class="num">Part 13</span>Things to understand before your next website</h1>
+
+<p class="lead">Concepts this project already taught you, made explicit so they transfer.
+Each one is stated as a working principle, not a definition, with the evidence from your
+own code.</p>
+
+<h2>13.1 &nbsp;Separation of concerns</h2>
+<p>Your site keeps content, appearance and behaviour in separate files. That is why you
+can update the leaderboard without touching a line of logic, and why the whole design
+was converted from colour to monochrome without breaking a single feature.</p>
+<p><strong>The test:</strong> to change one thing, how many files must you open? If a content change
+requires editing logic, the separation has failed.</p>
+
+<h2>13.2 &nbsp;One source of truth</h2>
+<p>Every piece of content lives in exactly one place. The leaderboard is in
+<code>content.js</code> and nowhere else. If the same fact lived in two files, they would
+eventually disagree, and the bug would be invisible until someone noticed the site
+contradicting itself.</p>
+<p><strong>Apply it everywhere:</strong> colours as CSS variables, not repeated hex codes. Dates in one
+format. One list of tab names (<code>TABS</code> in <code>app.js</code>) driving the router.</p>
+
+<h2>13.3 &nbsp;Components are just functions that build things</h2>
+<p>You do not need React to have components. <code>postCard(p)</code> takes data and returns a
+finished DOM node. Called ten times, you get ten cards. That <em>is</em> the idea; frameworks
+add lifecycle management and automatic updates on top of it.</p>
+<p><strong>The lesson:</strong> understand the pattern before you adopt the tool. People who learn
+React first often cannot explain what it is doing for them.</p>
+
+<h2>13.4 &nbsp;State is where bugs live</h2>
+<p>Your site has very little state, and it is deliberately confined: the current tab, the
+join path, the portal's progress. Each lives in one place with one owner.</p>
+<p><strong>The rule that follows:</strong> never store the same truth twice. The portal knows its
+progress; the CSS reads it. If both JavaScript and CSS each tracked "is the portal open",
+they would drift apart, and the resulting bug would be maddening.</p>
+
+<h2>13.5 &nbsp;Design for failure, because it will</h2>
+<p>This is the most valuable thing in your codebase. Count the fallbacks:</p>
+<ul class="tight">
+<li>No WebGL &rarr; the world still opens, plainly.</li>
+<li>Video will not load &rarr; the poster image stands in.</li>
+<li>Reduced motion &rarr; every effect is off and nothing is downloaded.</li>
+<li>Scroll observer never fires &rarr; a two-second timer shows everything anyway.</li>
+<li>Portal stalls &rarr; a 2.6-second timer lands it rather than freezing part-open.</li>
+<li>Network drops mid-submission &rarr; the row is queued and retried.</li>
+<li>Instagram post URL missing &rarr; the card is skipped silently.</li>
+<li>Google Fonts unreachable &rarr; fallback fonts.</li>
+</ul>
+<p><strong>The principle:</strong> for every feature, ask what happens when it fails, and make that
+outcome acceptable rather than catastrophic. A site that degrades is a site that keeps
+working for the person on the worst phone and the weakest connection &mdash; which, on a
+university campus, is a lot of people.</p>
+
+<h2>13.6 &nbsp;Never trust the client</h2>
+<p>Your form validates carefully in the browser <em>and</em> the database re-validates
+everything. That is not redundancy. Anyone can bypass your JavaScript entirely and POST
+straight at the API. Browser validation is a courtesy to the person filling the form;
+the database constraint is the guarantee.</p>
+<p><strong>Generalise it:</strong> any check that matters must happen somewhere the user cannot reach.</p>
+
+<h2>13.7 &nbsp;Security is about permissions, not secrecy</h2>
+<p>Your Supabase key is published and that is correct. What protects the data is a rule
+saying anonymous visitors may insert and may do nothing else.</p>
+<p><strong>The general form:</strong> assume anything in the frontend is public, because it is. Grant
+the minimum permission that makes the feature work, and nothing more. Your database has
+no select policy, no update policy and no delete policy &mdash; not because they were
+forgotten, but because each would be an unnecessary permission.</p>
+
+<h2>13.8 &nbsp;Every dependency is a liability</h2>
+<p>Your site has zero and will run untouched for years. A typical beginner project has
+hundreds, each an opportunity for breakage, abandonment or a security advisory.</p>
+<p><strong>The question to ask</strong> before adding anything: what does this do that thirty lines of
+my own code could not? Sometimes the honest answer justifies it. Often it does not.</p>
+
+<h2>13.9 &nbsp;Version control is not backup &mdash; it is time travel</h2>
+<p>Git lets you see exactly what you changed before committing, undo a specific change
+from weeks ago, and recover a file you deleted. Your fifteen commits each carry a message
+explaining <em>why</em>, which is how you will understand your own decisions in a year.</p>
+<p><strong>Habits worth keeping:</strong> commit small and often; write messages that explain the
+reasoning, not the diff; never commit something you have not looked at with
+<code>git diff</code>.</p>
+
+<h2>13.10 &nbsp;Performance is mostly about what you do not send</h2>
+<p>Your page is around 200 KB before the video is conditionally attached. The videos are
+97% of the total, which is exactly why they are gated behind three checks.</p>
+<p><strong>The lesson:</strong> the fastest asset is the one never downloaded. Before optimising code,
+look at what you are shipping at all. One unoptimised photograph can outweigh your entire
+codebase.</p>
+
+<h2>13.11 &nbsp;Accessibility is not an extra</h2>
+<p>Your ARIA tabs, keyboard navigation, form labels and reduced-motion support cost very
+little and were built in from the start. Retrofitting them would have been a rewrite.</p>
+<p><strong>The cheapest rules:</strong> use real <code>&lt;button&gt;</code> elements; give every image an
+<code>alt</code>; label every input; make sure everything is reachable by Tab. That is most of the
+value for very little effort.</p>
+
+<h2>13.12 &nbsp;Technical debt, and the honest kind</h2>
+<p>Debt is a shortcut you take deliberately, knowing you will pay interest. Your project
+has some and it is <em>documented</em>, which is what makes it debt rather than rot:
+<code>netlify.toml</code> left in place, the register-number rule left permissive, the placeholder
+content, the portal's single-instance state.</p>
+<p><strong>The distinction:</strong> a known shortcut with a note is manageable. An unknown one is a
+trap waiting for someone who has forgotten. Write the note.</p>
+
+<h2>13.13 &nbsp;Write down why, not what</h2>
+<p>Your code comments explain reasoning: why the video src is attached in JavaScript, why
+the scoring divides by a square root, why rAF is not used for the audio ramp. The code
+already says what it does; only a comment can say why.</p>
+<p><code>DESIGN.md</code> goes further and records mistakes that were made and corrected. That is
+unusual and genuinely valuable &mdash; it is what stops the same mistake being made twice.</p>
+
+<!-- ============================== PART 14 ============================== -->
+<h1><span class="num">Part 14</span>What to learn next</h1>
+
+<p class="lead">Prioritised by what would actually make you capable of maintaining and
+extending <em>this</em> site. Not a general web-development curriculum &mdash; most of that you do
+not need.</p>
+
+<h2>Level 1 &mdash; Must understand now</h2>
+<p><em>Without these you are still dependent. Aim for a few weeks.</em></p>
+
+<table>
+<tr><th style="width:24%">Topic</th><th style="width:40%">Why, for your site specifically</th><th style="width:36%">How to learn it</th></tr>
+<tr><td><strong>Browser DevTools</strong></td>
+<td>The highest-leverage skill on this list. Console, Elements, Network. Without it you
+are guessing; with it you are diagnosing.</td>
+<td>Open your own site and inspect things for an hour. Break something deliberately and
+find it.</td></tr>
+<tr><td><strong>Git basics</strong></td>
+<td><code>status</code>, <code>diff</code>, <code>add</code>, <code>commit</code>, <code>push</code>, <code>log</code>, <code>checkout</code>,
+<code>revert</code>. This is your deployment <em>and</em> your undo.</td>
+<td>The first three chapters of the free Pro Git book. Then use it daily.</td></tr>
+<tr><td><strong>JavaScript objects and arrays</strong></td>
+<td>Editing <code>content.js</code> safely. Where commas go, why quotes matter, nesting.</td>
+<td>MDN's "JavaScript first steps". You need the data half, not the whole language.</td></tr>
+<tr><td><strong>CSS selectors and specificity</strong></td>
+<td>The single trap that has bitten this project twice. Fixing anything visual requires
+it.</td>
+<td>MDN on specificity, then practise in the Elements panel where the answer is visible.</td></tr>
+<tr><td><strong>Reading an error message</strong></td>
+<td>They name the file and the line. Beginners skim them.</td>
+<td>Deliberately cause errors and read what you get.</td></tr>
+</table>
+
+<h2>Level 2 &mdash; Should learn soon</h2>
+<p><em>These let you add features rather than only maintain them. A couple of months.</em></p>
+
+<table>
+<tr><th style="width:24%">Topic</th><th style="width:40%">Why</th><th style="width:36%">How</th></tr>
+<tr><td><strong>DOM manipulation</strong></td>
+<td><code>createElement</code>, <code>textContent</code>, <code>append</code>, <code>querySelector</code>. This is what every
+renderer in <code>app.js</code> is doing.</td>
+<td>Write a small renderer of your own &mdash; a "sponsors" section, say.</td></tr>
+<tr><td><strong>Events and listeners</strong></td>
+<td>How every interaction works. Including <em>delegation</em>, which <code>sound.js</code> uses.</td>
+<td>Read <code>initTabs()</code> and <code>sound.js</code> line by line until both are obvious.</td></tr>
+<tr><td><strong>Flexbox and Grid</strong></td>
+<td>Every layout in your stylesheet uses one or the other.</td>
+<td>Flexbox Froggy and Grid Garden &mdash; both free, both games, both about an hour.</td></tr>
+<tr><td><strong>Media queries</strong></td>
+<td>Section 20 of your stylesheet is where all phone fixes go.</td>
+<td>Resize your browser and watch what changes.</td></tr>
+<tr><td><strong>HTTP basics</strong></td>
+<td>Status codes, GET vs POST, headers. Needed to debug anything involving Supabase.</td>
+<td>MDN's HTTP overview, then read the Network tab on a real request.</td></tr>
+<tr><td><strong>SQL fundamentals</strong></td>
+<td><code>select</code>, <code>insert</code>, <code>where</code>, and what a constraint is. You need this to read
+your own registrations.</td>
+<td>SQLBolt &mdash; free, interactive, a few hours. Then query your own table.</td></tr>
+</table>
+
+<h2>Level 3 &mdash; Useful later</h2>
+<p><em>When the club's needs grow past what the site does today.</em></p>
+
+<table>
+<tr><th style="width:24%">Topic</th><th style="width:40%">What it would unlock</th><th style="width:36%">Note</th></tr>
+<tr><td><strong>Async JavaScript</strong></td>
+<td><code>fetch</code>, promises, <code>async/await</code>. Your form already uses all three at
+<code>join.js:199</code>.</td><td>Read that function until you can explain every line.</td></tr>
+<tr><td><strong>Supabase properly</strong></td>
+<td>Reading data back into the site &mdash; a live leaderboard instead of a hardcoded one.</td>
+<td>Needs a careful read policy. Only expose what should be public.</td></tr>
+<tr><td><strong>A little Node.js</strong></td>
+<td>The concept of a backend. Enough to understand what you do not have.</td>
+<td>Your <code>serve.js</code> is 33 lines of Node &mdash; read it, it is complete.</td></tr>
+<tr><td><strong>Serverless functions</strong></td>
+<td>The realistic path to "email me when someone registers" without running a server.</td>
+<td>Supabase Edge Functions, or Cloudflare Workers.</td></tr>
+<tr><td><strong>Image and video optimisation</strong></td>
+<td>Keeping the site fast as real photos arrive. WebP, AVIF, responsive images.</td>
+<td>Squoosh.app teaches this by letting you see the trade-off.</td></tr>
+<tr><td><strong>A framework</strong></td>
+<td>Only when you have a project that genuinely needs one.</td>
+<td><strong>You do not need one for this site.</strong> Adding React here would be strictly worse.</td></tr>
+</table>
+
+<h2>Level 4 &mdash; Advanced</h2>
+<p><em>Genuine specialisms. Pursue out of interest, not obligation.</em></p>
+
+<ul class="tight">
+<li><strong>GLSL and shader programming</strong> &mdash; what <code>portal.js</code> is written in. The Book of
+Shaders is the standard introduction. Until then, treat that file as finished.</li>
+<li><strong>WebGL properly</strong> &mdash; buffers, textures, the render pipeline. WebGL Fundamentals.</li>
+<li><strong>Web performance</strong> &mdash; Core Web Vitals, the rendering pipeline, why animating
+layout properties is expensive.</li>
+<li><strong>Accessibility in depth</strong> &mdash; the WCAG guidelines, and actually testing with a
+screen reader.</li>
+<li><strong>Video encoding</strong> &mdash; ffmpeg filters, codecs, bitrate. Directly useful if the club
+keeps making cinematic assets.</li>
+</ul>
+
+<h2>A note on how to learn this</h2>
+
+<div class="box box--key">
+  <div class="box__t">Use your own site as the textbook</div>
+  <p>You have a working, well-commented, real project that you care about. That is worth
+  more than any tutorial, because every concept has something concrete to attach to.</p>
+  <p>The most effective exercise: <strong>pick one function in <code>app.js</code> each week and read it
+  until you can explain every line aloud.</strong> There are about thirty. In under a year you
+  would understand your entire codebase &mdash; which is a different and much better thing
+  than having watched thirty hours of video.</p>
+</div>

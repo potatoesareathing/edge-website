@@ -1,0 +1,99 @@
+<!-- ============================== COVER ============================== -->
+<div class="cover">
+  <svg class="cover__mark" viewBox="0 0 398 333" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#F5F5F3" fill-rule="evenodd" d="M 119 0.625 C 60.888 7.799, 19.230 38.455, 4.619 84.797 C -0.745 101.808, -0.988 115.318, 3.514 146 C 10.094 190.845, 14.502 253.752, 13.844 293.412 C 13.453 316.941, 13.453 316.941, 15.977 317.471 C 31.043 320.637, 96.930 328.645, 128.500 331.146 C 150.180 332.864, 208.072 332.879, 223.500 331.172 C 284.423 324.429, 335.197 303.740, 366.138 273.051 C 385.133 254.211, 393.942 236.841, 397.073 212.055 C 401.861 174.146, 380.129 125.288, 341 85.994 C 297.273 42.082, 238.243 12.383, 175 2.479 C 164.912 0.899, 126.960 -0.357, 119 0.625 M 135.337 128.096 C 129.967 129.651, 123.424 138.013, 120.277 147.342 C 117.640 155.160, 117.527 156.314, 117.565 175 C 117.602 193.089, 117.803 195.223, 120.346 204.500 C 125.570 223.559, 136.079 240.780, 147.628 249.205 C 169.703 265.309, 204.934 270.474, 230.301 261.323 C 238.021 258.539, 247 253.410, 247 251.786 C 247 251.212, 244.188 247.760, 240.750 244.115 C 228.083 230.681, 216.490 215.877, 194.959 185.640 C 171.342 152.475, 155.050 133.950, 145.500 129.401 C 140.015 126.789, 139.903 126.774, 135.337 128.096 M 356.206 211.132 C 347.801 217.079, 311.176 239.614, 298.725 246.500 C 291.764 250.350, 286.053 254.060, 286.034 254.744 C 285.941 258.134, 302.367 266.942, 313.770 269.616 C 322.088 271.567, 334.085 271.075, 338.858 268.587 C 351.649 261.920, 361.853 239.947, 362.306 218.100 C 362.421 212.529, 362.093 208.577, 361.500 208.398 C 360.950 208.231, 358.568 209.462, 356.206 211.132"/>
+  </svg>
+  <div class="cover__rule"></div>
+  <h1>The EDGE Website<br>Owner's Manual</h1>
+  <h2>How it works, what you are responsible for,<br>and how to keep it running without help.</h2>
+  <div class="cover__meta">
+    <strong>Project</strong> EDGE Esports Club &mdash; Ramaiah University of Applied Sciences<br>
+    <strong>Live at</strong> potatoesareathing.github.io/edge-website/<br>
+    <strong>Repository</strong> github.com/potatoesareathing/edge-website<br>
+    <strong>Written</strong> 17 September 2026, from the code at commit 1ca0a30<br>
+    <strong>Covers</strong> 22 files &middot; 4,209 lines &middot; zero dependencies
+  </div>
+</div>
+
+<!-- ============================== HOW TO READ ============================== -->
+<h1 style="page-break-before:auto"><span class="num">Before you start</span>How to read this manual</h1>
+
+<p class="lead">You built a working website without knowing what most of it was called.
+That is a real achievement and also a real problem, because you cannot maintain
+what you cannot name. This manual gives you the names.</p>
+
+<p>It is written from your actual code &mdash; every file opened and read, nothing assumed
+because it is common. Where something could not be determined from the project files,
+it is marked <strong>Needs verification</strong> rather than guessed at.</p>
+
+<h3>The three ways to use this</h3>
+
+<ol>
+<li><strong>Read it front to back, once.</strong> Parts 1&ndash;7 build a mental model in order:
+what the thing is, what the words mean, what happens when someone visits, then each
+system in depth. Skipping ahead will cost you more time than reading will.</li>
+<li><strong>Keep it beside you as a reference.</strong> Part 9 is a maintenance inventory &mdash; every
+item you own, how you know it needs attention, and what breaks if you get it wrong.
+Part 11 is a playbook of step-by-step procedures for the jobs you will actually do.</li>
+<li><strong>Reach for Part 12 when something breaks.</strong> It teaches you to locate a fault
+before you try to fix it, which is the single skill that separates people who can
+maintain software from people who can only ask for help.</li>
+</ol>
+
+<div class="box box--key">
+  <div class="box__t">A promise about complexity</div>
+  <p>This manual does not simplify things to make you feel capable. Where your site
+  does something genuinely intricate &mdash; the WebGL portal is the clearest case &mdash; you
+  get the real explanation, including the mathematics, because a simplified version
+  would leave you unable to debug it. Every technical term is defined the first time
+  it appears, in terms of your code, not in the abstract.</p>
+</div>
+
+<div class="box box--warn">
+  <div class="box__t">One thing you should know immediately</div>
+  <p><strong>Your registration form does not work.</strong> It looks like it works. A student fills
+  it in, sees a success screen, and their details are written to storage inside their
+  own phone's browser, where you can never reach them. Nothing is sent anywhere.</p>
+  <p>This is not a bug in the code &mdash; the code is waiting for two configuration values
+  you have not supplied yet. Part 6 explains the mechanism and Part 11.14 has the
+  fix. Do not run a club fair before reading it.</p>
+</div>
+
+<h3>Conventions</h3>
+<ul class="tight">
+<li><code>Monospaced text</code> is something literal: a filename, a command, a value in your code.</li>
+<li><strong>Bordered boxes</strong> flag definitions, warnings, and things needing verification.</li>
+<li>File references look like <code>js/app.js:554</code> &mdash; that is the file, then the line number.
+Line numbers are accurate at commit <code>1ca0a30</code> and will drift as you edit.</li>
+</ul>
+
+<!-- ============================== TOC ============================== -->
+<h1><span class="num">Contents</span>What is in this manual</h1>
+
+<div class="toc">
+<ol>
+<li>What you actually built
+  <ul><li>The architecture in one picture</li><li>The five honest sentences</li><li>What your site is not</li></ul></li>
+<li>The vocabulary
+  <ul><li>Client and server, frontend and backend</li><li>Dependency, build, deployment, hosting</li><li>API, endpoint, database, environment variable</li></ul></li>
+<li>What happens when someone opens the site
+  <ul><li>The load sequence, step by step</li><li>Script order and why it matters</li><li>The global objects</li></ul></li>
+<li>Read the codebase
+  <ul><li>Every file and what it owns</li><li>Safe to edit, careful, do not touch</li><li>How the files find each other</li></ul></li>
+<li>The frontend systems in depth
+  <ul><li>Tab routing &middot; Content and renderers &middot; The design system</li><li>The homeworld video &middot; The animation layer &middot; Sound</li></ul></li>
+<li>The portal, the chatbot and the form
+  <ul><li>WebGL from first principles</li><li>The FAQ matcher, honestly described</li><li>The join form and Supabase</li></ul></li>
+<li>Hosting, deployment and the outside world
+  <ul><li>Git, GitHub, GitHub Pages</li><li>Every external service you depend on</li><li>HTTPS, DNS, caching</li></ul></li>
+<li>What happens if Claude disappears tomorrow</li>
+<li>The maintenance inventory</li>
+<li>Known gaps and unfinished work</li>
+<li>The maintenance playbook &mdash; 18 procedures</li>
+<li>Troubleshooting: how to find a fault yourself</li>
+<li>Things to understand before your next website</li>
+<li>What to learn next &mdash; a roadmap</li>
+<li>Checklists</li>
+<li>The EDGE cheat sheet</li>
+</ol>
+</div>

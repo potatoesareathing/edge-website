@@ -1,0 +1,401 @@
+<!-- ============================== PART 6 ============================== -->
+<h1><span class="num">Part 6</span>The portal, the chatbot and the form</h1>
+
+<p class="lead">The three most intricate parts of your site. The portal because it is
+genuinely advanced, the chatbot because people will misunderstand what it is, and the
+form because it is the only part handling real personal data &mdash; and the only part
+currently broken.</p>
+
+<h2>6.1 &nbsp;The dimensional portal</h2>
+
+<p>Hovering the Ask EDGE button tears an irregular opening in the page, through which a
+pixel-art world is visible. Clicking commits: the tear grows until that world is all
+there is. It reverses on the way back.</p>
+
+<h3>The central trick</h3>
+
+<div class="box box--key">
+  <div class="box__t">The canvas draws ONLY the destination world</div>
+  <p>Everywhere outside the tear, it writes <strong>alpha 0</strong> &mdash; fully transparent. Your
+  actual page is simply still there underneath, showing through.</p>
+  <p>Nothing about the homepage is captured, copied or re-rendered. That is what keeps
+  the whole effect to a single shape and one small program. A naive implementation would
+  render both worlds and blend them; this renders one world with a hole-shaped mask.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 900 290" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="30" width="250" height="180" fill="#101012"/>
+  <text x="34" y="52" class="sv-w">Layer 1 — your page</text>
+  <text x="34" y="68" class="sv-ws">DOM, homeworld video, text.</text>
+  <text x="34" y="80" class="sv-ws">Completely untouched. Still</text>
+  <text x="34" y="92" class="sv-ws">scrolling, still interactive.</text>
+  <rect x="44" y="108" width="200" height="14" fill="#2a2a30"/>
+  <rect x="44" y="128" width="160" height="14" fill="#2a2a30"/>
+  <rect x="44" y="148" width="184" height="14" fill="#2a2a30"/>
+  <rect x="44" y="168" width="120" height="14" fill="#2a2a30"/>
+
+  <text x="286" y="125" class="sv-b">+</text>
+
+  <rect x="316" y="30" width="250" height="180" fill="#fff" stroke="#16161a" stroke-width="1.5"/>
+  <text x="330" y="52" class="sv-b">Layer 2 — the canvas</text>
+  <text x="330" y="68" class="sv-s">Transparent everywhere except</text>
+  <text x="330" y="80" class="sv-s">inside the tear, where it shows</text>
+  <text x="330" y="92" class="sv-s">the faq-world video.</text>
+  <path d="M470 160 C 500 120, 498 96, 470 82 C 442 70, 404 78, 396 104 C 388 132, 404 158, 432 166 C 448 170, 462 168, 470 160 Z"
+        fill="#16161a"/>
+  <text x="404" y="128" class="sv-w">world</text>
+  <text x="330" y="196" class="sv-s">Outside the shape: alpha = 0.</text>
+
+  <text x="582" y="125" class="sv-b">=</text>
+
+  <rect x="612" y="30" width="250" height="180" fill="#101012"/>
+  <text x="626" y="52" class="sv-w">What the visitor sees</text>
+  <rect x="636" y="108" width="200" height="14" fill="#2a2a30"/>
+  <rect x="636" y="128" width="160" height="14" fill="#2a2a30"/>
+  <rect x="636" y="148" width="184" height="14" fill="#2a2a30"/>
+  <rect x="636" y="168" width="120" height="14" fill="#2a2a30"/>
+  <path d="M766 160 C 796 120, 794 96, 766 82 C 738 70, 700 78, 692 104 C 684 132, 700 158, 728 166 C 744 170, 758 168, 766 160 Z"
+        fill="#F5F5F3"/>
+  <text x="700" y="128" class="sv-l">another world</text>
+
+  <text x="20" y="248" class="sv-s">The tear is not a shape drawn on the page. It is a region where the canvas decides to be opaque, computed per pixel,</text>
+  <text x="20" y="262" class="sv-s">sixty times a second, from a noise function. That is why it can be irregular, wobbling and refracting all at once —</text>
+  <text x="20" y="276" class="sv-s">and why it needs the GPU. CSS can clip to a shape, but it cannot recompute that shape every frame per pixel.</text>
+</svg>
+<figcaption><strong>Figure 5.</strong> Masking, not blending. One layer, one hole.</figcaption>
+</figure>
+
+<h3>What actually runs on the GPU</h3>
+
+<div class="box box--term">
+  <div class="box__t">Shader</div>
+  <p>A small program that runs on the graphics chip, once per pixel, in parallel. Yours
+  is written in GLSL and lives as a string in <code>portal.js:50&ndash;128</code>. It receives the
+  pixel's position and a handful of values from JavaScript, and returns a colour and an
+  opacity.</p>
+</div>
+
+<div class="box box--term">
+  <div class="box__t">Uniform</div>
+  <p>A value passed from JavaScript to the shader, the same for every pixel in a frame.
+  Yours are: <code>uTex</code> (the video frame), <code>uRes</code> (canvas size), <code>uTexRes</code> (video size),
+  <code>uCenter</code> (where the tear opens), <code>uProgress</code> (0 closed to 1 fully open),
+  <code>uMaxR</code> (radius needed to cover the screen), <code>uTime</code>.</p>
+  <p><code>uProgress</code> is the one that matters. JavaScript eases it toward a target; the
+  shader draws whatever that number says. That separation is why a hover can become a
+  click mid-animation without anything restarting.</p>
+</div>
+
+<p>The shader's core, annotated:</p>
+
+<pre>float wob = fbm(vec2(cos(ang), sin(ang)) * 2.4 + uTime * 0.05);
+// fbm = fractal noise. Fed the ANGLE around the centre, so the wobble
+// varies around the rim rather than across the screen. uTime makes it drift.
+
+float r = uProgress * uMaxR;                      // ideal radius right now
+r *= 1.0 + (wob - 0.5) * 0.26 * (1.0 - uProgress * 0.8);
+// Distort that radius by up to ±13%, and fade the distortion as it opens —
+// so a small tear is ragged and a finished world is not permanently rippling.
+
+float edge = 1.5 + 54.0 * (1.0 - uProgress);      // soft edge, sharpens as it grows
+float mask = 1.0 - smoothstep(r - edge, r + edge, dist);
+if (mask &lt;= 0.002) discard;                       // outside the tear: draw nothing</pre>
+
+<p>Three finishing effects, all fading out via <code>settle</code> as the tear opens:</p>
+
+<ul class="tight">
+<li><strong>Refraction</strong> &mdash; near the rim the world is pulled toward the opening, the way
+something seen through a lens bends at the boundary.</li>
+<li><strong>Chromatic aberration</strong> &mdash; red, green and blue are sampled at very slightly
+different positions along the radius, a fraction of a percent. This is the artefact
+real lenses produce; it reads as physical rather than digital.</li>
+<li><strong>Rim light</strong> &mdash; <code>pow(rim, 7.0)</code> concentrates a thin white line right at the
+edge. Monochrome, no hue added, because the design system forbids colour in chrome.</li>
+</ul>
+
+<h3>The public API &mdash; and why it is reusable</h3>
+
+<p>You asked for a system that could later carry Players, Updates and Join into their own
+worlds. That is why <code>portal.js</code> knows nothing about the FAQ. It takes a video and an
+origin element and does its job.</p>
+
+<pre>EDGE_PORTAL.configure({ video, origin, volume })  // tell it where it leads
+EDGE_PORTAL.peek(true|false)                      // small tear, for hover
+EDGE_PORTAL.open({ video, origin, volume, onEnter })  // full transition
+EDGE_PORTAL.close()                               // reverse it
+EDGE_PORTAL.suspend()                             // hidden tab: stop everything
+EDGE_PORTAL.isOpen()  /  EDGE_PORTAL.supported()</pre>
+
+<p>To add a second world later you would create another video, another destination
+section, and call the same four methods. Procedure 11.16 has the steps.</p>
+
+<h3>Five failures this code already survives</h3>
+
+<p>Each of these was a real bug. They are documented because the guards look like
+paranoia until you know why they exist.</p>
+
+<table>
+<tr><th style="width:30%">Failure</th><th style="width:70%">Guard</th></tr>
+<tr><td>Visitor's device has no WebGL</td>
+<td><code>supported()</code> returns false and <code>commit()</code> calls <code>enter()</code> directly
+(<code>app.js:599</code>). They go straight to the world with no effect. Nothing is broken, only
+plainer.</td></tr>
+<tr><td>The video has not buffered yet</td>
+<td><code>open()</code> checks <code>readyState</code>. If there is no decodable frame it holds the peek
+open and waits for <code>loadeddata</code>, with an 1,800ms cap. Opening onto an empty texture is
+what once made the transition look like nothing happened.</td></tr>
+<tr><td>The animation loop stalls</td>
+<td>A 2,600ms timer forces the handover and snaps progress to 1. Without it a stalled
+loop leaves someone in a half-open portal with audio playing, no interface and no way
+back.</td></tr>
+<tr><td>The world appeared upside down</td>
+<td>WebGL's first texture row is the bottom; the DOM's is the top.
+<code>UNPACK_FLIP_Y_WEBGL</code> is set at setup <em>and re-asserted on every frame</em>, because it
+is context state that anything else touching the GL context could reset.</td></tr>
+<tr><td>Hover teleported people instantly</td>
+<td>There is no dwell timer. <strong>Hover peeks; only a click commits.</strong> Being teleported
+by a mouse path that happened to pass the corner is hostile.</td></tr>
+</table>
+
+<h3>The audio ramp</h3>
+
+<p>Your brief asked for the world's audio to rise smoothly to a maximum of 40%. That is
+<code>volumeCeiling = 0.4</code>, ramped over 900ms on hover and back down over 420ms.</p>
+
+<p>Two details matter. The ramp runs on <code>setInterval</code>, not rAF, for the reason in 5.5.
+And <code>sound()</code> checks a <code>gestured</code> flag before making any noise &mdash; browsers block audio
+until the visitor has interacted with the page, so until then a hover opens the portal
+in silence rather than throwing an error.</p>
+
+<div class="box box--warn">
+  <div class="box__t">The bug that hid here</div>
+  <p>The gesture flag originally listened for <code>pointerdown</code>, <code>pointerup</code>, <code>keydown</code>
+  and <code>touchstart</code> &mdash; but not <code>click</code>. On some paths the volume snapped to full
+  instead of ramping. If you ever add audio elsewhere, list every event that could
+  count as an interaction.</p>
+</div>
+
+<h3>The CSS bug that made the entire site unclickable</h3>
+
+<p>Worth its own heading because it is the most instructive failure in the project.</p>
+
+<p>The world section is marked <code>hidden</code> in HTML. The <code>hidden</code> attribute works by the
+browser's own default stylesheet applying <code>display: none</code> &mdash; and <strong>any rule you write
+outranks the browser's defaults</strong>. A rule saying <code>.world { display: flex }</code> therefore
+defeated <code>hidden</code> entirely. The world stayed laid out, invisible but full-screen, on top
+of the page, swallowing every click and scroll.</p>
+
+<p>The fix is now a global rule near the top of the stylesheet:</p>
+
+<pre>[hidden] { display: none !important; }</pre>
+
+<div class="box box--warn">
+  <div class="box__t">Do not delete that line</div>
+  <p>It looks like a stray one-liner. It is load-bearing for the entire site's
+  interactivity, and it protects every future component that uses <code>hidden</code> &mdash; the
+  roster view, the join success panel, the crew wrapper.</p>
+</div>
+
+<h2>6.2 &nbsp;The chatbot, honestly described</h2>
+
+<div class="box box--key">
+  <div class="box__t">It is not AI</div>
+  <p>It is a <strong>keyword matcher</strong>. It scores what someone typed against the keywords
+  attached to each answer you wrote, and returns the best one. It never generates text.
+  Every word it says is a word you wrote.</p>
+</div>
+
+<p>This was a deliberate engineering choice, and the reasoning applies to your future
+projects. A real language model needs an API key. A key shipped inside a public web page
+can be read by anyone viewing source and used to run up your bill &mdash; and there is no way
+to hide it without a backend. The matcher costs nothing, works offline, never invents an
+answer, and cannot be abused.</p>
+
+<h3>How the matching works</h3>
+
+<ol>
+<li><strong>Normalise</strong> &mdash; lowercase, strip punctuation, split into words.</li>
+<li><strong>Drop filler</strong> &mdash; about 80 words carrying no meaning. Question words
+(<em>what, how, when</em>) are in the filler list deliberately: when they counted as
+keywords, "what is the weather today" matched "What is EDGE?" purely on the word "what".</li>
+<li><strong>Stem</strong> &mdash; a crude suffix-stripper so "years" matches "year" and "casting"
+matches "cast". Applied to both sides so they meet in the middle.</li>
+<li><strong>Score</strong> &mdash; +2 per word matching a keyword, +1 per word appearing in the
+question text, +3 if the typed text is nearly the whole question.</li>
+<li><strong>Normalise by length</strong> &mdash; divide by the <em>square root</em> of the word count.</li>
+<li><strong>Compare to the confidence bar</strong> (1.4). Above it, answer. Below it, say so
+honestly and offer the nearest questions instead of guessing.</li>
+</ol>
+
+<div class="box box--key">
+  <div class="box__t">Why square root, and why this is a good lesson</div>
+  <p>Dividing by the full word count punished natural phrasing far too hard: "i want to
+  sign up" scored below a bare "join", because three of its words carried no signal. The
+  square root still stops a long rambling question from beating a short precise one, but
+  much more gently.</p>
+  <p>The general lesson: when a scoring system misbehaves, the fix is usually to change
+  <em>how</em> you normalise, not to add special cases.</p>
+</div>
+
+<h3>Changing the bot</h3>
+
+<p><strong>You almost never edit <code>faq-bot.js</code>.</strong> To change what it knows, edit
+<code>EDGE.faq.entries</code> in <code>content.js</code>. Each entry:</p>
+
+<pre>{
+  q: "How do I join?",
+  a: "Fill in the Join form. Pick Member for events and socials, ...",
+  keywords: ["join", "sign", "signup", "register", "apply", "become", "entry"]
+}</pre>
+
+<p>Put in the words people <em>actually type</em>, including slang and likely misspellings.
+The existing entries already include "enrol" and "enroll", "csgo" and "cs2", "pubg" for
+BGMI. That is the level of care that makes the difference.</p>
+
+<p>Every entry also renders as a plain expandable list underneath the chat, so nobody is
+ever stuck if the bot misunderstands &mdash; and so search engines can read your answers.</p>
+
+<div class="box box--verify">
+  <div class="box__t">If you later want a real AI chatbot</div>
+  <p>You cannot do it safely from a static site. You would need a small backend that
+  holds the key and forwards requests. That is a genuine project, not a config change.
+  The current design is the right one until the club has a reason to outgrow it.</p>
+</div>
+
+<h2>6.3 &nbsp;The join form &mdash; and why it is broken</h2>
+
+<h3>What works</h3>
+
+<p>Two paths in one form. Member asks the basics; Roster adds the competitive questions.
+Which fields are required changes with the path, so validation is driven by a rule table
+(<code>join.js:93</code>) rather than by <code>required</code> attributes in the HTML &mdash; a hidden field with
+<code>required</code> would block submission with a message nobody can see.</p>
+
+<p>The validation is careful: names allow any script plus spaces and apostrophes
+(<code>\p{L}</code> matches letters in every language, so it does not reject non-Latin names);
+phone must be a 10-digit Indian mobile starting 6&ndash;9; email must have a plausible shape.
+There is also a <strong>honeypot</strong> &mdash; an invisible field named <code>company</code> at
+<code>index.html:174</code>. A human never sees it, so any value means a bot. The bot is shown the
+normal success screen rather than being told it was caught.</p>
+
+<h3>What is broken</h3>
+
+<figure>
+<svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="e1" markerWidth="8" markerHeight="8" refX="7" refY="2.6" orient="auto">
+      <path d="M0,0 L7,2.6 L0,5.2 z" fill="#16161a"/>
+    </marker>
+    <marker id="e2" markerWidth="8" markerHeight="8" refX="7" refY="2.6" orient="auto">
+      <path d="M0,0 L7,2.6 L0,5.2 z" fill="#a3261c"/>
+    </marker>
+  </defs>
+
+  <rect x="20" y="20" width="170" height="54" fill="#f6f6f7" stroke="#16161a" stroke-width="1.5"/>
+  <text x="32" y="40" class="sv-b">Student submits</text>
+  <text x="32" y="56" class="sv-s">Validation passes.</text>
+  <text x="32" y="68" class="sv-s">collect() builds a row.</text>
+
+  <line x1="190" y1="47" x2="234" y2="47" stroke="#16161a" stroke-width="1.5" marker-end="url(#e1)"/>
+
+  <rect x="240" y="20" width="180" height="54" fill="#f6f6f7" stroke="#16161a" stroke-width="1.5"/>
+  <text x="252" y="40" class="sv-b">send(row)</text>
+  <text x="252" y="56" class="sv-s">Reads join.backend</text>
+  <text x="252" y="68" class="sv-s">from content.js</text>
+
+  <line x1="420" y1="47" x2="464" y2="47" stroke="#16161a" stroke-width="1.5" marker-end="url(#e1)"/>
+
+  <rect x="470" y="14" width="200" height="66" fill="#fdfaef" stroke="#8a6d00" stroke-width="1.5"/>
+  <text x="482" y="34" class="sv-b">mode is "supabase"</text>
+  <text x="482" y="50" class="sv-s">Are url and anon_key set?</text>
+  <text x="482" y="66" class="sv-m">url: ""   anon_key: ""</text>
+
+  <!-- yes branch -->
+  <line x1="670" y1="34" x2="716" y2="34" stroke="#16161a" stroke-width="1.5" marker-end="url(#e1)"/>
+  <text x="674" y="26" class="sv-s">if set</text>
+  <rect x="722" y="14" width="156" height="42" fill="#16161a"/>
+  <text x="734" y="32" class="sv-w">POST to Supabase</text>
+  <text x="734" y="46" class="sv-ws">Row saved. You can read it.</text>
+
+  <!-- no branch -->
+  <line x1="570" y1="80" x2="570" y2="120" stroke="#a3261c" stroke-width="1.5" marker-end="url(#e2)"/>
+  <text x="578" y="104" class="sv-s">they are blank — this is your situation</text>
+
+  <rect x="430" y="126" width="290" height="50" fill="#fdf4f3" stroke="#a3261c" stroke-width="1.5"/>
+  <text x="442" y="146" class="sv-b">throw — "not configured yet"</text>
+  <text x="442" y="162" class="sv-s">An error with .unconfigured = true</text>
+
+  <line x1="575" y1="176" x2="575" y2="212" stroke="#a3261c" stroke-width="1.5" marker-end="url(#e2)"/>
+
+  <rect x="400" y="218" width="350" height="64" fill="#fdf4f3" stroke="#a3261c" stroke-width="1.5"/>
+  <text x="412" y="238" class="sv-b">catch block: queue.add(row) then succeed(row)</text>
+  <text x="412" y="254" class="sv-s">The row is written to localStorage under "edge_join_queue"</text>
+  <text x="412" y="268" class="sv-s">— inside THAT STUDENT'S OWN BROWSER — and the</text>
+  <text x="412" y="280" class="sv-s">success screen is shown as if everything worked.</text>
+
+  <line x1="575" y1="282" x2="575" y2="316" stroke="#a3261c" stroke-width="1.5" marker-end="url(#e2)"/>
+
+  <rect x="330" y="322" width="490" height="58" fill="#101012"/>
+  <text x="342" y="342" class="sv-w">Result: the data is unreachable</text>
+  <text x="342" y="358" class="sv-ws">You cannot see it. It never leaves their phone. It is lost if they clear their browser,</text>
+  <text x="342" y="371" class="sv-ws">use a different device, or simply never return. flush() only sends it once keys exist.</text>
+
+  <rect x="20" y="322" width="290" height="58" fill="#f6f6f7" stroke="#16161a"/>
+  <text x="32" y="342" class="sv-b">The design is not wrong</text>
+  <text x="32" y="357" class="sv-s">Queueing exists so a dropped connection</text>
+  <text x="32" y="370" class="sv-s">never loses a submission. It is doing its job.</text>
+</svg>
+<figcaption><strong>Figure 6.</strong> Why a working form produces nothing. The queue is a feature
+being used as a failure mode.</figcaption>
+</figure>
+
+<p>One signal does exist: <code>join.js:359</code> prints a warning to the browser console on every
+page load:</p>
+
+<pre>[EDGE] The join form is not connected yet.
+Paste your Supabase URL and anon key into js/content.js -> join.backend.supabase.</pre>
+
+<p>Nobody was looking at the console, which is why this went unnoticed. Part 12 teaches
+you to look.</p>
+
+<h3>The security model &mdash; the most important thing in your project</h3>
+
+<p>Once you connect Supabase, your anon key sits in <code>content.js</code> where anyone can read it.
+<strong>That is intended.</strong> What protects the data is not secrecy but a database rule.</p>
+
+<div class="box box--term">
+  <div class="box__t">Row Level Security (RLS)</div>
+  <p>A Postgres feature letting the database decide, per row and per operation, who may
+  do what. Supabase publishes every table over a public REST API, so RLS is the only
+  thing standing between your anon key and your data.</p>
+</div>
+
+<p><code>supabase-schema.sql</code> creates exactly one policy:</p>
+
+<pre>create policy "public can register"
+  on public.registrations
+  for insert          -- INSERT only
+  to anon             -- for anonymous visitors
+  with check (true);</pre>
+
+<p>And deliberately creates no others. No select policy means <strong>reads are denied by
+default</strong>. No update policy means nobody can alter a submission. No delete policy means
+nobody can wipe your registrations. You read the data while signed in to the Supabase
+dashboard, which runs as the service role and bypasses RLS.</p>
+
+<div class="box box--warn">
+  <div class="box__t">Get this wrong and you leak every student's phone number</div>
+  <p>Without that policy &mdash; or with a select policy added carelessly &mdash; anyone could
+  take the key from your page and download every name, register number, phone number and
+  email address you have collected.</p>
+  <p>The schema file ends with two <code>curl</code> commands to verify it. The insert must
+  succeed; the select <strong>must come back as an empty list</strong> <code>[]</code>. Run both before the
+  site handles a single real registration. If the select returns rows, stop and fix it.</p>
+</div>
+
+<p>The database also re-validates everything the browser checked &mdash; phone shape, email
+shape, and that a roster application has a game and an in-game name. This is not
+redundancy. <strong>Client-side validation is a convenience for the person filling the form;
+it is not a guarantee</strong>, because anyone can POST directly at the API and skip your
+JavaScript entirely. The database constraints are the actual protection.</p>
