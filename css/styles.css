@@ -1101,6 +1101,32 @@ table.board-table {
   .post:hover .post__media img, .post:hover .post__media video { transform: none; }
 }
 
+/* == 17a. THE MARK IN DEPTH ================================================
+   js/hero3d.js draws the mark as an extruded object here. The canvas is
+   hidden until that script has something on screen, and the plain <img> is
+   only hidden at the same moment -- so the two never swap in a way that
+   leaves a gap, and every failure path keeps the image.
+   ======================================================================== */
+
+.home__mark3d {
+  display: none;
+  width: clamp(150px, 20vw, 260px);
+  aspect-ratio: 1;
+  /* It replaces the <img>, so it inherits its place in the stack. */
+  margin-bottom: 1.1rem;
+  cursor: grab;
+}
+.home__mark3d.is-live { display: block; }
+
+/* Hidden rather than removed: the layout was built around the image's box,
+   and the canvas is sized to sit in the same place. */
+.home__mark.is-replaced { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .home__mark3d { display: none !important; }
+  .home__mark.is-replaced { display: block; }
+}
+
 /* == 17b. INTRO ============================================================
    Shown only when <html> carries .intro-on, which index.html decides before
    first paint. Default is hidden, so the failure direction is "no intro"
