@@ -32,9 +32,17 @@ bad()  { echo "  ${RED}FAIL${OFF}  $1"; fail=$((fail+1)); }
 note() { echo "        ${DIM}$1${OFF}"; }
 
 # -- read the config ---------------------------------------------------------
-URL=$(grep -A4 'supabase: {' "$C" | grep 'url:'      | sed 's/.*"\(.*\)".*/\1/')
-KEY=$(grep -A4 'supabase: {' "$C" | grep 'anon_key:' | sed 's/.*"\(.*\)".*/\1/')
-TBL=$(grep -A4 'supabase: {' "$C" | grep 'table:'    | sed 's/.*"\(.*\)".*/\1/')
+# Pull the values out of the supabase block. Matched on the key name followed
+# by a quote, so a commented-out example cannot be picked up instead, and with
+# a generous window so comments inside the block do not hide the real lines.
+field() {
+  grep -A20 'supabase: {' "$C" \
+    | grep -m1 -E "^[[:space:]]*$1:[[:space:]]*\"" \
+    | cut -d'"' -f2
+}
+URL=$(field url)
+KEY=$(field anon_key)
+TBL=$(field table)
 TBL=${TBL:-registrations}
 
 echo
