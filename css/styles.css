@@ -978,6 +978,41 @@ table.board-table {
   .world .chat__log { max-height: 26vh; }
 }
 
+/* Short phones — the common case once browser chrome is counted.
+
+   A 360x812 phone reports about 650px of usable height in the browser, and
+   the 26vh of headroom that lifts the character into view above the panel
+   then costs 169px of it. Added to five chips stacked five rows deep, the
+   Ask field ended up below the fold: the one control the panel exists for
+   could not be reached without scrolling.
+
+   Two changes. Less headroom, because there is none to spare. And the chips
+   run on one scrolling row instead of wrapping, which turns 251px into about
+   50px. They are a shortcut, not the only route -- every question is listed
+   in full directly underneath -- so a row that scrolls costs nothing. */
+@media (max-width: 680px) and (max-height: 760px) {
+  .world__inner { padding-top: 13vh; }
+
+  .world .chat__log { max-height: 20vh; }
+
+  .chat__chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;              /* the row is short; a bar would crowd it */
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  .chat__chips::-webkit-scrollbar { display: none; }
+  .chat__chips .chip {
+    flex: 0 0 auto;                     /* without this they squash instead of scrolling */
+    scroll-snap-align: start;
+    white-space: nowrap;
+  }
+
+  .world__bar { padding-block: .5rem; }
+  .world__sub { margin-top: .9rem; }
+}
+
 /* Without motion the tear is meaningless, so the world is simply shown. */
 @media (prefers-reduced-motion: reduce) {
   .world { transition: none; }
@@ -1059,6 +1094,71 @@ table.board-table {
   .crew-member:hover, .path:hover, .player:hover, .ask-fab:hover,
   .facts > div:hover, .faq-item summary:hover > :first-child { transform: none; }
   .post:hover .post__media img, .post:hover .post__media video { transform: none; }
+}
+
+/* == 17b. INTRO ============================================================
+   Shown only when <html> carries .intro-on, which index.html decides before
+   first paint. Default is hidden, so the failure direction is "no intro"
+   rather than "black screen over the site".
+   ======================================================================== */
+
+.intro { display: none; }
+
+.intro-on .intro {
+  display: grid;
+  place-items: center;
+  position: fixed;
+  inset: 0;
+  z-index: 200;                      /* over the portal canvas and the world */
+  cursor: pointer;                   /* the whole surface dismisses it */
+
+  /* Pure black, not --board-ink. The film's own background is #000, and a
+     16:9 film in a portrait viewport is letterboxed -- against the #08080A
+     used everywhere else on the site the bars were visible as two bands.
+     This is the one place pure black is correct: it is matching footage,
+     not setting a surface. */
+  background: #000;
+}
+
+/* The page must not scroll underneath while the intro is up. */
+.intro-on body { overflow: hidden; }
+
+/* The film is 16:9 and a phone is not. `contain` letterboxes it onto the
+   same near-black the overlay is painted in, so the frame edges are
+   invisible and the mark simply sits in the dark. `cover` would crop the
+   animation, which is centred and cannot survive that. */
+.intro__film {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.intro__skip {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  font-family: var(--display);
+  font-size: .82rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--grey);
+  background: transparent;
+  border: 2px solid var(--rule);
+  padding: .45rem .9rem;
+  cursor: pointer;
+}
+.intro__skip:hover,
+.intro__skip:focus-visible { color: var(--white); border-color: var(--grey); }
+
+.intro.is-out {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s var(--ease);
+}
+
+@media (max-width: 680px) {
+  .intro__skip { right: 14px; bottom: 14px; font-size: .76rem; }
 }
 
 /* == 18. HOMEWORLD ========================================================= */
