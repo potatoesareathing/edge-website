@@ -842,63 +842,61 @@ table.board-table {
 
 /* -- the world you arrive in ---------------------------------------------- */
 
-/* THE BACK OF THE BOARD
+/* THE PANEL
 
-   The world was the pixel film: moving, high-contrast, and full of detail
-   that the questions had to be read over. On a phone that is a legibility
-   problem dressed as atmosphere, and no amount of scrim fixed it -- the
-   contrast under any given line of text changed frame to frame.
+   A drawer from the right rather than a world you are moved into. The page
+   you were reading stays behind it, dimmed but present, because the whole
+   point of asking from here is not to lose your place.
 
-   What replaces it has to do two jobs at once: read as somewhere else, and
-   compete with nothing. So it is the reverse side of a painted board. The
-   deepest surface on the site, one step below the page's own ground, with
-   the club's mark stencilled large across it and mostly lost in the dark.
-   You can tell you have gone somewhere. You cannot mistake it for content. */
+   It slides on transform only. Animating `right` or `width` would relayout
+   the panel every frame; a transform is handed to the compositor and costs
+   nothing. */
+
+.ask-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 158;
+  background: rgba(8, 8, 10, .74);
+  opacity: 0;
+  transition: opacity .42s var(--ease);
+  cursor: pointer;
+}
+.ask-scrim.is-in { opacity: 1; }
 
 .world {
   position: fixed;
-  inset: 0;
+  top: 0; right: 0; bottom: 0;
+  width: min(460px, 100vw);
   z-index: 160;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  opacity: 0;
-  transition: opacity .45s var(--ease);
+  overflow: hidden;                  /* the inner column scrolls, not this */
   background: var(--board-ink);
+  /* No edge rule. A 3px line down one side is the thick one-sided border the
+     design system refuses, and the detector is right to call it: the panel is
+     already a darker surface than the page and the scrim already dims what is
+     behind it. Two separations are enough; a third is decoration. */
+  transform: translateX(100%);
+  transition: transform .42s var(--ease);
 }
+.world.is-in { transform: none; }
 
-/* The stencil. Loaded through background-image rather than an <img>, so it
-   cannot be reached by a screen reader or a text selection -- it is a
-   surface, not a picture of anything.
-
-   Fixed rather than absolute so it stays put while the questions scroll over
-   it: a watermark that scrolls reads as an object, and an object competes.
-   It bleeds off the right edge on purpose, the way a stencil laid on a board
-   runs past it. At 4% it is legible as a shape and illegible as an image,
-   which is the whole point. */
-.world::before {
-  content: "";
-  position: fixed;
+/* The sky sits behind everything in the panel and is never interactive. */
+.world__sky {
+  position: absolute;
   inset: 0;
-  pointer-events: none;
-  background-image: url("../assets/edge-mark.svg?v=2");
-  background-repeat: no-repeat;
-  background-position: 128% 62%;
-  background-size: auto 118%;
-  opacity: .04;
-}
-
-/* A rule across the foot of the surface, in the same double-line language the
-   boards use. It gives the dark somewhere to end. */
-.world::after {
-  content: "";
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: 3px;
-  background: var(--rule);
+  /* Explicit, not left to `inset` to stretch. A <canvas> is a replaced
+     element, so its CSS size comes from its width/height attributes rather
+     than from being pinned to all four sides -- and js/faq-sky.js sets those
+     attributes from the measured box. Without these two lines each resize
+     read the size it had just written and doubled it: 460 -> 920 -> 2236. */
+  width: 100%;
+  height: 100%;
+  z-index: 0;
   pointer-events: none;
 }
-.world.is-in { opacity: 1; }
+.world__bar,
+.world__inner { position: relative; z-index: 1; }
 
 /* Content rises in on arrival, matching the homepage's own entrance so the
    two worlds animate by the same rules rather than each having its own. */
@@ -913,8 +911,7 @@ table.board-table {
 }
 
 .world__bar {
-  position: sticky;
-  top: 0;
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -944,11 +941,16 @@ table.board-table {
 .world__back:hover { background: var(--board-alt); transform: translateX(-3px); }
 
 .world__inner {
+  flex: 1 1 auto;
+  overflow-y: auto;
   width: 100%;
-  max-width: 660px;
-  margin-inline: auto;
-  padding: 1rem clamp(18px, 4vw, 40px) 4rem;
+  padding: 1.1rem clamp(18px, 5vw, 26px) 3rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
 }
+.world__inner::-webkit-scrollbar { width: 8px; }
+.world__inner::-webkit-scrollbar-track { background: transparent; }
+.world__inner::-webkit-scrollbar-thumb { background: var(--rule); }
 
 .world__sub {
   font-family: var(--display);
@@ -962,7 +964,7 @@ table.board-table {
 
 /* The chat belongs to the world. It keeps the board language so it is part of
    EDGE, but it is inset into the scene rather than floated over a page. */
-.world .chat__log { flex: 0 1 auto; max-height: min(34vh, 300px); min-height: 72px; scrollbar-width: thin; scrollbar-color: var(--rule) transparent; }
+.world .chat__log { flex: 0 1 auto; max-height: min(30vh, 260px); min-height: 72px; scrollbar-width: thin; scrollbar-color: var(--rule) transparent; }
 .world .chat__log::-webkit-scrollbar { width: 8px; }
 .world .chat__log::-webkit-scrollbar-track { background: transparent; }
 .world .chat__log::-webkit-scrollbar-thumb { background: var(--rule); border: 0; }
@@ -1373,7 +1375,9 @@ table.board-table {
   /* Was 26vh of headroom, to lift the character in the film clear of the
      chat. The film is gone, so that is 169px of empty dark on a short phone
      with nothing left to clear. */
-  .world__inner  { padding: 1.25rem 16px 3.5rem; }
+  .world__inner  { padding: 1.1rem 16px 3rem; }
+  /* Full width on a phone: 460px of drawer on a 360px screen is the page. */
+  .world { width: 100vw; }
   .world__sub    { font-size: .95rem; margin-top: 1.1rem; }
 
   .faq-item summary { font-size: .98rem; padding: .7rem .85rem; gap: .6rem; }

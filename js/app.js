@@ -541,139 +541,107 @@
   }
 
 
-  /* == ASK EDGE — PORTAL ENTRY ============================================ */
+  /* == ASK EDGE — THE PANEL =============================================== */
 
-  /* The launcher no longer opens a panel. It tears a portal to another
-     dimension, and js/portal.js owns the effect. This function is only the
-     wiring: when to peek, when to commit, when to come back.
+  /* A panel that comes in from the right, over the page you were reading.
 
-     Hover opens a small tear and starts the sound bleeding through, so the
-     other side is visible from here. Clicking crosses over. Leaving closes it
-     again. The invitation is immediate; the commitment is always a click. */
+     This replaced a WebGL portal that tore the page open onto a separate
+     world. The effect was the most ambitious thing on the site and it was
+     the wrong shape for what this actually is: a question you want answered
+     without losing your place. A drawer keeps the page behind you, visible
+     and one click away, which is the whole reason to ask from here rather
+     than on a page of its own.
+
+     js/portal.js is still in the repository, unwired, because the effect is
+     worth keeping if a section ever wants it. Nothing loads it.
+
+     Two rules this has to get right, both learned the hard way:
+
+       1. `hidden` is removed, then the browser is made to lay the panel out
+          (`void offsetWidth`), and only then does the class that animates it
+          get added. Without the forced reflow the browser folds both changes
+          into one frame and the panel appears without moving.
+       2. That reflow is NOT wrapped in requestAnimationFrame. rAF does not
+          reliably fire in a throttled or backgrounded renderer, and when it
+          did not, the drawer sat parked off-screen while still being
+          focusable -- reachable by keyboard, invisible on screen. */
 
   function initAsk() {
     const fab   = byId("askFab");
-    const world = byId("faqWorld");
+    const panel = byId("faqWorld");
+    const scrim = byId("askScrim");
     const back  = byId("worldBack");
-    if (!fab || !world) return;
+    if (!fab || !panel) return;
 
-    const P = window.EDGE_PORTAL;
-    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let lastFocus = null, attached = false;
+    let lastFocus = null;
 
-    /* What the tear opens onto.
+    const isOpen = () => !panel.hidden;
 
-       This used to be a 3.9 MB film of a pixel world, which then stayed on as
-       the backdrop you read the questions over. It was beautiful and it was
-       the wrong surface for text: moving, high-contrast, and different under
-       every line. The world is a painted board now (see .world in the
-       stylesheet), so the portal needs something to sample that matches it.
-
-       Rather than a flat colour, this paints the destination -- the same ink,
-       the same stencilled mark in the same place -- so the tear is a genuine
-       preview of where you are about to stand rather than a hole onto nothing.
-       It is drawn once, costs no network, and the portal uploads a still
-       source a single time instead of sixty times a second. */
-    function buildWorldTexture() {
-      const c = document.createElement("canvas");
-      c.width = 1280; c.height = 720;
-      const x = c.getContext("2d");
-      if (!x) return c;
-
-      const read = n =>
-        getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-
-      x.fillStyle = read("--board-ink") || "#08080A";
-      x.fillRect(0, 0, c.width, c.height);
-
-      // The mark, matching .world::before: bleeding off the right edge, low
-      // enough in contrast to read as a surface rather than as an image.
-      const mark = new Image();
-      mark.onload = () => {
-        const h = c.height * 1.18;
-        const w = h * (mark.naturalWidth / mark.naturalHeight);
-        x.globalAlpha = 0.04;
-        x.drawImage(mark, c.width * 1.28 - w * 1.28, (c.height - h) * 0.62, w, h);
-        x.globalAlpha = 1;
-        // The texture changed after the portal may already have uploaded it.
-        P?.configure({ video: c, origin: fab });
-      };
-      mark.src = "assets/edge-mark.svg?v=2";
-
-      return c;
-    }
-
-    let worldTex = null;
-
-    function attach() {
-      if (attached) return;
-      attached = true;
-      worldTex = buildWorldTexture();
-      P?.configure({ video: worldTex, origin: fab });
-    }
-
-    function enter() {
+    function open() {
+      if (isOpen()) return;
       lastFocus = document.activeElement;
-      // The canvas performs the transition; the arrived world is plain DOM on
-      // a painted surface, so it is solid and legible even if WebGL stops,
-      // stalls, or was never available at all.
-      world.hidden = false;
-      void world.offsetWidth;            // give the fade a start value
-      world.classList.add("is-in");
+
+      panel.hidden = false;
+      if (scrim) scrim.hidden = false;
+      void panel.offsetWidth;                 // see rule 1 above
+      panel.classList.add("is-in");
+      scrim?.classList.add("is-in");
+
       fab.setAttribute("aria-expanded", "true");
-      byId("chatInput")?.focus();
+      // preventScroll, or the browser scrolls the panel's own column to bring
+      // the field into view and the greeting above it is already gone before
+      // anyone has read it.
+      byId("chatInput")?.focus({ preventScroll: true });
+
+      // The page behind must not scroll under the panel. Its own scroll
+      // position is untouched, so closing returns you exactly where you were.
       document.body.style.overflow = "hidden";
     }
 
-    function leave() {
-      world.classList.remove("is-in");
+    function close() {
+      if (!isOpen()) return;
+      panel.classList.remove("is-in");
+      scrim?.classList.remove("is-in");
       fab.setAttribute("aria-expanded", "false");
       document.body.style.overflow = "";
-      setTimeout(() => { world.hidden = true; }, 450);
+
+      // Hide only once it has slid out, or it would vanish rather than leave.
+      setTimeout(() => {
+        panel.hidden = true;
+        if (scrim) scrim.hidden = true;
+      }, 420);
+
+      // Focus goes back where it came from, so a keyboard user is not
+      // dropped at the top of the document.
       lastFocus?.focus();
     }
 
-    function commit() {
-      attach();
-      if (!P || reduced || !P.supported()) { enter(); return; }   // no WebGL: just go
-      P.open({ video: worldTex, origin: fab, onEnter: enter });
-    }
+    const toggle = () => (isOpen() ? close() : open());
 
-    // Only retracts a peek. Once the portal has committed, moving the pointer
-    // off the button must do nothing: you are crossing over, and closing from
-    // here tore down the portal while leaving the interface stranded on top of
-    // the homepage. Leaving is exit()'s job, and exit() hides both.
-    function abort() {
-      if (P && !P.isOpen()) P.peek(false);
-    }
+    fab.addEventListener("click", toggle);
+    back?.addEventListener("click", close);
+    scrim?.addEventListener("click", close);
 
-    // Hover only opens the tear. It never crosses over on its own: being
-    // teleported by a mouse path that happened to pass the corner is hostile,
-    // and there is no way to glance at the other side without committing.
-    fab.addEventListener("pointerenter", () => {
-      attach();
-      if (reduced || !P || !P.supported()) return;
-      P.peek(true);
-    });
-    fab.addEventListener("pointerleave", abort);
-    fab.addEventListener("click", commit);
-    // Keyboard reaches the same place without needing a pointer at all.
-    fab.addEventListener("focus", attach);
-
-    function exit() {
-      // Close the portal even when the interface never appeared — otherwise a
-      // transition that stalled leaves the world audible with no way out.
-      if (!world.hidden) leave();
-      P?.close();
-    }
-    back?.addEventListener("click", exit);
     document.addEventListener("keydown", e => {
-      if (e.key === "Escape") { if (!world.hidden) exit(); else abort(); }
+      if (e.key === "Escape" && isOpen()) close();
     });
 
-    // A hidden tab should not keep a second video decoding and audible.
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden && P) P.suspend();
+    /* Keep focus inside the panel while it is open. Without this, tabbing
+       walks out of the panel and into the page behind it, which is still
+       there and still full of controls -- the visitor ends up typing into
+       something they cannot see. */
+    panel.addEventListener("keydown", e => {
+      if (e.key !== "Tab") return;
+      const stops = panel.querySelectorAll(
+        'a[href], button:not([disabled]), input, textarea, select, summary, [tabindex]:not([tabindex="-1"])'
+      );
+      if (!stops.length) return;
+      const first = stops[0], last = stops[stops.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
     });
   }
 

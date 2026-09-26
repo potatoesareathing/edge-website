@@ -328,17 +328,13 @@
 
 
 <!-- ============================ ASK EDGE ==================================
-     The FAQ is a separate dimension, not a panel on this one. The launcher
-     tears a portal open at its own position; the pixel world is visible
-     through it and grows until it is all there is.
+     A panel from the right, over the page you were reading rather than
+     instead of it. The scrim dims what is behind and closes on a click.
 
-     The canvas draws only that world and is transparent everywhere outside
-     the tear, so this page shows through the opening without being captured
-     or redrawn. js/portal.js owns the effect and is reusable for the other
-     sections later.
+     This replaced a WebGL portal that tore the page open onto a separate
+     world. js/portal.js is still in the repository and still works; nothing
+     loads it. It is there for a section that wants that effect later.
      ==================================================================== -->
-
-<canvas class="portal" id="portalCanvas" aria-hidden="true"></canvas>
 
 <button class="ask-fab" id="askFab" aria-expanded="false" aria-controls="faqWorld">
   <img src="assets/edge-mark.svg?v=2" alt="" width="26" height="22">
@@ -347,7 +343,13 @@
 
 <!-- The interface once you are inside. It sits in the world rather than
      floating above the site: no drawer, no scrim over a page you left. -->
-<section class="world" id="faqWorld" role="dialog" aria-labelledby="worldTitle" hidden>
+<div class="ask-scrim" id="askScrim" hidden></div>
+
+<section class="world" id="faqWorld" role="dialog" aria-modal="true"
+         aria-labelledby="worldTitle" hidden>
+  <!-- The sky. Drawn by js/faq-sky.js, purely atmosphere: no text, no
+       meaning, and never in the way of either. -->
+  <canvas class="world__sky" id="faqSky" aria-hidden="true"></canvas>
   <div class="world__bar">
     <div class="world__id">
       <img src="assets/edge-mark.svg?v=2" alt="" width="29" height="24">
@@ -374,9 +376,9 @@
 
 <script src="js/intro.js"></script>
 <script src="js/content.js"></script>
-<script src="js/portal.js"></script>
 <script src="js/app.js"></script>
 <script src="js/hero3d.js"></script>
+<script src="js/faq-sky.js"></script>
 <script src="js/faq-bot.js"></script>
 <script src="js/join.js"></script>
 <script src="js/sound.js"></script>
