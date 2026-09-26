@@ -22,3 +22,6 @@ assets/video/homeworld-source.mp4
 
 # Untouched FAQ world source; the shipped faq-world.mp4 is the crossfaded cut.
 assets/video/faq-world-source.mp4
+
+# Untouched intro source from WhatsApp; the shipped intro.mp4 is the 2x cut.
+assets/video/intro-source.mp4

@@ -126,8 +126,13 @@ const EDGE = {
     backend: {
       mode: "supabase",                 // "supabase" | "demo"
       supabase: {
-        url:      "",                   // TODO https://xxxxxxxx.supabase.co
-        anon_key: "",                   // TODO the "anon public" key
+        // The anon key is PUBLIC by design and is meant to be readable here.
+        // What protects the data is the row level security policy in
+        // supabase-schema.sql, not secrecy. Verify it with:
+        //   bash scripts/verify-supabase.sh
+        // NEVER put the service_role key in this file.
+        url:      "https://wrjhopokogleplbbxntl.supabase.co",
+        anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyamhvcG9rb2dsZXBsYmJ4bnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0MTA5MDYsImV4cCI6MjEwNTk4NjkwNn0.oefb19LzSkHvfEa2TxKzMgOKt6vm_DFzKIlBwspH2m8",
         table:    "registrations"
       }
     }

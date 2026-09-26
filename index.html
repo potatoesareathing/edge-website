@@ -14,6 +14,36 @@
 </head>
 <body>
 
+<!-- =============================== INTRO ==================================
+     The mark resolving out of the dark, 4.2s, skippable, once per session.
+
+     The decision is made HERE, before anything paints. If the overlay were
+     shown by js/intro.js at the bottom of the page, the site would paint
+     first and then be covered, which reads as a bug rather than an intro.
+     `.intro` is display:none until this class says otherwise, so a visitor
+     who has already seen it never sees a frame of it.
+     ==================================================================== -->
+<script>
+(function () {
+  var seen = false;
+  // A browser with storage blocked reports "seen", because showing the intro
+  // on every single page load is worse than never showing it at all.
+  try { seen = sessionStorage.getItem("edge_intro_seen") === "1"; }
+  catch (e) { seen = true; }
+  var still = false;
+  try { still = matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  catch (e) {}
+  if (!seen && !still) document.documentElement.className += " intro-on";
+})();
+</script>
+
+<div class="intro" id="intro" role="presentation">
+  <video class="intro__film" id="introVideo"
+         muted playsinline disablepictureinpicture preload="auto"
+         aria-hidden="true"></video>
+  <button class="intro__skip" type="button">Skip</button>
+</div>
+
 <!-- ============================= HOMEWORLD ================================
      The looping film behind the first viewport. It sits outside the panels
      because a clip-path on an ancestor also clips fixed descendants, and the
@@ -344,6 +374,7 @@
   </div>
 </section>
 
+<script src="js/intro.js"></script>
 <script src="js/content.js"></script>
 <script src="js/portal.js"></script>
 <script src="js/app.js"></script>
