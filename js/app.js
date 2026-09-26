@@ -555,30 +555,68 @@
     const fab   = byId("askFab");
     const world = byId("faqWorld");
     const back  = byId("worldBack");
-    const video = byId("faqVideo");
-    if (!fab || !world || !video) return;
+    if (!fab || !world) return;
 
     const P = window.EDGE_PORTAL;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     let lastFocus = null, attached = false;
 
-    // The world's video is only fetched when the visitor shows intent, the
-    // same rule the homepage film follows.
+    /* What the tear opens onto.
+
+       This used to be a 3.9 MB film of a pixel world, which then stayed on as
+       the backdrop you read the questions over. It was beautiful and it was
+       the wrong surface for text: moving, high-contrast, and different under
+       every line. The world is a painted board now (see .world in the
+       stylesheet), so the portal needs something to sample that matches it.
+
+       Rather than a flat colour, this paints the destination -- the same ink,
+       the same stencilled mark in the same place -- so the tear is a genuine
+       preview of where you are about to stand rather than a hole onto nothing.
+       It is drawn once, costs no network, and the portal uploads a still
+       source a single time instead of sixty times a second. */
+    function buildWorldTexture() {
+      const c = document.createElement("canvas");
+      c.width = 1280; c.height = 720;
+      const x = c.getContext("2d");
+      if (!x) return c;
+
+      const read = n =>
+        getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+      x.fillStyle = read("--board-ink") || "#08080A";
+      x.fillRect(0, 0, c.width, c.height);
+
+      // The mark, matching .world::before: bleeding off the right edge, low
+      // enough in contrast to read as a surface rather than as an image.
+      const mark = new Image();
+      mark.onload = () => {
+        const h = c.height * 1.18;
+        const w = h * (mark.naturalWidth / mark.naturalHeight);
+        x.globalAlpha = 0.04;
+        x.drawImage(mark, c.width * 1.28 - w * 1.28, (c.height - h) * 0.62, w, h);
+        x.globalAlpha = 1;
+        // The texture changed after the portal may already have uploaded it.
+        P?.configure({ video: c, origin: fab });
+      };
+      mark.src = "assets/edge-mark.svg?v=2";
+
+      return c;
+    }
+
+    let worldTex = null;
+
     function attach() {
       if (attached) return;
       attached = true;
-      video.src = "assets/video/faq-world.mp4";
-      video.load();
-      video.volume = 0;                       // ramped up, never snapped
-      P?.configure({ video, origin: fab, volume: 0.4 });
+      worldTex = buildWorldTexture();
+      P?.configure({ video: worldTex, origin: fab });
     }
 
     function enter() {
       lastFocus = document.activeElement;
-      // Promote the video from texture source to the world's actual backdrop.
-      // The canvas performs the transition; the arrived world is plain DOM, so
-      // it is solid even if WebGL stops, stalls or was never available.
-      video.classList.add("is-world");
+      // The canvas performs the transition; the arrived world is plain DOM on
+      // a painted surface, so it is solid and legible even if WebGL stops,
+      // stalls, or was never available at all.
       world.hidden = false;
       void world.offsetWidth;            // give the fade a start value
       world.classList.add("is-in");
@@ -588,7 +626,6 @@
     }
 
     function leave() {
-      video.classList.remove("is-world");
       world.classList.remove("is-in");
       fab.setAttribute("aria-expanded", "false");
       document.body.style.overflow = "";
@@ -599,7 +636,7 @@
     function commit() {
       attach();
       if (!P || reduced || !P.supported()) { enter(); return; }   // no WebGL: just go
-      P.open({ video, origin: fab, volume: 0.4, onEnter: enter });
+      P.open({ video: worldTex, origin: fab, onEnter: enter });
     }
 
     // Only retracts a peek. Once the portal has committed, moving the pointer

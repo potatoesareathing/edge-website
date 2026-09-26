@@ -32,6 +32,12 @@
      EDGE_PORTAL.peek(on);           partial opening, for hover
      EDGE_PORTAL.close();
 
+   `video` may be a <video> OR any still TexImageSource -- a <canvas> or an
+   <img>. The FAQ passes a canvas painted to match the surface it lands on,
+   so the tear previews the destination without a film behind it. A still
+   source is uploaded once rather than per frame, and the audio ramp is
+   skipped entirely, since there is nothing to play.
+
    The same call works for any other world later; only the video changes.
    ========================================================================== */
 
@@ -127,9 +133,23 @@
       gl_FragColor = vec4(col, mask);
     }`;
 
+  /* -- what counts as a world --------------------------------------------- */
+
+  /* The destination used to always be a <video>. It can now also be a canvas
+     painted to look like the surface you are about to land on, which is what
+     the FAQ uses since its film was removed. WebGL will happily upload either
+     -- both are TexImageSources -- but only one of them has play(), volume,
+     readyState or a loadeddata event, so every call that assumes a video is
+     routed through these four. */
+  const isMedia   = el => !!el && typeof el.play === "function";
+  const srcReady  = el => isMedia(el) ? el.readyState >= 2 : !!el;
+  const srcWidth  = el => (el && (el.videoWidth  || el.width))  || 1920;
+  const srcHeight = el => (el && (el.videoHeight || el.height)) || 1080;
+
   /* -- state -------------------------------------------------------------- */
 
   let canvas, gl, program, tex, buf;
+  let staticUploaded = false;      // a still source is uploaded once, not per frame
   let uni = {};
   let video = null, origin = null;
   let raf = 0, running = false, started = 0;
@@ -246,13 +266,18 @@
     progress += (target - progress) * 0.085;
     if (Math.abs(target - progress) < 0.0015) progress = target;
 
-    if (video && video.readyState >= 2) {
+    // A film changes every frame and must be re-uploaded every frame. A still
+    // surface does not, and re-uploading it sixty times a second would be
+    // pure heat for no pixels.
+    const moving = isMedia(video);
+    if (srcReady(video) && (moving || !staticUploaded)) {
       gl.bindTexture(gl.TEXTURE_2D, tex);
       // Re-asserted per upload: this is context state and anything else that
       // ever touches the GL context could leave it off, flipping the world.
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video);
-      gl.uniform2f(uni.uTexRes, video.videoWidth || 1920, video.videoHeight || 1080);
+      gl.uniform2f(uni.uTexRes, srcWidth(video), srcHeight(video));
+      if (!moving) staticUploaded = true;
     }
 
     const [cx, cy] = centre();
@@ -304,7 +329,7 @@
 
   function rampTo(value, ms) {
     clearInterval(ramp);
-    if (!video) return;
+    if (!isMedia(video)) return;
     const from = video.volume;
     const steps = Math.max(1, Math.round(ms / 40));
     let i = 0;
@@ -317,7 +342,7 @@
   }
 
   function sound(on) {
-    if (!video) return;
+    if (!isMedia(video)) return;      // a painted surface has nothing to play
     if (on) {
       if (!gestured) return;          // autoplay policy: stay silent until then
       video.muted = false;
@@ -345,7 +370,8 @@
       if (config.video)  video  = config.video;
       if (config.origin) origin = config.origin;
       if (config.volume != null) volumeCeiling = config.volume;
-      if (video) video.volume = Math.min(video.volume, volumeCeiling);
+      if (isMedia(video)) video.volume = Math.min(video.volume, volumeCeiling);
+      staticUploaded = false;                 // a new world needs a new upload
       return setup();
     },
 
@@ -354,7 +380,7 @@
       if (!setup() || !video) return;
       canvas.classList.add("is-live");
       target = on ? 0.18 : 0;
-      if (on) { video.play().catch(() => {}); sound(true); }
+      if (on) { if (isMedia(video)) video.play().catch(() => {}); sound(true); }
       else    { sound(false); }
       start();
     },
@@ -370,15 +396,15 @@
       if (!setup() || !video) { config.onEnter?.(); return; }
 
       canvas.classList.add("is-live");
-      video.play().catch(() => {});
+      if (isMedia(video)) video.play().catch(() => {});
       sound(true);
       entered = false;
 
       // Wait for a decodable frame before growing the tear. Over a network the
       // file is still buffering when the pointer arrives, and opening onto an
       // empty texture is what made the transition look like nothing happened.
-      if (video.readyState >= 2) {
-        target = 1;
+      if (srcReady(video)) {
+        target = 1;                          // a still surface is always ready
       } else {
         target = 0.18;                       // hold the peek open meanwhile
         const go = () => { target = 1; };
@@ -417,7 +443,7 @@
 
     /** Called by app.js so a hidden tab does not keep a video decoding. */
     suspend() {
-      if (video) { video.pause(); rampTo(0, 120); }
+      if (isMedia(video)) { video.pause(); rampTo(0, 120); }
       stop();
     },
 
