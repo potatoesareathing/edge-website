@@ -8,8 +8,11 @@ not be determined from the project files. Nothing here is guessed at.</p>
 
 <table>
 <tr><th style="width:26%">Where</th><th style="width:44%">What is missing</th><th style="width:30%">Consequence today</th></tr>
-<tr><td><code>content.js:126</code></td><td>Supabase <code>url</code> and <code>anon_key</code> are empty strings.</td>
-<td><strong>Registrations go nowhere.</strong> The single most important gap.</td></tr>
+<tr><td><code>content.js:126</code></td><td><s>Supabase <code>url</code> and <code>anon_key</code> are empty strings.</s>
+<strong>Done</strong> &mdash; project <code>wrjhopokogleplbbxntl</code> is connected.</td>
+<td>The remaining step is running <code>supabase-schema.sql</code> so the table exists, then
+<code>scripts/verify-supabase.sh</code>. Until the schema is run, submissions still queue in
+the visitor's browser.</td></tr>
 <tr><td><code>content.js:227</code></td><td>Leaderboard is five rows of <code>PLAYER-01 / Full Name</code> with zero points.</td>
 <td>The Players tab shows obvious placeholder data to anyone who visits.</td></tr>
 <tr><td><code>content.js:236</code></td><td>Both rosters are placeholder players.</td>
@@ -46,10 +49,14 @@ RUAS format is confirmed</em>.</td>
 
 <table>
 <tr><th style="width:34%">Question</th><th style="width:66%">Why it is unresolved</th></tr>
-<tr><td>Does a Supabase project exist at all?</td>
-<td>The schema file and the client code exist, but nothing in the repository records a
-project URL, an account, or whether the SQL was ever run. <strong>Check by signing in to
-Supabase</strong>, or assume it does not and follow 11.14 from the start.</td></tr>
+<tr><td><s>Does a Supabase project exist at all?</s><br><strong>Resolved</strong></td>
+<td>It does: <code>https://wrjhopokogleplbbxntl.supabase.co</code>, connected in <code>content.js</code> and
+verified reachable. The anon key decodes to <code>role: anon</code> and its project ref
+matches, so it is the right key for the right project.
+<strong>Still unresolved:</strong> whether <code>supabase-schema.sql</code> has been run. At the
+time of writing the table did not exist &mdash; the API answered
+<code>Could not find the table 'public.registrations'</code>. Run
+<code>scripts/verify-supabase.sh</code>; it answers this in one second.</td></tr>
 
 <tr><td>Is <code>edge@msruas.ac.in</code> a working address?</td>
 <td>Marked TODO in the code. Send it a test email.</td></tr>

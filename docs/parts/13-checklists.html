@@ -1,10 +1,10 @@
-<!-- ============================== PART 15 ============================== -->
-<h1><span class="num">Part 15</span>Checklists</h1>
+<!-- ============================== PART 16 ============================== -->
+<h1><span class="num">Part 16</span>Checklists</h1>
 
 <p class="lead">Reusable, and written to be used rather than admired. The first four apply
 to this site; the last applies to whatever you build next.</p>
 
-<h2>15.1 &nbsp;Pre-deployment checklist</h2>
+<h2>16.1 &nbsp;Pre-deployment checklist</h2>
 <p><em>Before every <code>git push</code>. Two minutes.</em></p>
 <ul class="tight">
 <li>Previewed locally (<code>node serve.js</code>) and the change looks right.</li>
@@ -14,12 +14,15 @@ to this site; the last applies to whatever you build next.</p>
 <li>Clicked through all four tabs; none are blank.</li>
 <li>If you touched the form: submitted once on <em>both</em> Member and Roster paths.</li>
 <li>If you touched the FAQ: hovered the launcher, clicked in, came back out.</li>
+<li>If you touched <code>content.js</code>: <code>node scripts/check-content.js</code> is clean.</li>
+<li>If you touched the database or its keys: <code>bash scripts/verify-supabase.sh</code> passes
+all four.</li>
 <li><code>git diff</code> read &mdash; you can explain every changed line.</li>
 <li>No secrets, keys or personal data in the diff.</li>
 <li>Commit message says <em>why</em>, not just what.</li>
 </ul>
 
-<h2>15.2 &nbsp;Update checklist</h2>
+<h2>16.2 &nbsp;Update checklist</h2>
 <p><em>For content changes, which is most of what you will do.</em></p>
 <ul class="tight">
 <li>Editing <code>content.js</code>, not a logic file &mdash; if not, be sure you need to.</li>
@@ -29,10 +32,10 @@ to this site; the last applies to whatever you build next.</p>
 <li>New links include <code>https://</code>.</li>
 <li>Reloaded the preview &mdash; the section actually changed.</li>
 <li>Nothing else broke: the site still renders everywhere.</li>
-<li>Run 15.1 and push.</li>
+<li>Run 16.1 and push.</li>
 </ul>
 
-<h2>15.3 &nbsp;Backup checklist</h2>
+<h2>16.3 &nbsp;Backup checklist</h2>
 <p><em>Monthly, ten minutes.</em></p>
 <ul class="tight">
 <li><code>git push</code> &mdash; all local work is on GitHub.</li>
@@ -46,11 +49,11 @@ git</em>.</li>
 <li>Once a year: actually test a restore (8.4). An untested backup is a hope.</li>
 </ul>
 
-<h2>15.4 &nbsp;Security checklist</h2>
+<h2>16.4 &nbsp;Security checklist</h2>
 <p><em>At launch, then quarterly.</em></p>
 <ul class="tight">
-<li><strong>RLS verified:</strong> the <code>curl</code> select in <code>supabase-schema.sql</code> returns <code>[]</code>. Not
-"probably" &mdash; run it.</li>
+<li><strong>RLS verified:</strong> <code>bash scripts/verify-supabase.sh</code> passes all four
+checks. Not "probably" &mdash; run it.</li>
 <li>Only an <em>insert</em> policy exists on <code>registrations</code>. No select, update or delete
 policy.</li>
 <li>The <strong>service role key</strong> appears nowhere in the repository. Search for it:
@@ -65,7 +68,7 @@ physically.</li>
 <li>Anyone who left the committee no longer has repository access.</li>
 </ul>
 
-<h2>15.5 &nbsp;Future-project checklist</h2>
+<h2>16.5 &nbsp;Future-project checklist</h2>
 <p><em>Before writing a line of your next site.</em></p>
 
 <h4>Decide first</h4>
@@ -108,7 +111,7 @@ at the end is how launches get delayed.</li>
 </ul>
 
 <!-- ============================== CHEAT SHEET ============================== -->
-<h1><span class="num">Part 16</span>The EDGE cheat sheet</h1>
+<h1><span class="num">Part 17</span>The EDGE cheat sheet</h1>
 
 <p class="lead">One page. Print it, or keep it open.</p>
 
@@ -129,6 +132,8 @@ at the end is how launches get delayed.</li>
 <tr><td>Blog posts</td><td><code>content.js</code> &rarr; <code>blog</code></td></tr>
 <tr><td>Social links, email</td><td><code>content.js</code> &rarr; <code>club</code></td></tr>
 <tr><td>Supabase keys</td><td><code>content.js</code> &rarr; <code>join.backend.supabase</code></td></tr>
+<tr><td>Intro video &amp; rules</td><td><code>assets/video/intro.mp4</code> &middot; <code>js/intro.js</code></td></tr>
+<tr><td>Prompt templates</td><td><code>scripts/AI-PROMPT.md</code></td></tr>
 <tr><td>Colours &amp; fonts</td><td><code>css/styles.css</code> section 1 (tokens)</td></tr>
 <tr><td>Phone fixes</td><td><code>css/styles.css</code> section 20</td></tr>
 <tr><td>Tab list</td><td><code>js/app.js:45</code></td></tr>
@@ -139,9 +144,10 @@ at the end is how launches get delayed.</li>
 <ul style="font-size:9pt;margin-bottom:5mm" class="tight">
 <li><strong>GitHub account</strong> <code>potatoesareathing</code> &mdash; two-factor on, recovery codes stored.
 Losing this loses the site.</li>
-<li><strong>Supabase service role key</strong> &mdash; never in any file, ever.</li>
-<li><strong>Video sources</strong> <code>assets/video/*-source.mp4</code> &mdash; gitignored, not backed up. Copy
-them somewhere today.</li>
+<li><strong>Supabase</strong> project <code>wrjhopokogleplbbxntl</code> &mdash; note which email owns it.
+The <strong>service_role</strong> key must never appear in any file, ever.</li>
+<li><strong>Video sources</strong> <code>assets/video/*-source.mp4</code> &mdash; three files, gitignored,
+not backed up anywhere. Copy them somewhere today.</li>
 <li><strong>Registration exports</strong> &mdash; real student data. Store privately, delete when done.</li>
 </ul>
 
@@ -180,10 +186,12 @@ specificity.</li>
 </ul>
 
 <h3>Do this first</h3>
-<p style="font-size:9pt;margin-bottom:0"><strong>Connect the form (Procedure 11.14).</strong> Until you
-do, every registration is written to the student's own browser and lost. Then verify RLS:
-the <code>select</code> test must return <code>[]</code>, or anyone can download every student's phone
-number.</p>
+<p style="font-size:9pt;margin-bottom:0"><strong>Run <code>supabase-schema.sql</code>, then
+<code>bash scripts/verify-supabase.sh</code>.</strong> The keys are in and the project is live, but
+until the table exists every registration is still written to the student's own browser
+and lost. The verifier's second check must come back empty &mdash; your key is published in
+the page source by design, so if a select succeeds, anyone can download every student's
+phone number.</p>
 
 </div>
 
@@ -193,8 +201,9 @@ number.</p>
 <strong>Live:</strong> potatoesareathing.github.io/edge-website/ &nbsp;·&nbsp;
 <strong>Repo:</strong> github.com/potatoesareathing/edge-website &nbsp;·&nbsp;
 <strong>Local preview:</strong> <code>node serve.js</code> &rarr; localhost:8790<br>
-Written from the codebase at commit <code>1ca0a30</code>, 17 September 2026. Regenerate this
-document from <code>docs/manual.html</code>.
+Written from the codebase at commit <code>1ca0a30</code>, 17 September 2026;
+revised 26 September 2026 for Supabase, the intro and the phone layout.
+Regenerate from <code>docs/parts/</code> &mdash; see <code>docs/README.md</code>.
 </p>
 
 </body>

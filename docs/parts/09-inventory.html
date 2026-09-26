@@ -195,11 +195,13 @@ undone.</td>
     <th style="width:16%">How to update</th><th style="width:20%">Risk if wrong</th><th style="width:12%">Cadence</th></tr>
 
 <tr><td><strong>Supabase connection</strong></td>
-<td><code>content.js:126</code>. Two blank values are the only reason registrations do not save.</td>
-<td>Console warning on every load. Registrations you never receive.</td>
-<td>Procedure 11.14.</td>
-<td><strong>Critical &mdash; currently failing.</strong></td>
-<td><strong>Fix now</strong></td></tr>
+<td><code>content.js:126</code>. Project <code>wrjhopokogleplbbxntl</code>, connected. The remaining
+step is running the schema so the table exists.</td>
+<td><code>bash scripts/verify-supabase.sh</code> &mdash; it tells you in one second.</td>
+<td>Procedure 11.14, steps 2 and 5 onward.</td>
+<td><strong>Registrations still queue in the visitor's browser until the table
+exists.</strong></td>
+<td><strong>Finish now</strong>, then quarterly</td></tr>
 
 <tr><td><strong>The anon key</strong></td>
 <td>Public by design. Visible in your source. Safe <em>only</em> because of RLS.</td>

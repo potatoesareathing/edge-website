@@ -350,6 +350,17 @@ normal success screen rather than being told it was caught.</p>
 being used as a failure mode.</figcaption>
 </figure>
 
+<div class="box box--key">
+  <div class="box__t">Updated &mdash; the keys are now in</div>
+  <p>Project <code>https://wrjhopokogleplbbxntl.supabase.co</code> is connected in
+  <code>content.js</code>. The diagram above still describes what happens until
+  <code>supabase-schema.sql</code> is run: with no table to receive them, the POST returns 404,
+  the catch block queues the row, and the success screen is shown. The path is identical;
+  only the reason changed.</p>
+  <p>Run the schema, then <code>bash scripts/verify-supabase.sh</code>. Both branches of the
+  diagram resolve at that point.</p>
+</div>
+
 <p>One signal does exist: <code>join.js:359</code> prints a warning to the browser console on every
 page load:</p>
 

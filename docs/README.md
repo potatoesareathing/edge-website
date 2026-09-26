@@ -1,8 +1,15 @@
 # Documentation
 
-`manual.html` is the source of **The EDGE Website Owner's Manual** — a 73-page
-technical manual covering the whole project: architecture, every subsystem, the
-maintenance inventory, troubleshooting method, and the checklists.
+**[EDGE-Website-Manual.pdf](EDGE-Website-Manual.pdf)** is the built manual — 79
+pages covering the whole project: architecture, every subsystem, the maintenance
+inventory, troubleshooting method, how to run the site without any AI
+subscription, and the checklists. Read that one.
+
+`manual.html` is its source.
+
+The PDF is committed so the manual is readable straight from GitHub without a
+build step. It is about 1.8 MB, so avoid regenerating it in every commit —
+rebuild it when the content has actually changed.
 
 It is assembled from the numbered files in `parts/`. Edit those, not `manual.html`.
 
@@ -27,6 +34,19 @@ Needs Chrome. Adjust the path if yours differs.
 
 The page design lives in `parts/00-head.html`. Diagrams are inline SVG, so they
 stay sharp at any zoom and are editable as text.
+
+## The two scripts the manual refers to
+
+Both live in `../scripts/` and neither needs an account or an internet
+connection beyond the database check itself.
+
+```bash
+node scripts/check-content.js      # before every commit
+bash scripts/verify-supabase.sh    # after any database change, and quarterly
+```
+
+`scripts/AI-PROMPT.md` holds prompt templates for formatting content with a
+chatbot that cannot edit files.
 
 ## Keeping it true
 

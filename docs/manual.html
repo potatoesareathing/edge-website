@@ -121,8 +121,8 @@ hr { border: 0; border-top: 1px solid #dcdce0; margin: 6mm 0; }
     <strong>Project</strong> EDGE Esports Club &mdash; Ramaiah University of Applied Sciences<br>
     <strong>Live at</strong> potatoesareathing.github.io/edge-website/<br>
     <strong>Repository</strong> github.com/potatoesareathing/edge-website<br>
-    <strong>Written</strong> 17 September 2026, from the code at commit 1ca0a30<br>
-    <strong>Covers</strong> 22 files &middot; 4,209 lines &middot; zero dependencies
+    <strong>Written</strong> 17 Sept 2026 &middot; revised 26 Sept 2026<br>
+    <strong>Covers</strong> 26 files &middot; ~4,400 lines &middot; zero dependencies
   </div>
 </div>
 
@@ -204,6 +204,8 @@ Line numbers are accurate at commit <code>1ca0a30</code> and will drift as you e
 <li>Troubleshooting: how to find a fault yourself</li>
 <li>Things to understand before your next website</li>
 <li>What to learn next &mdash; a roadmap</li>
+<li>Running this site without a subscription
+  <ul><li>Everything you must manage, by how often</li><li>The two scripts that replace judgement</li><li>Tool options compared &middot; What to watch out for</li></ul></li>
 <li>Checklists</li>
 <li>The EDGE cheat sheet</li>
 </ol>
@@ -1953,6 +1955,17 @@ normal success screen rather than being told it was caught.</p>
 being used as a failure mode.</figcaption>
 </figure>
 
+<div class="box box--key">
+  <div class="box__t">Updated &mdash; the keys are now in</div>
+  <p>Project <code>https://wrjhopokogleplbbxntl.supabase.co</code> is connected in
+  <code>content.js</code>. The diagram above still describes what happens until
+  <code>supabase-schema.sql</code> is run: with no table to receive them, the POST returns 404,
+  the catch block queues the row, and the success screen is shown. The path is identical;
+  only the reason changed.</p>
+  <p>Run the schema, then <code>bash scripts/verify-supabase.sh</code>. Both branches of the
+  diagram resolve at that point.</p>
+</div>
+
 <p>One signal does exist: <code>join.js:359</code> prints a warning to the browser console on every
 page load:</p>
 
@@ -2502,11 +2515,13 @@ undone.</td>
     <th style="width:16%">How to update</th><th style="width:20%">Risk if wrong</th><th style="width:12%">Cadence</th></tr>
 
 <tr><td><strong>Supabase connection</strong></td>
-<td><code>content.js:126</code>. Two blank values are the only reason registrations do not save.</td>
-<td>Console warning on every load. Registrations you never receive.</td>
-<td>Procedure 11.14.</td>
-<td><strong>Critical &mdash; currently failing.</strong></td>
-<td><strong>Fix now</strong></td></tr>
+<td><code>content.js:126</code>. Project <code>wrjhopokogleplbbxntl</code>, connected. The remaining
+step is running the schema so the table exists.</td>
+<td><code>bash scripts/verify-supabase.sh</code> &mdash; it tells you in one second.</td>
+<td>Procedure 11.14, steps 2 and 5 onward.</td>
+<td><strong>Registrations still queue in the visitor's browser until the table
+exists.</strong></td>
+<td><strong>Finish now</strong>, then quarterly</td></tr>
 
 <tr><td><strong>The anon key</strong></td>
 <td>Public by design. Visible in your source. Safe <em>only</em> because of RLS.</td>
@@ -2640,8 +2655,11 @@ not be determined from the project files. Nothing here is guessed at.</p>
 
 <table>
 <tr><th style="width:26%">Where</th><th style="width:44%">What is missing</th><th style="width:30%">Consequence today</th></tr>
-<tr><td><code>content.js:126</code></td><td>Supabase <code>url</code> and <code>anon_key</code> are empty strings.</td>
-<td><strong>Registrations go nowhere.</strong> The single most important gap.</td></tr>
+<tr><td><code>content.js:126</code></td><td><s>Supabase <code>url</code> and <code>anon_key</code> are empty strings.</s>
+<strong>Done</strong> &mdash; project <code>wrjhopokogleplbbxntl</code> is connected.</td>
+<td>The remaining step is running <code>supabase-schema.sql</code> so the table exists, then
+<code>scripts/verify-supabase.sh</code>. Until the schema is run, submissions still queue in
+the visitor's browser.</td></tr>
 <tr><td><code>content.js:227</code></td><td>Leaderboard is five rows of <code>PLAYER-01 / Full Name</code> with zero points.</td>
 <td>The Players tab shows obvious placeholder data to anyone who visits.</td></tr>
 <tr><td><code>content.js:236</code></td><td>Both rosters are placeholder players.</td>
@@ -2678,10 +2696,14 @@ RUAS format is confirmed</em>.</td>
 
 <table>
 <tr><th style="width:34%">Question</th><th style="width:66%">Why it is unresolved</th></tr>
-<tr><td>Does a Supabase project exist at all?</td>
-<td>The schema file and the client code exist, but nothing in the repository records a
-project URL, an account, or whether the SQL was ever run. <strong>Check by signing in to
-Supabase</strong>, or assume it does not and follow 11.14 from the start.</td></tr>
+<tr><td><s>Does a Supabase project exist at all?</s><br><strong>Resolved</strong></td>
+<td>It does: <code>https://wrjhopokogleplbbxntl.supabase.co</code>, connected in <code>content.js</code> and
+verified reachable. The anon key decodes to <code>role: anon</code> and its project ref
+matches, so it is the right key for the right project.
+<strong>Still unresolved:</strong> whether <code>supabase-schema.sql</code> has been run. At the
+time of writing the table did not exist &mdash; the API answered
+<code>Could not find the table 'public.registrations'</code>. Run
+<code>scripts/verify-supabase.sh</code>; it answers this in one second.</td></tr>
 
 <tr><td>Is <code>edge@msruas.ac.in</code> a working address?</td>
 <td>Marked TODO in the code. Send it a test email.</td></tr>
@@ -3580,12 +3602,251 @@ keeps making cinematic assets.</li>
   than having watched thirty hours of video.</p>
 </div>
 <!-- ============================== PART 15 ============================== -->
-<h1><span class="num">Part 15</span>Checklists</h1>
+<h1><span class="num">Part 15</span>Running this site without a subscription</h1>
+
+<p class="lead">What you have to manage, what each job actually requires, and which
+tools &mdash; free, paid, or none at all &mdash; are worth using for it. Written on the
+assumption that your Claude subscription ends and does not come back.</p>
+
+<div class="box box--key">
+  <div class="box__t">The short answer</div>
+  <p><strong>You can run this site indefinitely with no AI at all.</strong> Two scripts in
+  <code>scripts/</code> do the work that judgement used to: one checks your content before
+  you publish it, the other checks your database is not leaking. Neither needs an
+  account, an internet connection, or a subscription.</p>
+  <p>AI is a convenience for the tedious parts, not a requirement for any of them.</p>
+</div>
+
+<h2>15.1 &nbsp;Everything you must manage, by how often</h2>
+
+<p>This is the honest list. Most of it is content, and content needs no tooling
+beyond a text editor.</p>
+
+<table>
+<tr><th style="width:22%">Job</th><th style="width:12%">How often</th><th style="width:26%">What it actually involves</th>
+    <th style="width:20%">Hardest part</th><th style="width:20%">Tool needed</th></tr>
+
+<tr><td><strong>Leaderboard &amp; rosters</strong></td><td>After events</td>
+<td>Edit one array in <code>content.js</code>, run the checker, push.</td>
+<td>Typing the data without breaking a comma.</td>
+<td><strong>None.</strong> Editor + checker.</td></tr>
+
+<tr><td><strong>Events &amp; deadlines</strong></td><td>Weekly in season</td>
+<td>Add an entry. Past ones archive themselves; the countdown retargets itself.</td>
+<td>Remembering <code>YYYY-MM-DD</code>.</td>
+<td><strong>None.</strong></td></tr>
+
+<tr><td><strong>Blog posts</strong></td><td>After events</td>
+<td>Resize the photo, drop it in <code>assets/blog/</code>, add an entry.</td>
+<td>Resizing. A phone photo is 4&ndash;8&nbsp;MB and will wreck the page.</td>
+<td>Squoosh.app (free, browser).</td></tr>
+
+<tr><td><strong>Chatbot answers</strong></td><td>Monthly</td>
+<td>Add keywords to an entry, or add an entry.</td>
+<td>Thinking of the words people actually type.</td>
+<td><strong>None</strong>, but a chatbot is genuinely good at brainstorming keyword lists.</td></tr>
+
+<tr><td><strong>Reading registrations</strong></td><td>Weekly in season</td>
+<td>Supabase dashboard &rarr; Table Editor. Export CSV.</td>
+<td>Nothing. It is a web page with a table.</td>
+<td><strong>None.</strong></td></tr>
+
+<tr><td><strong>Backups</strong></td><td>Monthly</td>
+<td><code>git push</code> covers code. Export the registrations CSV by hand.</td>
+<td>Remembering. Put it in your calendar.</td>
+<td><strong>None.</strong></td></tr>
+
+<tr><td><strong>Security check</strong></td><td>Quarterly</td>
+<td><code>bash scripts/verify-supabase.sh</code></td>
+<td>Nothing. It prints pass or fail.</td>
+<td><strong>None.</strong></td></tr>
+
+<tr><td><strong>Deploying</strong></td><td>Every change</td>
+<td><code>git add -A &amp;&amp; git commit -m "..." &amp;&amp; git push</code></td>
+<td>Nothing, once memorised.</td>
+<td><strong>None.</strong></td></tr>
+
+<tr><td><strong>Fixing a visual bug</strong></td><td>Rarely</td>
+<td>Inspect the element, find the losing rule, change a value.</td>
+<td>CSS specificity. Genuinely fiddly.</td>
+<td>Free chatbot helps a lot here.</td></tr>
+
+<tr><td><strong>Adding a feature</strong></td><td>Rarely</td>
+<td>New markup, new CSS, sometimes new JavaScript.</td>
+<td>All of it, at first.</td>
+<td>An agentic tool earns its money here, or nowhere.</td></tr>
+
+<tr><td><strong>Touching <code>portal.js</code></strong></td><td><strong>Never</strong></td>
+<td>Do not. It works, it degrades gracefully, and it is a specialism.</td>
+<td>&mdash;</td><td>&mdash;</td></tr>
+</table>
+
+<h2>15.2 &nbsp;The two scripts that replace judgement</h2>
+
+<p>These were written specifically so you would not need an AI for the two things that
+can actually hurt you: breaking the site, and leaking student data.</p>
+
+<h3>Before every commit</h3>
+<pre>node scripts/check-content.js</pre>
+<p>Parses <code>content.js</code>. If you broke it, it prints the offending line with its
+neighbours and the three causes it is almost always one of. If you did not, it checks
+the things that fail <em>quietly</em> instead: dates in the wrong format, links missing
+<code>https://</code>, images that are not on disk, images heavy enough to hurt on mobile
+data, placeholder names still in the roster, FAQ entries with too few keywords, and
+keywords generic enough that one answer will start swallowing unrelated questions.</p>
+<p>It also refuses a <code>service_role</code> key by decoding the token rather than trusting
+what the variable is called.</p>
+
+<h3>After any database change, and quarterly</h3>
+<pre>bash scripts/verify-supabase.sh</pre>
+<p>Checks four things against your live project: an insert is accepted, a select comes
+back <strong>empty</strong>, an update is refused, a delete is refused. The select is the one
+that matters &mdash; your key is published in the page source by design, so if a select
+succeeds, anyone can download every student's phone number.</p>
+
+<div class="box box--key">
+  <div class="box__t">Why this matters more than any AI tool</div>
+  <p>An AI can write code for you. It cannot tell you whether your database is leaking
+  right now, and it will confidently assure you things are fine without checking. These
+  two scripts check. Run them and you do not need anyone's opinion.</p>
+</div>
+
+<h2>15.3 &nbsp;The tool options, honestly compared</h2>
+
+<table>
+<tr><th style="width:18%">Option</th><th style="width:10%">Cost</th><th style="width:34%">What it does for this site</th>
+    <th style="width:38%">Verdict</th></tr>
+
+<tr><td><strong>Nothing</strong><br>Editor + the two scripts</td><td>Free</td>
+<td>Everything in the top half of the table in 15.1 &mdash; which is 90% of the work.
+You edit <code>content.js</code>, the checker catches mistakes, you push.</td>
+<td><strong>Genuinely sufficient.</strong> Start here. Add a tool only when you hit something
+this cannot do, which will be rare.</td></tr>
+
+<tr><td><strong>VS Code</strong></td><td>Free</td>
+<td>Not AI. A proper editor: colours the syntax, underlines a missing comma <em>as you
+type</em>, matches brackets, has a built-in terminal so you never leave the window.</td>
+<td><strong>Install this first, before any AI tool.</strong> It prevents more mistakes per
+rupee than anything else on this list, and the price is zero.</td></tr>
+
+<tr><td><strong>Free ChatGPT / Claude.ai / Gemini</strong></td><td>Free</td>
+<td>Cannot touch your files. Very good at: formatting a spreadsheet into correct
+entries, explaining an error message, brainstorming FAQ keywords, explaining what a
+line of CSS does. You paste the result in yourself.</td>
+<td><strong>The best value on this list.</strong> Use with the prompts in
+<code>scripts/AI-PROMPT.md</code>. Covers most of what you lose.</td></tr>
+
+<tr><td><strong>GitHub Copilot</strong></td><td>Free tier<br>~$10/mo paid</td>
+<td>Autocompletes inside VS Code. Helpful when writing new CSS or JavaScript. Free tier
+is limited but real, and free for students &mdash; check GitHub Student Pack with your
+RUAS email.</td>
+<td><strong>Worth the free tier if you are writing code.</strong> Not worth paying for if you
+are only editing content.</td></tr>
+
+<tr><td><strong>Cursor</strong></td><td>Free tier<br>$20/mo paid</td>
+<td>An editor with an agent that <em>can</em> edit your files directly &mdash; the closest
+substitute for what you have now. Free tier gives limited requests per month.</td>
+<td><strong>The real replacement, if you want one.</strong> The free tier is enough for
+occasional feature work. Only pay monthly if you are actively building.</td></tr>
+
+<tr><td><strong>Windsurf / Zed / Continue.dev</strong></td><td>Free tiers</td>
+<td>Same category as Cursor. Continue.dev can run a free local model on your own
+machine, so there is no subscription and no data leaves your laptop.</td>
+<td><strong>Worth knowing they exist</strong> if Cursor's free tier runs out.</td></tr>
+
+<tr><td><strong>Claude Pro / Claude Code</strong></td><td>~$20/mo</td>
+<td>What you have now.</td>
+<td>Worth resubscribing for a <em>burst</em> &mdash; a month when you are adding a real
+feature. Not worth holding through a quiet semester where you only update a roster.</td></tr>
+</table>
+
+<h3>What to actually do</h3>
+
+<ol>
+<li><strong>Install VS Code today</strong>, while you still have help available. Free, and it
+is the single biggest reduction in how often you break something.</li>
+<li><strong>Let the subscription lapse.</strong> Run on the two scripts plus a free chatbot.</li>
+<li><strong>If you hit something you cannot do</strong> &mdash; a new feature, a bug you cannot
+locate &mdash; buy <em>one month</em> of Cursor or Claude, do the work, cancel. This is far
+cheaper than holding a subscription for a site that changes twice a semester.</li>
+</ol>
+
+<div class="box box--warn">
+  <div class="box__t">The rule that keeps you independent whichever you choose</div>
+  <p><strong>Never apply a change you cannot explain.</strong> If a tool hands you code and you
+  cannot say why it works, ask it to explain before you use it. A site held together by
+  changes you do not understand is a site you cannot maintain &mdash; you will have swapped
+  one dependency for another, and the next one may not be as easy to ask.</p>
+</div>
+
+<h2>15.4 &nbsp;What to watch out for</h2>
+
+<p>Not requested, but these are the things most likely to go wrong for you
+specifically, ranked by how likely they are to actually bite.</p>
+
+<table>
+<tr><th style="width:4%">#</th><th style="width:30%">Risk</th><th style="width:36%">Why it is likely</th><th style="width:30%">What to do</th></tr>
+
+<tr><td>1</td><td><strong>Registrations collected before the database is verified</strong></td>
+<td>The form shows a success screen whether or not the data arrives anywhere. You would
+not find out at a club fair until afterwards.</td>
+<td>Run <code>verify-supabase.sh</code> and submit one real test registration <em>before</em>
+sharing the link. Check the row appears in the dashboard.</td></tr>
+
+<tr><td>2</td><td><strong>Placeholder content going public</strong></td>
+<td><code>PLAYER-01</code> and <code>Full Name</code> are still on the Players tab right now. The
+checker warns about this on every run.</td>
+<td>One afternoon with <code>content.js</code>. This matters more than any code change in
+this manual.</td></tr>
+
+<tr><td>3</td><td><strong>The Supabase project is tied to a personal account</strong></td>
+<td>When you graduate, the club's registration data goes with you, or is lost.</td>
+<td>Record which email owns it. Consider a club-owned account. Same for GitHub.</td></tr>
+
+<tr><td>4</td><td><strong>Free-tier database paused for inactivity</strong></td>
+<td>Supabase pauses free projects after about a week of no activity. The form then
+fails silently and submissions queue in visitors' browsers.</td>
+<td>Open the dashboard occasionally. Export the CSV monthly so a pause is never a
+loss.</td></tr>
+
+<tr><td>5</td><td><strong>Huge unoptimised photos</strong></td>
+<td>The obvious next step is adding real event photos straight from a phone.</td>
+<td>Resize to about 1600px first. The checker warns above 600&nbsp;KB.</td></tr>
+
+<tr><td>6</td><td><strong>Video source files lost</strong></td>
+<td>Three <code>-source.mp4</code> files are gitignored and exist only on your laptop. A disk
+failure loses them permanently.</td>
+<td>Copy them to cloud storage. This is a five-minute job you keep not doing.</td></tr>
+
+<tr><td>7</td><td><strong>Someone "tidies up" a load-bearing line</strong></td>
+<td><code>[hidden] { display: none !important; }</code> looks like a stray one-liner. Deleting
+it makes the entire site unclickable.</td>
+<td>It is documented in <code>ARCHITECTURE.md</code>. Read that before letting anyone else
+edit the stylesheet.</td></tr>
+
+<tr><td>8</td><td><strong>No error monitoring</strong></td>
+<td>If the site breaks for visitors, nothing tells you. You find out from a complaint,
+or never.</td>
+<td>Open the live site on a real phone once a month and watch the console. That is the
+realistic substitute.</td></tr>
+
+<tr><td>9</td><td><strong>Personal data handled casually</strong></td>
+<td>You are collecting names, phone numbers and register numbers from students.</td>
+<td>Do not share exports. Delete them when finished. Check whether RUAS requires a
+privacy notice before collecting at scale.</td></tr>
+
+<tr><td>10</td><td><strong>The GitHub account is a single point of failure</strong></td>
+<td>Lose access and you lose the site and every backup at once.</td>
+<td>Two-factor authentication, recovery codes stored somewhere physical, and a second
+committee member with access.</td></tr>
+</table>
+<!-- ============================== PART 16 ============================== -->
+<h1><span class="num">Part 16</span>Checklists</h1>
 
 <p class="lead">Reusable, and written to be used rather than admired. The first four apply
 to this site; the last applies to whatever you build next.</p>
 
-<h2>15.1 &nbsp;Pre-deployment checklist</h2>
+<h2>16.1 &nbsp;Pre-deployment checklist</h2>
 <p><em>Before every <code>git push</code>. Two minutes.</em></p>
 <ul class="tight">
 <li>Previewed locally (<code>node serve.js</code>) and the change looks right.</li>
@@ -3595,12 +3856,15 @@ to this site; the last applies to whatever you build next.</p>
 <li>Clicked through all four tabs; none are blank.</li>
 <li>If you touched the form: submitted once on <em>both</em> Member and Roster paths.</li>
 <li>If you touched the FAQ: hovered the launcher, clicked in, came back out.</li>
+<li>If you touched <code>content.js</code>: <code>node scripts/check-content.js</code> is clean.</li>
+<li>If you touched the database or its keys: <code>bash scripts/verify-supabase.sh</code> passes
+all four.</li>
 <li><code>git diff</code> read &mdash; you can explain every changed line.</li>
 <li>No secrets, keys or personal data in the diff.</li>
 <li>Commit message says <em>why</em>, not just what.</li>
 </ul>
 
-<h2>15.2 &nbsp;Update checklist</h2>
+<h2>16.2 &nbsp;Update checklist</h2>
 <p><em>For content changes, which is most of what you will do.</em></p>
 <ul class="tight">
 <li>Editing <code>content.js</code>, not a logic file &mdash; if not, be sure you need to.</li>
@@ -3610,10 +3874,10 @@ to this site; the last applies to whatever you build next.</p>
 <li>New links include <code>https://</code>.</li>
 <li>Reloaded the preview &mdash; the section actually changed.</li>
 <li>Nothing else broke: the site still renders everywhere.</li>
-<li>Run 15.1 and push.</li>
+<li>Run 16.1 and push.</li>
 </ul>
 
-<h2>15.3 &nbsp;Backup checklist</h2>
+<h2>16.3 &nbsp;Backup checklist</h2>
 <p><em>Monthly, ten minutes.</em></p>
 <ul class="tight">
 <li><code>git push</code> &mdash; all local work is on GitHub.</li>
@@ -3627,11 +3891,11 @@ git</em>.</li>
 <li>Once a year: actually test a restore (8.4). An untested backup is a hope.</li>
 </ul>
 
-<h2>15.4 &nbsp;Security checklist</h2>
+<h2>16.4 &nbsp;Security checklist</h2>
 <p><em>At launch, then quarterly.</em></p>
 <ul class="tight">
-<li><strong>RLS verified:</strong> the <code>curl</code> select in <code>supabase-schema.sql</code> returns <code>[]</code>. Not
-"probably" &mdash; run it.</li>
+<li><strong>RLS verified:</strong> <code>bash scripts/verify-supabase.sh</code> passes all four
+checks. Not "probably" &mdash; run it.</li>
 <li>Only an <em>insert</em> policy exists on <code>registrations</code>. No select, update or delete
 policy.</li>
 <li>The <strong>service role key</strong> appears nowhere in the repository. Search for it:
@@ -3646,7 +3910,7 @@ physically.</li>
 <li>Anyone who left the committee no longer has repository access.</li>
 </ul>
 
-<h2>15.5 &nbsp;Future-project checklist</h2>
+<h2>16.5 &nbsp;Future-project checklist</h2>
 <p><em>Before writing a line of your next site.</em></p>
 
 <h4>Decide first</h4>
@@ -3689,7 +3953,7 @@ at the end is how launches get delayed.</li>
 </ul>
 
 <!-- ============================== CHEAT SHEET ============================== -->
-<h1><span class="num">Part 16</span>The EDGE cheat sheet</h1>
+<h1><span class="num">Part 17</span>The EDGE cheat sheet</h1>
 
 <p class="lead">One page. Print it, or keep it open.</p>
 
@@ -3710,6 +3974,8 @@ at the end is how launches get delayed.</li>
 <tr><td>Blog posts</td><td><code>content.js</code> &rarr; <code>blog</code></td></tr>
 <tr><td>Social links, email</td><td><code>content.js</code> &rarr; <code>club</code></td></tr>
 <tr><td>Supabase keys</td><td><code>content.js</code> &rarr; <code>join.backend.supabase</code></td></tr>
+<tr><td>Intro video &amp; rules</td><td><code>assets/video/intro.mp4</code> &middot; <code>js/intro.js</code></td></tr>
+<tr><td>Prompt templates</td><td><code>scripts/AI-PROMPT.md</code></td></tr>
 <tr><td>Colours &amp; fonts</td><td><code>css/styles.css</code> section 1 (tokens)</td></tr>
 <tr><td>Phone fixes</td><td><code>css/styles.css</code> section 20</td></tr>
 <tr><td>Tab list</td><td><code>js/app.js:45</code></td></tr>
@@ -3720,9 +3986,10 @@ at the end is how launches get delayed.</li>
 <ul style="font-size:9pt;margin-bottom:5mm" class="tight">
 <li><strong>GitHub account</strong> <code>potatoesareathing</code> &mdash; two-factor on, recovery codes stored.
 Losing this loses the site.</li>
-<li><strong>Supabase service role key</strong> &mdash; never in any file, ever.</li>
-<li><strong>Video sources</strong> <code>assets/video/*-source.mp4</code> &mdash; gitignored, not backed up. Copy
-them somewhere today.</li>
+<li><strong>Supabase</strong> project <code>wrjhopokogleplbbxntl</code> &mdash; note which email owns it.
+The <strong>service_role</strong> key must never appear in any file, ever.</li>
+<li><strong>Video sources</strong> <code>assets/video/*-source.mp4</code> &mdash; three files, gitignored,
+not backed up anywhere. Copy them somewhere today.</li>
 <li><strong>Registration exports</strong> &mdash; real student data. Store privately, delete when done.</li>
 </ul>
 
@@ -3761,10 +4028,12 @@ specificity.</li>
 </ul>
 
 <h3>Do this first</h3>
-<p style="font-size:9pt;margin-bottom:0"><strong>Connect the form (Procedure 11.14).</strong> Until you
-do, every registration is written to the student's own browser and lost. Then verify RLS:
-the <code>select</code> test must return <code>[]</code>, or anyone can download every student's phone
-number.</p>
+<p style="font-size:9pt;margin-bottom:0"><strong>Run <code>supabase-schema.sql</code>, then
+<code>bash scripts/verify-supabase.sh</code>.</strong> The keys are in and the project is live, but
+until the table exists every registration is still written to the student's own browser
+and lost. The verifier's second check must come back empty &mdash; your key is published in
+the page source by design, so if a select succeeds, anyone can download every student's
+phone number.</p>
 
 </div>
 
@@ -3774,8 +4043,9 @@ number.</p>
 <strong>Live:</strong> potatoesareathing.github.io/edge-website/ &nbsp;·&nbsp;
 <strong>Repo:</strong> github.com/potatoesareathing/edge-website &nbsp;·&nbsp;
 <strong>Local preview:</strong> <code>node serve.js</code> &rarr; localhost:8790<br>
-Written from the codebase at commit <code>1ca0a30</code>, 17 September 2026. Regenerate this
-document from <code>docs/manual.html</code>.
+Written from the codebase at commit <code>1ca0a30</code>, 17 September 2026;
+revised 26 September 2026 for Supabase, the intro and the phone layout.
+Regenerate from <code>docs/parts/</code> &mdash; see <code>docs/README.md</code>.
 </p>
 
 </body>

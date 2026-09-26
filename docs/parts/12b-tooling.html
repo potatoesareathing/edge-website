@@ -1,0 +1,239 @@
+<!-- ============================== PART 15 ============================== -->
+<h1><span class="num">Part 15</span>Running this site without a subscription</h1>
+
+<p class="lead">What you have to manage, what each job actually requires, and which
+tools &mdash; free, paid, or none at all &mdash; are worth using for it. Written on the
+assumption that your Claude subscription ends and does not come back.</p>
+
+<div class="box box--key">
+  <div class="box__t">The short answer</div>
+  <p><strong>You can run this site indefinitely with no AI at all.</strong> Two scripts in
+  <code>scripts/</code> do the work that judgement used to: one checks your content before
+  you publish it, the other checks your database is not leaking. Neither needs an
+  account, an internet connection, or a subscription.</p>
+  <p>AI is a convenience for the tedious parts, not a requirement for any of them.</p>
+</div>
+
+<h2>15.1 &nbsp;Everything you must manage, by how often</h2>
+
+<p>This is the honest list. Most of it is content, and content needs no tooling
+beyond a text editor.</p>
+
+<table>
+<tr><th style="width:22%">Job</th><th style="width:12%">How often</th><th style="width:26%">What it actually involves</th>
+    <th style="width:20%">Hardest part</th><th style="width:20%">Tool needed</th></tr>
+
+<tr><td><strong>Leaderboard &amp; rosters</strong></td><td>After events</td>
+<td>Edit one array in <code>content.js</code>, run the checker, push.</td>
+<td>Typing the data without breaking a comma.</td>
+<td><strong>None.</strong> Editor + checker.</td></tr>
+
+<tr><td><strong>Events &amp; deadlines</strong></td><td>Weekly in season</td>
+<td>Add an entry. Past ones archive themselves; the countdown retargets itself.</td>
+<td>Remembering <code>YYYY-MM-DD</code>.</td>
+<td><strong>None.</strong></td></tr>
+
+<tr><td><strong>Blog posts</strong></td><td>After events</td>
+<td>Resize the photo, drop it in <code>assets/blog/</code>, add an entry.</td>
+<td>Resizing. A phone photo is 4&ndash;8&nbsp;MB and will wreck the page.</td>
+<td>Squoosh.app (free, browser).</td></tr>
+
+<tr><td><strong>Chatbot answers</strong></td><td>Monthly</td>
+<td>Add keywords to an entry, or add an entry.</td>
+<td>Thinking of the words people actually type.</td>
+<td><strong>None</strong>, but a chatbot is genuinely good at brainstorming keyword lists.</td></tr>
+
+<tr><td><strong>Reading registrations</strong></td><td>Weekly in season</td>
+<td>Supabase dashboard &rarr; Table Editor. Export CSV.</td>
+<td>Nothing. It is a web page with a table.</td>
+<td><strong>None.</strong></td></tr>
+
+<tr><td><strong>Backups</strong></td><td>Monthly</td>
+<td><code>git push</code> covers code. Export the registrations CSV by hand.</td>
+<td>Remembering. Put it in your calendar.</td>
+<td><strong>None.</strong></td></tr>
+
+<tr><td><strong>Security check</strong></td><td>Quarterly</td>
+<td><code>bash scripts/verify-supabase.sh</code></td>
+<td>Nothing. It prints pass or fail.</td>
+<td><strong>None.</strong></td></tr>
+
+<tr><td><strong>Deploying</strong></td><td>Every change</td>
+<td><code>git add -A &amp;&amp; git commit -m "..." &amp;&amp; git push</code></td>
+<td>Nothing, once memorised.</td>
+<td><strong>None.</strong></td></tr>
+
+<tr><td><strong>Fixing a visual bug</strong></td><td>Rarely</td>
+<td>Inspect the element, find the losing rule, change a value.</td>
+<td>CSS specificity. Genuinely fiddly.</td>
+<td>Free chatbot helps a lot here.</td></tr>
+
+<tr><td><strong>Adding a feature</strong></td><td>Rarely</td>
+<td>New markup, new CSS, sometimes new JavaScript.</td>
+<td>All of it, at first.</td>
+<td>An agentic tool earns its money here, or nowhere.</td></tr>
+
+<tr><td><strong>Touching <code>portal.js</code></strong></td><td><strong>Never</strong></td>
+<td>Do not. It works, it degrades gracefully, and it is a specialism.</td>
+<td>&mdash;</td><td>&mdash;</td></tr>
+</table>
+
+<h2>15.2 &nbsp;The two scripts that replace judgement</h2>
+
+<p>These were written specifically so you would not need an AI for the two things that
+can actually hurt you: breaking the site, and leaking student data.</p>
+
+<h3>Before every commit</h3>
+<pre>node scripts/check-content.js</pre>
+<p>Parses <code>content.js</code>. If you broke it, it prints the offending line with its
+neighbours and the three causes it is almost always one of. If you did not, it checks
+the things that fail <em>quietly</em> instead: dates in the wrong format, links missing
+<code>https://</code>, images that are not on disk, images heavy enough to hurt on mobile
+data, placeholder names still in the roster, FAQ entries with too few keywords, and
+keywords generic enough that one answer will start swallowing unrelated questions.</p>
+<p>It also refuses a <code>service_role</code> key by decoding the token rather than trusting
+what the variable is called.</p>
+
+<h3>After any database change, and quarterly</h3>
+<pre>bash scripts/verify-supabase.sh</pre>
+<p>Checks four things against your live project: an insert is accepted, a select comes
+back <strong>empty</strong>, an update is refused, a delete is refused. The select is the one
+that matters &mdash; your key is published in the page source by design, so if a select
+succeeds, anyone can download every student's phone number.</p>
+
+<div class="box box--key">
+  <div class="box__t">Why this matters more than any AI tool</div>
+  <p>An AI can write code for you. It cannot tell you whether your database is leaking
+  right now, and it will confidently assure you things are fine without checking. These
+  two scripts check. Run them and you do not need anyone's opinion.</p>
+</div>
+
+<h2>15.3 &nbsp;The tool options, honestly compared</h2>
+
+<table>
+<tr><th style="width:18%">Option</th><th style="width:10%">Cost</th><th style="width:34%">What it does for this site</th>
+    <th style="width:38%">Verdict</th></tr>
+
+<tr><td><strong>Nothing</strong><br>Editor + the two scripts</td><td>Free</td>
+<td>Everything in the top half of the table in 15.1 &mdash; which is 90% of the work.
+You edit <code>content.js</code>, the checker catches mistakes, you push.</td>
+<td><strong>Genuinely sufficient.</strong> Start here. Add a tool only when you hit something
+this cannot do, which will be rare.</td></tr>
+
+<tr><td><strong>VS Code</strong></td><td>Free</td>
+<td>Not AI. A proper editor: colours the syntax, underlines a missing comma <em>as you
+type</em>, matches brackets, has a built-in terminal so you never leave the window.</td>
+<td><strong>Install this first, before any AI tool.</strong> It prevents more mistakes per
+rupee than anything else on this list, and the price is zero.</td></tr>
+
+<tr><td><strong>Free ChatGPT / Claude.ai / Gemini</strong></td><td>Free</td>
+<td>Cannot touch your files. Very good at: formatting a spreadsheet into correct
+entries, explaining an error message, brainstorming FAQ keywords, explaining what a
+line of CSS does. You paste the result in yourself.</td>
+<td><strong>The best value on this list.</strong> Use with the prompts in
+<code>scripts/AI-PROMPT.md</code>. Covers most of what you lose.</td></tr>
+
+<tr><td><strong>GitHub Copilot</strong></td><td>Free tier<br>~$10/mo paid</td>
+<td>Autocompletes inside VS Code. Helpful when writing new CSS or JavaScript. Free tier
+is limited but real, and free for students &mdash; check GitHub Student Pack with your
+RUAS email.</td>
+<td><strong>Worth the free tier if you are writing code.</strong> Not worth paying for if you
+are only editing content.</td></tr>
+
+<tr><td><strong>Cursor</strong></td><td>Free tier<br>$20/mo paid</td>
+<td>An editor with an agent that <em>can</em> edit your files directly &mdash; the closest
+substitute for what you have now. Free tier gives limited requests per month.</td>
+<td><strong>The real replacement, if you want one.</strong> The free tier is enough for
+occasional feature work. Only pay monthly if you are actively building.</td></tr>
+
+<tr><td><strong>Windsurf / Zed / Continue.dev</strong></td><td>Free tiers</td>
+<td>Same category as Cursor. Continue.dev can run a free local model on your own
+machine, so there is no subscription and no data leaves your laptop.</td>
+<td><strong>Worth knowing they exist</strong> if Cursor's free tier runs out.</td></tr>
+
+<tr><td><strong>Claude Pro / Claude Code</strong></td><td>~$20/mo</td>
+<td>What you have now.</td>
+<td>Worth resubscribing for a <em>burst</em> &mdash; a month when you are adding a real
+feature. Not worth holding through a quiet semester where you only update a roster.</td></tr>
+</table>
+
+<h3>What to actually do</h3>
+
+<ol>
+<li><strong>Install VS Code today</strong>, while you still have help available. Free, and it
+is the single biggest reduction in how often you break something.</li>
+<li><strong>Let the subscription lapse.</strong> Run on the two scripts plus a free chatbot.</li>
+<li><strong>If you hit something you cannot do</strong> &mdash; a new feature, a bug you cannot
+locate &mdash; buy <em>one month</em> of Cursor or Claude, do the work, cancel. This is far
+cheaper than holding a subscription for a site that changes twice a semester.</li>
+</ol>
+
+<div class="box box--warn">
+  <div class="box__t">The rule that keeps you independent whichever you choose</div>
+  <p><strong>Never apply a change you cannot explain.</strong> If a tool hands you code and you
+  cannot say why it works, ask it to explain before you use it. A site held together by
+  changes you do not understand is a site you cannot maintain &mdash; you will have swapped
+  one dependency for another, and the next one may not be as easy to ask.</p>
+</div>
+
+<h2>15.4 &nbsp;What to watch out for</h2>
+
+<p>Not requested, but these are the things most likely to go wrong for you
+specifically, ranked by how likely they are to actually bite.</p>
+
+<table>
+<tr><th style="width:4%">#</th><th style="width:30%">Risk</th><th style="width:36%">Why it is likely</th><th style="width:30%">What to do</th></tr>
+
+<tr><td>1</td><td><strong>Registrations collected before the database is verified</strong></td>
+<td>The form shows a success screen whether or not the data arrives anywhere. You would
+not find out at a club fair until afterwards.</td>
+<td>Run <code>verify-supabase.sh</code> and submit one real test registration <em>before</em>
+sharing the link. Check the row appears in the dashboard.</td></tr>
+
+<tr><td>2</td><td><strong>Placeholder content going public</strong></td>
+<td><code>PLAYER-01</code> and <code>Full Name</code> are still on the Players tab right now. The
+checker warns about this on every run.</td>
+<td>One afternoon with <code>content.js</code>. This matters more than any code change in
+this manual.</td></tr>
+
+<tr><td>3</td><td><strong>The Supabase project is tied to a personal account</strong></td>
+<td>When you graduate, the club's registration data goes with you, or is lost.</td>
+<td>Record which email owns it. Consider a club-owned account. Same for GitHub.</td></tr>
+
+<tr><td>4</td><td><strong>Free-tier database paused for inactivity</strong></td>
+<td>Supabase pauses free projects after about a week of no activity. The form then
+fails silently and submissions queue in visitors' browsers.</td>
+<td>Open the dashboard occasionally. Export the CSV monthly so a pause is never a
+loss.</td></tr>
+
+<tr><td>5</td><td><strong>Huge unoptimised photos</strong></td>
+<td>The obvious next step is adding real event photos straight from a phone.</td>
+<td>Resize to about 1600px first. The checker warns above 600&nbsp;KB.</td></tr>
+
+<tr><td>6</td><td><strong>Video source files lost</strong></td>
+<td>Three <code>-source.mp4</code> files are gitignored and exist only on your laptop. A disk
+failure loses them permanently.</td>
+<td>Copy them to cloud storage. This is a five-minute job you keep not doing.</td></tr>
+
+<tr><td>7</td><td><strong>Someone "tidies up" a load-bearing line</strong></td>
+<td><code>[hidden] { display: none !important; }</code> looks like a stray one-liner. Deleting
+it makes the entire site unclickable.</td>
+<td>It is documented in <code>ARCHITECTURE.md</code>. Read that before letting anyone else
+edit the stylesheet.</td></tr>
+
+<tr><td>8</td><td><strong>No error monitoring</strong></td>
+<td>If the site breaks for visitors, nothing tells you. You find out from a complaint,
+or never.</td>
+<td>Open the live site on a real phone once a month and watch the console. That is the
+realistic substitute.</td></tr>
+
+<tr><td>9</td><td><strong>Personal data handled casually</strong></td>
+<td>You are collecting names, phone numbers and register numbers from students.</td>
+<td>Do not share exports. Delete them when finished. Check whether RUAS requires a
+privacy notice before collecting at scale.</td></tr>
+
+<tr><td>10</td><td><strong>The GitHub account is a single point of failure</strong></td>
+<td>Lose access and you lose the site and every backup at once.</td>
+<td>Two-factor authentication, recovery codes stored somewhere physical, and a second
+committee member with access.</td></tr>
+</table>
