@@ -17,8 +17,19 @@
         intro must be "no intro", never "no website".
      4. OFF UNDER REDUCED MOTION. Decided before the overlay is ever shown,
         in the inline script in index.html, so there is no flash of it.
-     5. COSTS NOTHING TO SKIP. 24 KB. Smaller than most of the photographs
-        that will end up in the blog.
+     5. COSTS LITTLE TO SKIP. 124 KB -- still smaller than one unoptimised
+        phone photograph.
+
+   ON SHARPNESS
+   The source is a 640x360 clip that has been through WhatsApp, so it arrived
+   at 45 kbps with the edges already softened. Shown full screen that was a
+   3x browser upscale of an image that had little left to upscale. It is now
+   encoded at 1920x1080 with a lanczos resample and a mild unsharp, which
+   restores the edge definition that the re-compression was eating and stops
+   the browser doing a worse job of the enlargement itself.
+   That is the ceiling for this source. A clean export of the original
+   animation, or rebuilding it from assets/edge-mark.svg as vector, would be
+   genuinely sharp rather than merely sharper.
 
    The overlay is in the markup and shown by a class on <html> set before
    first paint, rather than created here. Building it in JavaScript would let

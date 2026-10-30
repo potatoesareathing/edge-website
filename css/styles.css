@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* ============================================================================
    EDGE — ENAMEL SIGN PAINTING
    ----------------------------------------------------------------------------
@@ -459,6 +460,74 @@ fieldset.field { border: 0; margin: 0; }
 .success__id {
   margin-top: 1rem; font-family: var(--display); font-size: 1.1rem;
   letter-spacing: .1em; color: var(--signal);
+}
+
+/* -- the committee's own recruitment forms -------------------------------
+   Boards that happen to be links. They sit above the club register because
+   someone who already knows they want to compete should not have to read a
+   general sign-up page first. */
+
+.drives {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+
+.drive {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  padding: 1.15rem 1.25rem 1.25rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform .18s var(--ease), background .18s var(--ease);
+}
+.drive:hover,
+.drive:focus-visible { transform: translateY(-3px); background: var(--board-alt); }
+
+/* Who it is for, said before what it is -- the first thing someone needs is
+   whether this one is even open to them. */
+.drive__who {
+  font-family: var(--display);
+  font-size: .76rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--signal-ink);
+  background: var(--white);
+  align-self: flex-start;
+  padding: .18rem .5rem;
+}
+
+.drive__name {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--white);
+}
+
+.drive p { color: var(--grey); font-size: .95rem; margin: 0; }
+
+.drive__cta {
+  margin-top: auto;
+  padding-top: .7rem;
+  font-family: var(--display);
+  font-size: .92rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+/* An arrow, not an emoji or an icon font: it is one character and it is the
+   same in every browser. */
+.drive__cta::after { content: " →"; }
+.drive:hover .drive__cta::after,
+.drive:focus-visible .drive__cta::after { content: " →"; }
+
+@media (max-width: 680px) {
+  .drives { grid-template-columns: 1fr; gap: .8rem; }
+  .drive__name { font-size: 1.25rem; }
 }
 
 /* == 8. FAQ ================================================================ */

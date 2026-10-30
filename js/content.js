@@ -70,7 +70,47 @@ const EDGE = {
      ======================================================================= */
   join: {
     heading: "Join EDGE",
-    intro:   "Two ways in. Pick the one that fits - you can always move up to a roster later.",
+    intro:   "Registration is open all year. Sign up whenever you like - there is no window to miss and no deadline to wait for.",
+
+    /* ---------------------------------------------------------------------
+       SPECIFIC OPENINGS
+       ---------------------------------------------------------------------
+       Google Forms the committee runs separately from the club register
+       below. They are listed first because they are the higher-intent route:
+       someone who already knows they want to compete or help run events does
+       not want to read a general sign-up page first.
+
+       `eligibility` is shown as a plain line of text rather than being
+       enforced. A form that turns people away is the committee's job, not
+       the website's - and stating who it is for stops most of it happening.
+
+       IMPORTANT, IF YOU ADD MORE:
+       Use the PUBLIC response link, never the /edit one. An /edit link is the
+       editor; a student clicking it gets a permission error, and if the form
+       is ever shared loosely it would let strangers change your questions.
+       The public link is the one Google gives you under "Send", and it
+       usually looks like  .../forms/d/e/1FAIpQLS.../viewform
+       Leave `url` empty and the card is skipped automatically.
+       ------------------------------------------------------------------ */
+    forms: [
+      {
+        title: "Play for EDGE",
+        eligibility: "Experienced players",
+        body: "Apply to represent the club in a title. You should already be competing at a decent rank or have tournament experience.",
+        url: "https://docs.google.com/forms/d/1BGB-trUkZF6YOR1k5Q2C2oS27xbo7J3L-A4hoC9x4Hs/viewform",
+        cta: "Open the players form"
+      },
+      {
+        title: "Volunteer & coordinate",
+        eligibility: "1st and 2nd years only",
+        body: "Help run events - setup, desk, brackets, crowd, kit. The easiest way in, and how most committee members started.",
+        url: "https://docs.google.com/forms/d/e/1FAIpQLSfDAGz-R-e6W1QT1MB54QuMUG5KmvFCx4LUwkwF4QFfqyf9Ww/viewform",
+        cta: "Open the volunteers form"
+      }
+    ],
+
+    /* Shown above the club register, to make the year-round point explicit. */
+    registerNote: "Open all year round. This is the club's own register - the committee uses it to reach you about events, tryouts and everything else.",
 
     paths: {
       member: {

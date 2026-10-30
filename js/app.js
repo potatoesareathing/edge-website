@@ -464,6 +464,50 @@
     }
   }
 
+  /* ========================================================= JOIN DRIVES == */
+
+  /* The committee's separate Google Forms, listed above the club register.
+
+     These leave the site, which is worth being honest about in the markup:
+     each card is a real link with rel="noopener noreferrer" and a visually
+     hidden note that it opens in a new tab, so a screen reader announces the
+     jump instead of a tab silently appearing.
+
+     A card with no url is skipped rather than rendered dead, and if that
+     leaves nothing the whole section hides itself -- the same rule the crew
+     list and the blog already follow. */
+
+  function renderDrives() {
+    const box  = byId("joinDrives");
+    const wrap = byId("joinDrivesWrap");
+    const note = byId("joinRegisterNote");
+    if (note) note.textContent = (C.join && C.join.registerNote) || "";
+    if (!box || !wrap) return;
+
+    const drives = ((C.join && C.join.forms) || []).filter(f => f && f.url);
+    if (!drives.length) { wrap.hidden = true; return; }
+    wrap.hidden = false;
+
+    fill(box, drives.map(f => {
+      const card = el("a", "drive board");
+      card.href = f.url;
+      card.target = "_blank";
+      card.rel = "noopener noreferrer";
+
+      if (f.eligibility) card.append(el("span", "drive__who", f.eligibility));
+      card.append(el("span", "drive__name", f.title || "Form"));
+      if (f.body) card.append(el("p", null, f.body));
+
+      const cta = el("span", "drive__cta");
+      cta.append(el("span", null, f.cta || "Open the form"));
+      // Announced by screen readers, invisible on screen.
+      cta.append(el("span", "sr-only", " (opens in a new tab)"));
+      card.append(cta);
+
+      return card;
+    }));
+  }
+
   /* ============================================================== FOOTER == */
 
   function renderFooter() {
@@ -848,6 +892,7 @@
     initMagnet(byId("askFab"));
     renderBlog();
     renderAbout();
+    renderDrives();
     renderLeaderboard();
     renderRosters();
     initPlayerViews();

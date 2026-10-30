@@ -186,6 +186,18 @@
       <p id="joinIntro"></p>
     </div>
 
+    <!-- The committee's separate recruitment forms. Rendered from
+         content.js -> join.forms; the whole block hides itself if none of
+         them have a url yet. -->
+    <section id="joinDrivesWrap" hidden>
+      <h2 class="sec-title">Specific openings</h2>
+      <div class="drives" id="joinDrives"></div>
+      <div class="rule"></div>
+    </section>
+
+    <h2 class="sec-title">Register with the club</h2>
+    <p class="sec-note" id="joinRegisterNote"></p>
+
     <div class="paths" role="group" aria-label="Choose how you want to join">
       <button type="button" class="path" id="pathMember" aria-pressed="true" data-path="member">
         <span class="path__name" id="memberLabel">Member</span>
